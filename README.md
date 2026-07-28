@@ -18,6 +18,10 @@ An original, responsive luxury skincare storefront built with Next.js 16, React 
 | `/shop` | Product collection |
 | `/product/morning-dew-serum` | Product detail page |
 | `/admin` | Ecommerce operations overview |
+| `/brands` | Curated brand directory |
+| `/search` | Product discovery and search interface |
+| `/wishlist` | Saved-product experience |
+| `/cart` | Order-summary cart and coupon interaction |
 
 ## Run locally
 
