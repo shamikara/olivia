@@ -33,144 +33,184 @@ export default function Home() {
   const cartTotal = cart.reduce((acc, item) => acc + item.priceLKR, 0);
 
   return (
-    <main className="luxury-storefront-root">
-      {/* 1. Top Announcement Bar */}
-      <div className="announcement-bar">
-        <div className="announcement-inner">
-          <span>Islandwide Express Courier • Orders Over LKR 15,000 Ship Free</span>
-          <span className="dot-sep">•</span>
-          <span>3-Month Installments via Koko & Mintpay</span>
+    <main className="hibeauty-master-root">
+      {/* 1. HiBeauty Announcement Marquee Bar */}
+      <div className="hibeauty-marquee-strip">
+        <div className="marquee-content">
+          <span>GET 10% OFF ON YOUR FIRST ORDER WITH CODE: <strong>GLOW10</strong></span>
+          <span className="marquee-sep">•</span>
+          <span>ISLANDWIDE CASH ON DELIVERY AVAILABLE</span>
+          <span className="marquee-sep">•</span>
+          <span>100% AUTHENTIC K-BEAUTY & LUXURY SKINCARE</span>
+          <span className="marquee-sep">•</span>
+          <span>PAY IN 3 MONTHLY INSTALLMENTS WITH MINTPAY, KOKO & PAYZY</span>
+          <span className="marquee-sep">•</span>
         </div>
       </div>
 
-      {/* 2. Glassmorphic Responsive Luxury Header */}
-      <header className="glass-header">
-        <div className="header-container">
-          {/* Mobile Hamburger Toggle */}
-          <button className="mobile-menu-trigger" onClick={() => setIsMobileMenuOpen(true)} aria-label="Toggle Mobile Menu">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="4" x2="20" y1="6" y2="6"/>
-              <line x1="4" x2="20" y1="12" y2="12"/>
-              <line x1="4" x2="20" y1="18" y2="18"/>
-            </svg>
+      {/* 2. HiBeauty Clean Header */}
+      <header className="hibeauty-header">
+        <div className="header-inner-wrap">
+          {/* Mobile Menu Trigger */}
+          <button className="mobile-toggle-btn" onClick={() => setIsMobileMenuOpen(true)} aria-label="Menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
           </button>
 
           {/* Logo */}
-          <a className="brand-logo" href="/">
+          <a href="/" className="brand-logo">
             <img src="/images/olivia-glow-logo.jpeg" alt="Olivia Glow Logo" className="logo-badge" />
-            <div className="brand-text">
-              <span className="brand-name">OLIVIA <em>GLOW</em></span>
-              <span className="brand-subtitle">LUXURY BEAUTY</span>
+            <div className="brand-title">
+              <span className="name">OLIVIA <em>GLOW</em></span>
+              <span className="sub">K-BEAUTY & LUXURY CARE</span>
             </div>
           </a>
 
-          {/* Desktop Navigation Menu */}
-          <nav className="header-menu">
-            <button className={`menu-link ${selectedCategory === "ALL" ? "active" : ""}`} onClick={() => setSelectedCategory("ALL")}>Catalog</button>
-            <button className={`menu-link ${selectedCategory === "SERUM" ? "active" : ""}`} onClick={() => setSelectedCategory("SERUM")}>Serums</button>
-            <button className={`menu-link ${selectedCategory === "MOISTURIZERS" ? "active" : ""}`} onClick={() => setSelectedCategory("MOISTURIZERS")}>Moisturizers</button>
-            <button className={`menu-link ${selectedCategory === "DEVICE" ? "active" : ""}`} onClick={() => setSelectedCategory("DEVICE")}>Beauty Tech</button>
-            <button className={`menu-link ${selectedCategory === "SUN CREAM" ? "active" : ""}`} onClick={() => setSelectedCategory("SUN CREAM")}>Sun Care</button>
+          {/* Desktop Navigation Links */}
+          <nav className="desktop-nav">
+            <button className={`nav-link ${selectedCategory === "ALL" ? "active" : ""}`} onClick={() => setSelectedCategory("ALL")}>NEW ARRIVALS</button>
+            <button className={`nav-link ${selectedCategory === "SERUM" ? "active" : ""}`} onClick={() => setSelectedCategory("SERUM")}>SERUMS & ESSENCES</button>
+            <button className={`nav-link ${selectedCategory === "MOISTURIZERS" ? "active" : ""}`} onClick={() => setSelectedCategory("MOISTURIZERS")}>CREAMS</button>
+            <button className={`nav-link ${selectedCategory === "DEVICE" ? "active" : ""}`} onClick={() => setSelectedCategory("DEVICE")}>BEAUTY TECH</button>
+            <button className={`nav-link ${selectedCategory === "SUN CREAM" ? "active" : ""}`} onClick={() => setSelectedCategory("SUN CREAM")}>SUN CARE</button>
+            <button className={`nav-link ${selectedCategory === "TONER" ? "active" : ""}`} onClick={() => setSelectedCategory("TONER")}>TONERS</button>
           </nav>
 
-          {/* Header Action Tools */}
+          {/* Action Bar */}
           <div className="header-actions">
-            <div className="search-bar">
+            <div className="search-input-box">
               <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <input type="text" placeholder="Search formulas..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-              {searchQuery && <button className="clear-search" onClick={() => setSearchQuery("")}>✕</button>}
+              <input type="text" placeholder="Search products..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+              {searchQuery && <button className="clear-btn" onClick={() => setSearchQuery("")}>✕</button>}
             </div>
 
-            <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="wa-consult-btn" title="WhatsApp Consultation">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              <span className="hide-mobile">Consultation</span>
+            <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="wa-consult-btn" title="WhatsApp Advice">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span className="hide-mobile">Consult</span>
             </a>
 
-            <button className="bag-button" onClick={() => setIsDrawerOpen(true)} aria-label="Shopping Bag">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              <span className="bag-text hide-mobile">Bag</span>
+            <button className="bag-trigger-btn" onClick={() => setIsDrawerOpen(true)} aria-label="Cart">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
               {cart.length > 0 && <span className="bag-badge">{cart.length}</span>}
             </button>
           </div>
         </div>
       </header>
 
-      {/* 3. Off-Canvas Mobile Menu Drawer */}
+      {/* 3. Mobile Navigation Drawer */}
       {isMobileMenuOpen && (
-        <div className="mobile-drawer-overlay" onClick={() => setIsMobileMenuOpen(false)}>
+        <div className="mobile-drawer-backdrop" onClick={() => setIsMobileMenuOpen(false)}>
           <aside className="mobile-drawer" onClick={(e) => e.stopPropagation()}>
-            <div className="mobile-drawer-head">
-              <div className="brand-logo">
-                <img src="/images/olivia-glow-logo.jpeg" alt="Olivia Glow Logo" className="logo-badge" />
-                <span className="brand-name">OLIVIA <em>GLOW</em></span>
-              </div>
-              <button className="close-drawer" onClick={() => setIsMobileMenuOpen(false)}>✕</button>
+            <div className="mobile-drawer-header">
+              <a href="/" className="brand-logo">
+                <img src="/images/olivia-glow-logo.jpeg" alt="Logo" className="logo-badge" />
+                <span className="name">OLIVIA <em>GLOW</em></span>
+              </a>
+              <button className="close-btn" onClick={() => setIsMobileMenuOpen(false)}>✕</button>
             </div>
 
             <div className="mobile-drawer-body">
-              <div className="mobile-search-box">
+              <div className="m-search">
                 <input type="text" placeholder="Search skincare..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
               </div>
 
-              <div className="mobile-nav-links">
-                <span className="drawer-subhead">COLLECTIONS</span>
-                <button className={`m-link ${selectedCategory === "ALL" ? "active" : ""}`} onClick={() => { setSelectedCategory("ALL"); setIsMobileMenuOpen(false); }}>All Formulas</button>
-                <button className={`m-link ${selectedCategory === "SERUM" ? "active" : ""}`} onClick={() => { setSelectedCategory("SERUM"); setIsMobileMenuOpen(false); }}>Serums & Oils</button>
-                <button className={`m-link ${selectedCategory === "MOISTURIZERS" ? "active" : ""}`} onClick={() => { setSelectedCategory("MOISTURIZERS"); setIsMobileMenuOpen(false); }}>Moisturizers</button>
-                <button className={`m-link ${selectedCategory === "DEVICE" ? "active" : ""}`} onClick={() => { setSelectedCategory("DEVICE"); setIsMobileMenuOpen(false); }}>Beauty Tech</button>
-                <button className={`m-link ${selectedCategory === "SUN CREAM" ? "active" : ""}`} onClick={() => { setSelectedCategory("SUN CREAM"); setIsMobileMenuOpen(false); }}>Sun Care</button>
+              <div className="m-section">
+                <span className="m-subhead">CATEGORIES</span>
+                <button className={`m-item ${selectedCategory === "ALL" ? "active" : ""}`} onClick={() => { setSelectedCategory("ALL"); setIsMobileMenuOpen(false); }}>All Products</button>
+                <button className={`m-item ${selectedCategory === "SERUM" ? "active" : ""}`} onClick={() => { setSelectedCategory("SERUM"); setIsMobileMenuOpen(false); }}>Serums & Essences</button>
+                <button className={`m-item ${selectedCategory === "MOISTURIZERS" ? "active" : ""}`} onClick={() => { setSelectedCategory("MOISTURIZERS"); setIsMobileMenuOpen(false); }}>Moisturizers & Creams</button>
+                <button className={`m-item ${selectedCategory === "DEVICE" ? "active" : ""}`} onClick={() => { setSelectedCategory("DEVICE"); setIsMobileMenuOpen(false); }}>Beauty Tech Devices</button>
+                <button className={`m-item ${selectedCategory === "SUN CREAM" ? "active" : ""}`} onClick={() => { setSelectedCategory("SUN CREAM"); setIsMobileMenuOpen(false); }}>Sun Care & Sunscreens</button>
+                <button className={`m-item ${selectedCategory === "TONER" ? "active" : ""}`} onClick={() => { setSelectedCategory("TONER"); setIsMobileMenuOpen(false); }}>Toner Pads</button>
               </div>
 
-              <div className="mobile-nav-links">
-                <span className="drawer-subhead">SOCIAL CHANNELS</span>
-                <a href="https://www.instagram.com/oliviaglow.lk?utm_source=qr" target="_blank" rel="noopener noreferrer" className="m-link">Instagram (@oliviaglow.lk)</a>
-                <a href="https://www.tiktok.com/@oliviaglow41?_r=1&_t=ZS-98MOQHA4s9l" target="_blank" rel="noopener noreferrer" className="m-link">TikTok (@oliviaglow41)</a>
-                <a href="https://www.facebook.com/share/1DB3Bx18WX/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="m-link">Facebook Page</a>
+              <div className="m-section">
+                <span className="m-subhead">SOCIAL CHANNELS</span>
+                <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="m-item">WhatsApp Advisory</a>
+                <a href="https://www.instagram.com/oliviaglow.lk?utm_source=qr" target="_blank" rel="noopener noreferrer" className="m-item">Instagram (@oliviaglow.lk)</a>
+                <a href="https://www.tiktok.com/@oliviaglow41?_r=1&_t=ZS-98MOQHA4s9l" target="_blank" rel="noopener noreferrer" className="m-item">TikTok (@oliviaglow41)</a>
+                <a href="https://www.facebook.com/share/1DB3Bx18WX/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="m-item">Facebook Community</a>
               </div>
 
-              <div className="mobile-drawer-footer">
-                <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="m-wa-btn">
-                  💬 Chat on WhatsApp
-                </a>
-                <a href="/admin" className="m-admin-link">Admin Portal</a>
+              <div className="m-footer">
+                <a href="/admin" className="admin-btn">Admin Portal Login</a>
               </div>
             </div>
           </aside>
         </div>
       )}
 
-      {/* 4. Magazine Editorial Hero Section */}
-      <section className="hero-editorial">
-        <div className="hero-grid">
-          <div className="hero-content">
-            <span className="hero-eyebrow">THE 2026 RADIANCE CAMPAIGN</span>
-            <h1>The Art of<br /><i>Luminous Skin.</i></h1>
-            <p className="hero-desc">
-              Consciously crafted barrier rituals and clinical K-Beauty essentials designed for effortless, everyday glow.
-            </p>
-            <div className="hero-buttons">
-              <a href="#catalog" className="btn-solid">Explore Collection</a>
-              <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="btn-text">
-                Book Consultation <span>→</span>
+      {/* 4. HiBeauty Hero Slider Banner */}
+      <section className="hibeauty-hero-section">
+        <div className="hero-banner-container">
+          <div className="hero-copy-box">
+            <span className="hero-tag-pill">SRI LANKA'S PREMIER K-BEAUTY HOUSE</span>
+            <h1>Authentic Korean Skincare & <i>Beauty Tech.</i></h1>
+            <p>Elevate your skin barrier with clinical Medicube tech, Beauty of Joseon sunscreens, and Olivia Glow radiance formulas.</p>
+
+            <div className="hero-actions">
+              <a href="#catalog" className="btn-shop-now">SHOP CATALOG NOW</a>
+              <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="btn-wa">
+                FREE SKIN CONSULTATION →
               </a>
             </div>
           </div>
-          <div className="hero-media">
-            <div className="image-frame">
-              <img src="/images/hero_cover.png" alt="Olivia Glow Luxury Campaign" />
-            </div>
+
+          <div className="hero-image-box">
+            <img src="/images/hero_cover.png" alt="HiBeauty K-Beauty Hero" />
           </div>
         </div>
       </section>
 
-      {/* 5. Brand Strip */}
-      <section className="brand-strip">
-        <div className="content-container">
-          <span className="strip-title">CURATED HOUSES:</span>
-          <div className="brand-pills">
-            <button className={`brand-btn ${selectedBrand === "ALL" ? "active" : ""}`} onClick={() => setSelectedBrand("ALL")}>All Houses</button>
+      {/* 5. "Shop by Skin Goal" Concern Cards */}
+      <section className="skin-goals-section">
+        <div className="main-container">
+          <div className="section-title-wrap">
+            <span className="eyebrow-text">TARGETED RESULTS</span>
+            <h2>Shop by <i>Skin Goal</i></h2>
+          </div>
+
+          <div className="goals-grid">
+            <button className="goal-card" onClick={() => setSelectedCategory("SERUM")}>
+              <span className="goal-icon">🌟</span>
+              <h3>Glass Skin Radiance</h3>
+              <p>Hyaluronic & Niacinamide dewy serums</p>
+            </button>
+
+            <button className="goal-card" onClick={() => setSelectedCategory("MOISTURIZERS")}>
+              <span className="goal-icon">🛡️</span>
+              <h3>Barrier Repair</h3>
+              <p>Ceramide & Snail Mucin skin recovery</p>
+            </button>
+
+            <button className="goal-card" onClick={() => setSelectedCategory("TONER")}>
+              <span className="goal-icon">🧼</span>
+              <h3>Pore & Acne Care</h3>
+              <p>Heartleaf & Azelaic calming toner pads</p>
+            </button>
+
+            <button className="goal-card" onClick={() => setSelectedCategory("SUN CREAM")}>
+              <span className="goal-icon">☀️</span>
+              <h3>Sun Protection</h3>
+              <p>Organic SPF50+ zero white cast sunscreens</p>
+            </button>
+
+            <button className="goal-card" onClick={() => setSelectedCategory("DEVICE")}>
+              <span className="goal-icon">⚡</span>
+              <h3>Beauty Tech Devices</h3>
+              <p>Medicube AGE-R Electroporation devices</p>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. HiBeauty Brands Showcase */}
+      <section className="brands-strip-section">
+        <div className="main-container flex-brands">
+          <span className="strip-label">FEATURED BRANDS:</span>
+          <div className="brand-buttons-row">
+            <button className={`brand-pill ${selectedBrand === "ALL" ? "active" : ""}`} onClick={() => setSelectedBrand("ALL")}>All Brands</button>
             {FEATURED_BRANDS.map((b) => (
-              <button key={b.name} className={`brand-btn ${selectedBrand === b.name ? "active" : ""}`} onClick={() => setSelectedBrand(b.name)}>
+              <button key={b.name} className={`brand-pill ${selectedBrand === b.name ? "active" : ""}`} onClick={() => setSelectedBrand(b.name)}>
                 {b.name}
               </button>
             ))}
@@ -178,69 +218,78 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. Catalog Grid */}
-      <section className="catalog-section" id="catalog">
-        <div className="content-container">
-          <div className="section-head">
+      {/* 7. HiBeauty Product Grid */}
+      <section className="products-catalog-section" id="catalog">
+        <div className="main-container">
+          <div className="catalog-header-row">
             <div>
-              <span className="sub-eyebrow">FORMULATED FOR PERFECTION</span>
-              <h2>The Skincare <i>Collection</i></h2>
+              <span className="eyebrow-text">CURATED FORMULATIONS</span>
+              <h2>Curated <i>Products</i></h2>
             </div>
-            <div className="bnpl-note">
-              Pay in 3 monthly installments with <strong>Mintpay, Koko & Payzy</strong>
+
+            <div className="bnpl-header-pill">
+              💳 Pay in 3 monthly installments with <strong>Mintpay, Koko & Payzy</strong>
             </div>
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="filter-tabs">
-            <button className={`filter-tab ${selectedCategory === "ALL" ? "active" : ""}`} onClick={() => setSelectedCategory("ALL")}>All Rituals</button>
+          {/* Category Filters */}
+          <div className="category-filter-bar">
+            <button className={`cat-btn ${selectedCategory === "ALL" ? "active" : ""}`} onClick={() => setSelectedCategory("ALL")}>All Products</button>
             {CATEGORIES.map((cat) => (
-              <button key={cat} className={`filter-tab ${selectedCategory === cat ? "active" : ""}`} onClick={() => setSelectedCategory(cat)}>
+              <button key={cat} className={`cat-btn ${selectedCategory === cat ? "active" : ""}`} onClick={() => setSelectedCategory(cat)}>
                 {cat}
               </button>
             ))}
           </div>
 
           {filteredProducts.length === 0 ? (
-            <div className="empty-state">
-              <p>No formulas match your criteria.</p>
-              <button onClick={() => { setSelectedCategory("ALL"); setSelectedBrand("ALL"); setSearchQuery(""); }}>Reset Filters</button>
+            <div className="empty-catalog">
+              <p>No products found for this filter selection.</p>
+              <button onClick={() => { setSelectedCategory("ALL"); setSelectedBrand("ALL"); setSearchQuery(""); }}>Reset Catalog</button>
             </div>
           ) : (
-            <div className="luxury-product-grid">
-              {filteredProducts.map((p) => (
-                <article className="product-card" key={p.id}>
-                  <div className="card-media">
-                    {p.tag && <span className="tag-pill">{p.tag}</span>}
-                    <button className="quick-btn" onClick={() => setQuickViewProduct(p)}>Quick View +</button>
-                    <a href={`/product/${p.id}`}>
-                      <img src={p.image} alt={p.name} className="product-image" />
+            <div className="hibeauty-product-grid">
+              {filteredProducts.map((product) => (
+                <article className="hibeauty-card" key={product.id}>
+                  {/* Top Image Box */}
+                  <div className="card-image-box">
+                    {product.tag && <span className="card-badge">{product.tag}</span>}
+                    <button className="quick-view-overlay-btn" onClick={() => setQuickViewProduct(product)}>Quick View +</button>
+                    <a href={`/product/${product.id}`}>
+                      <img src={product.image} alt={product.name} className="product-thumb" />
                     </a>
                   </div>
 
-                  <div className="card-body">
-                    <span className="brand-label">{p.brand}</span>
-                    <a href={`/product/${p.id}`} className="title-link">
-                      <h3>{p.name}</h3>
+                  {/* Card Content Details */}
+                  <div className="card-content-box">
+                    <span className="card-brand-name">{product.brand}</span>
+                    <a href={`/product/${product.id}`} className="card-title-link">
+                      <h3 className="card-product-title">{product.name}</h3>
                     </a>
 
-                    <div className="rating-row">
-                      <span className="gold-stars">★★★★★</span>
-                      <span className="rating-val">{p.rating}</span>
-                      <span className="count">({p.reviewsCount})</span>
+                    <div className="card-rating-line">
+                      <span className="stars-fill">★★★★★</span>
+                      <span className="rating-num">{product.rating}</span>
+                      <span className="rev-num">({product.reviewsCount})</span>
                     </div>
 
-                    <div className="pricing">
-                      <span className="price">{formatLKR(p.priceLKR)}</span>
-                      {p.originalPriceLKR && <span className="original-price">{formatLKR(p.originalPriceLKR)}</span>}
+                    <div className="card-price-line">
+                      <span className="main-lkr">{formatLKR(product.priceLKR)}</span>
+                      {product.originalPriceLKR && <span className="strike-lkr">{formatLKR(product.originalPriceLKR)}</span>}
                     </div>
 
-                    <div className="bnpl-line">
-                      <span>or <strong>{calculateInstallment(p.priceLKR, 3)}</strong>/mo with Koko & Mintpay</span>
+                    {/* HiBeauty Signature BNPL Pill Box */}
+                    <div className="bnpl-installment-box">
+                      <span className="bnpl-text">or <strong>{calculateInstallment(product.priceLKR, 3)}</strong> x 3 with</span>
+                      <div className="bnpl-badges-flex">
+                        <span className="bnpl-chip mintpay">Mintpay</span>
+                        <span className="bnpl-chip koko">Koko</span>
+                        <span className="bnpl-chip payzy">Payzy</span>
+                      </div>
                     </div>
 
-                    <button className="add-bag-btn" onClick={() => addToCart(p)}>
-                      Add to Bag
+                    <button className="btn-add-to-bag" onClick={() => addToCart(product)}>
+                      ADD TO BAG
                     </button>
                   </div>
                 </article>
@@ -250,51 +299,51 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. WhatsApp Advisory */}
-      <section className="wa-banner">
-        <div className="content-container wa-flex">
-          <div className="wa-copy">
-            <span className="sub-eyebrow light">PERSONALIZED CONSULTATION</span>
-            <h2>Curate Your Custom <i>Routine.</i></h2>
-            <p>Unsure which formulations fit your skin type? Connect directly with our Colombo skincare specialists on WhatsApp.</p>
-            <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="wa-cta">
-              Connect on WhatsApp →
+      {/* 8. HiBeauty WhatsApp Consultation Banner */}
+      <section className="hibeauty-wa-banner">
+        <div className="main-container flex-wa-wrap">
+          <div className="wa-info">
+            <span className="eyebrow-text gold">FREE SKINCARE ADVISORY</span>
+            <h2>Need Help Choosing Your <i>Routine?</i></h2>
+            <p>Chat directly with our Colombo skincare specialists on WhatsApp for personalized product recommendations tailored to your skin type.</p>
+            <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="btn-connect-wa">
+              CONNECT ON WHATSAPP →
             </a>
           </div>
         </div>
       </section>
 
-      {/* 8. Footer */}
-      <footer className="luxury-footer">
-        <div className="content-container footer-grid">
-          <div className="brand-col">
-            <a className="brand-logo" href="/">
-              <img src="/images/olivia-glow-logo.jpeg" alt="Olivia Glow Logo" className="logo-badge" />
-              <span className="brand-name">OLIVIA <em>GLOW</em></span>
+      {/* 9. HiBeauty Footer */}
+      <footer className="hibeauty-footer">
+        <div className="main-container footer-cols-grid">
+          <div className="f-col brand-info">
+            <a href="/" className="brand-logo">
+              <img src="/images/olivia-glow-logo.jpeg" alt="Logo" className="logo-badge" />
+              <span className="name">OLIVIA <em>GLOW</em></span>
             </a>
-            <p>Sri Lanka’s luxury beauty destination for clinical skincare and barrier repair rituals.</p>
+            <p>Sri Lanka’s premier destination for authentic K-Beauty, clinical beauty tech devices, and barrier repair skincare.</p>
           </div>
 
-          <div className="links-col">
-            <h4>Formulations</h4>
-            <a href="#catalog" onClick={() => setSelectedCategory("SERUM")}>Serums & Oils</a>
+          <div className="f-col">
+            <h4>Quick Links</h4>
+            <a href="#catalog" onClick={() => setSelectedCategory("SERUM")}>Serums & Essences</a>
             <a href="#catalog" onClick={() => setSelectedCategory("MOISTURIZERS")}>Moisturizers</a>
-            <a href="#catalog" onClick={() => setSelectedCategory("SUN CREAM")}>Sun Care</a>
             <a href="#catalog" onClick={() => setSelectedCategory("DEVICE")}>Beauty Tech</a>
+            <a href="#catalog" onClick={() => setSelectedCategory("SUN CREAM")}>Sun Care</a>
           </div>
 
-          <div className="links-col">
-            <h4>Connect</h4>
+          <div className="f-col">
+            <h4>Social Channels</h4>
             <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer">WhatsApp Advisory</a>
             <a href="https://www.instagram.com/oliviaglow.lk?utm_source=qr" target="_blank" rel="noopener noreferrer">Instagram (@oliviaglow.lk)</a>
             <a href="https://www.tiktok.com/@oliviaglow41?_r=1&_t=ZS-98MOQHA4s9l" target="_blank" rel="noopener noreferrer">TikTok (@oliviaglow41)</a>
-            <a href="https://www.facebook.com/share/1DB3Bx18WX/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">Facebook Community</a>
+            <a href="https://www.facebook.com/share/1DB3Bx18WX/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">Facebook Page</a>
           </div>
 
-          <div className="payments-col">
-            <h4>Installments & Payment</h4>
-            <p>Flexible checkout options:</p>
-            <div className="p-badges">
+          <div className="f-col">
+            <h4>Installments Accepted</h4>
+            <p>Checkout flexibly in 3 interest-free installments:</p>
+            <div className="payment-chips">
               <span>Mintpay</span>
               <span>Koko</span>
               <span>Payzy</span>
@@ -303,71 +352,71 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="footer-bottom">
-          <p>© 2026 Olivia Glow. All Rights Reserved.</p>
+        <div className="footer-bottom-copyright">
+          <p>© 2026 Olivia Glow. All Rights Reserved. Inspired by HiBeauty.lk</p>
         </div>
       </footer>
 
-      {/* 9. Mobile App Sticky Bottom Bar */}
-      <div className="mobile-app-bottom-bar">
-        <a href="/" className="mobile-bar-btn active">
+      {/* 10. Sticky Mobile App Bottom Bar */}
+      <div className="sticky-mobile-app-bar">
+        <a href="/" className="m-bar-btn active">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <span>Home</span>
         </a>
-        <button className="mobile-bar-btn" onClick={() => setIsMobileMenuOpen(true)}>
+        <button className="m-bar-btn" onClick={() => setIsMobileMenuOpen(true)}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
-          <span>Menu</span>
+          <span>Categories</span>
         </button>
-        <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="mobile-bar-btn">
+        <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="m-bar-btn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <span>WhatsApp</span>
         </a>
-        <button className="mobile-bar-btn" onClick={() => setIsDrawerOpen(true)}>
+        <button className="m-bar-btn" onClick={() => setIsDrawerOpen(true)}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           <span>Bag ({cart.length})</span>
         </button>
       </div>
 
-      {/* Bag Side Drawer */}
+      {/* Slide-Out Cart Drawer */}
       {isDrawerOpen && (
-        <div className="drawer-overlay" onClick={() => setIsDrawerOpen(false)}>
-          <aside className="bag-drawer" onClick={(e) => e.stopPropagation()}>
+        <div className="drawer-backdrop-overlay" onClick={() => setIsDrawerOpen(false)}>
+          <aside className="bag-slide-drawer" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-head">
               <h3>YOUR SHOPPING BAG</h3>
               <button className="close-btn" onClick={() => setIsDrawerOpen(false)}>✕</button>
             </div>
 
             {cart.length === 0 ? (
-              <div className="drawer-empty">
+              <div className="drawer-empty-body">
                 <p>Your bag is currently empty.</p>
-                <button onClick={() => setIsDrawerOpen(false)}>Explore Catalog →</button>
+                <button onClick={() => setIsDrawerOpen(false)}>SHOP CATALOG NOW →</button>
               </div>
             ) : (
-              <div className="drawer-body">
-                <div className="cart-list">
+              <div className="drawer-active-body">
+                <div className="cart-items-scroll">
                   {cart.map((item, idx) => (
-                    <div className="cart-item" key={idx}>
+                    <div className="cart-item-row" key={idx}>
                       <img src={item.image} alt={item.name} />
-                      <div className="item-meta">
+                      <div className="item-details">
                         <strong>{item.name}</strong>
                         <p>{formatLKR(item.priceLKR)}</p>
                       </div>
-                      <button className="remove-btn" onClick={() => removeFromCart(idx)}>✕</button>
+                      <button className="btn-remove" onClick={() => removeFromCart(idx)}>✕</button>
                     </div>
                   ))}
                 </div>
 
-                <div className="drawer-foot">
-                  <div className="total-row">
+                <div className="drawer-footer-summary">
+                  <div className="summary-row">
                     <span>Subtotal</span>
                     <strong>{formatLKR(cartTotal)}</strong>
                   </div>
-                  <div className="installment-row">
+                  <div className="summary-row installment">
                     <span>3 Monthly Installments</span>
                     <strong>{calculateInstallment(cartTotal, 3)}/mo</strong>
                   </div>
-                  <button className="checkout-btn">
-                    Proceed to Checkout ({formatLKR(cartTotal)}) →
+                  <button className="btn-checkout-now">
+                    PROCEED TO CHECKOUT ({formatLKR(cartTotal)}) →
                   </button>
                 </div>
               </div>
@@ -378,26 +427,29 @@ export default function Home() {
 
       {/* Quick View Modal */}
       {quickViewProduct && (
-        <div className="modal-overlay" onClick={() => setQuickViewProduct(null)}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <button className="close-modal" onClick={() => setQuickViewProduct(null)}>✕</button>
-            <div className="modal-grid">
+        <div className="modal-backdrop-overlay" onClick={() => setQuickViewProduct(null)}>
+          <div className="quick-view-card" onClick={(e) => e.stopPropagation()}>
+            <button className="btn-close-modal" onClick={() => setQuickViewProduct(null)}>✕</button>
+            <div className="modal-grid-layout">
               <img src={quickViewProduct.image} alt={quickViewProduct.name} />
-              <div className="modal-info">
-                <span className="brand-label">{quickViewProduct.brand}</span>
+              <div className="modal-info-col">
+                <span className="brand-eyebrow">{quickViewProduct.brand}</span>
                 <h2>{quickViewProduct.name}</h2>
-                <p className="desc">{quickViewProduct.description}</p>
-                <div className="benefits">
+                <p className="description">{quickViewProduct.description}</p>
+                
+                <div className="benefits-list">
                   {quickViewProduct.benefits.map((b, i) => (
-                    <span key={i} className="b-pill">✓ {b}</span>
+                    <span key={i} className="b-chip">✓ {b}</span>
                   ))}
                 </div>
-                <div className="price-box">
+
+                <div className="price-installment-box">
                   <strong>{formatLKR(quickViewProduct.priceLKR)}</strong>
-                  <small>{calculateInstallment(quickViewProduct.priceLKR, 3)}/mo with Mintpay & Koko</small>
+                  <small>{calculateInstallment(quickViewProduct.priceLKR, 3)}/mo with Mintpay, Koko & Payzy</small>
                 </div>
-                <button className="add-modal-btn" onClick={() => { addToCart(quickViewProduct); setQuickViewProduct(null); }}>
-                  Add to Bag
+
+                <button className="btn-modal-add-bag" onClick={() => { addToCart(quickViewProduct); setQuickViewProduct(null); }}>
+                  ADD TO BAG
                 </button>
               </div>
             </div>
@@ -405,26 +457,26 @@ export default function Home() {
         </div>
       )}
 
-      {/* Styles */}
+      {/* CSS Styles */}
       <style jsx>{`
-        .luxury-storefront-root {
+        .hibeauty-master-root {
           min-height: 100vh;
-          background: #fdfbf7;
-          color: #191514;
-          padding-bottom: 0;
+          background: #faf8f5;
+          color: #1c1917;
+          font-family: inherit;
         }
 
-        .announcement-bar {
-          background: #191514;
-          color: #f7f2ec;
+        .hibeauty-marquee-strip {
+          background: #1c1917;
+          color: #ffffff;
           font-size: 0.72rem;
-          font-weight: 500;
-          letter-spacing: 0.08em;
+          font-weight: 600;
+          letter-spacing: 0.06em;
           padding: 8px 16px;
           text-align: center;
         }
 
-        .announcement-inner {
+        .marquee-content {
           display: flex;
           align-items: center;
           justify-content: center;
@@ -432,20 +484,20 @@ export default function Home() {
           flex-wrap: wrap;
         }
 
-        .dot-sep {
-          color: #c8a97e;
+        .marquee-sep {
+          color: #d4af37;
         }
 
-        .glass-header {
-          background: rgba(253, 251, 247, 0.95);
-          backdrop-filter: blur(10px);
-          border-bottom: 1px solid rgba(25, 21, 20, 0.08);
+        .hibeauty-header {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(8px);
+          border-bottom: 1px solid #e7e5e4;
           position: sticky;
           top: 0;
           z-index: 40;
         }
 
-        .header-container {
+        .header-inner-wrap {
           max-width: 1280px;
           margin: 0 auto;
           padding: 12px 24px;
@@ -455,13 +507,12 @@ export default function Home() {
           gap: 16px;
         }
 
-        .mobile-menu-trigger {
+        .mobile-toggle-btn {
           display: none;
           background: none;
           border: none;
-          color: #191514;
+          color: #1c1917;
           cursor: pointer;
-          padding: 4px;
         }
 
         .brand-logo {
@@ -476,52 +527,52 @@ export default function Home() {
           height: 36px;
           border-radius: 50%;
           object-fit: cover;
-          border: 1px solid #c8a97e;
+          border: 1px solid #d4af37;
         }
 
-        .brand-text {
+        .brand-title {
           display: flex;
           flex-direction: column;
         }
 
-        .brand-name {
+        .brand-title .name {
           font-size: 1.15rem;
           font-weight: 700;
           letter-spacing: 0.1em;
-          color: #191514;
+          color: #1c1917;
         }
 
-        .brand-name em {
-          color: #c8a97e;
+        .brand-title .name em {
+          color: #b91c1c;
           font-style: normal;
         }
 
-        .brand-subtitle {
+        .brand-title .sub {
           font-size: 0.58rem;
           letter-spacing: 0.18em;
           color: #78716c;
           font-weight: 600;
         }
 
-        .header-menu {
+        .desktop-nav {
           display: flex;
-          gap: 20px;
+          gap: 16px;
         }
 
-        .menu-link {
+        .nav-link {
           background: none;
           border: none;
-          font-size: 0.82rem;
-          font-weight: 500;
+          font-size: 0.78rem;
+          font-weight: 700;
+          letter-spacing: 0.05em;
           color: #57534e;
           cursor: pointer;
           transition: color 0.15s ease;
         }
 
-        .menu-link:hover,
-        .menu-link.active {
-          color: #191514;
-          font-weight: 700;
+        .nav-link:hover,
+        .nav-link.active {
+          color: #b91c1c;
         }
 
         .header-actions {
@@ -530,11 +581,11 @@ export default function Home() {
           gap: 12px;
         }
 
-        .search-bar {
+        .search-input-box {
           display: flex;
           align-items: center;
-          background: #f7f2ec;
-          border: 1px solid rgba(25, 21, 20, 0.08);
+          background: #f5f5f4;
+          border: 1px solid #e7e5e4;
           border-radius: 99px;
           padding: 6px 14px;
           gap: 8px;
@@ -544,7 +595,7 @@ export default function Home() {
           color: #78716c;
         }
 
-        .search-bar input {
+        .search-input-box input {
           border: none;
           background: transparent;
           font-size: 0.8rem;
@@ -552,7 +603,7 @@ export default function Home() {
           width: 130px;
         }
 
-        .clear-search {
+        .clear-btn {
           background: none;
           border: none;
           color: #a8a29e;
@@ -563,9 +614,8 @@ export default function Home() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: #f7f2ec;
-          border: 1px solid rgba(25, 21, 20, 0.1);
-          color: #191514;
+          background: #059669;
+          color: #ffffff;
           padding: 7px 14px;
           border-radius: 99px;
           text-decoration: none;
@@ -573,11 +623,11 @@ export default function Home() {
           font-weight: 600;
         }
 
-        .bag-button {
+        .bag-trigger-btn {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: #191514;
+          background: #1c1917;
           color: #ffffff;
           border: none;
           padding: 8px 16px;
@@ -585,19 +635,20 @@ export default function Home() {
           cursor: pointer;
           font-size: 0.8rem;
           font-weight: 600;
+          position: relative;
         }
 
         .bag-badge {
-          background: #c8a97e;
-          color: #191514;
-          font-size: 0.68rem;
-          padding: 1px 6px;
+          background: #b91c1c;
+          color: #ffffff;
+          font-size: 0.65rem;
+          padding: 2px 6px;
           border-radius: 99px;
-          font-weight: 700;
+          font-weight: 800;
         }
 
-        /* Mobile Off-Canvas Menu Drawer */
-        .mobile-drawer-overlay {
+        /* Mobile Drawer */
+        .mobile-drawer-backdrop {
           position: fixed;
           inset: 0;
           background: rgba(0, 0, 0, 0.5);
@@ -612,22 +663,14 @@ export default function Home() {
           height: 100%;
           display: flex;
           flex-direction: column;
-          box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
         }
 
-        .mobile-drawer-head {
+        .mobile-drawer-header {
           padding: 16px 20px;
           border-bottom: 1px solid #f5f5f4;
           display: flex;
           justify-content: space-between;
           align-items: center;
-        }
-
-        .close-drawer {
-          background: none;
-          border: none;
-          font-size: 1.2rem;
-          cursor: pointer;
         }
 
         .mobile-drawer-body {
@@ -638,272 +681,320 @@ export default function Home() {
           gap: 20px;
         }
 
-        .mobile-search-box input {
+        .m-search input {
           width: 100%;
-          background: #f7f2ec;
-          border: 1px solid rgba(25, 21, 20, 0.1);
-          padding: 10px 14px;
+          background: #f5f5f4;
+          border: 1px solid #e7e5e4;
+          padding: 10px;
           border-radius: 8px;
           font-size: 0.82rem;
-          outline: none;
         }
 
-        .drawer-subhead {
+        .m-subhead {
           font-size: 0.65rem;
           letter-spacing: 0.15em;
-          color: #c8a97e;
-          font-weight: 700;
+          color: #b91c1c;
+          font-weight: 800;
           display: block;
           margin-bottom: 8px;
         }
 
-        .mobile-nav-links {
+        .m-section {
           display: flex;
           flex-direction: column;
           gap: 6px;
         }
 
-        .m-link {
+        .m-item {
           text-align: left;
           background: none;
           border: none;
-          font-size: 0.9rem;
+          font-size: 0.88rem;
           color: #57534e;
           padding: 6px 0;
           cursor: pointer;
+          text-decoration: none;
         }
 
-        .m-link.active {
-          color: #191514;
+        .m-item.active {
+          color: #b91c1c;
           font-weight: 700;
         }
 
-        .mobile-drawer-footer {
+        .m-footer {
           border-top: 1px solid #f5f5f4;
           padding-top: 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
         }
 
-        .m-wa-btn {
-          background: #191514;
-          color: #ffffff;
-          padding: 10px;
-          border-radius: 8px;
-          text-align: center;
-          text-decoration: none;
-          font-size: 0.82rem;
-          font-weight: 600;
-        }
-
-        .m-admin-link {
+        .admin-btn {
           color: #78716c;
           text-decoration: none;
           font-size: 0.8rem;
-          text-align: center;
         }
 
-        /* Hero Section */
-        .hero-editorial {
-          padding: 48px 24px;
+        /* Hero Banner */
+        .hibeauty-hero-section {
+          padding: 40px 24px;
           max-width: 1280px;
           margin: 0 auto;
         }
 
-        .hero-grid {
+        .hero-banner-container {
+          background: #ffffff;
+          border: 1px solid #e7e5e4;
+          border-radius: 24px;
+          padding: 40px;
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: 1.2fr 1fr;
           gap: 40px;
           align-items: center;
         }
 
-        .hero-eyebrow {
-          font-size: 0.7rem;
-          letter-spacing: 0.2em;
-          color: #c8a97e;
-          font-weight: 700;
-          display: block;
+        .hero-tag-pill {
+          background: #fef2f2;
+          color: #b91c1c;
+          font-size: 0.68rem;
+          font-weight: 800;
+          letter-spacing: 0.1em;
+          padding: 4px 10px;
+          border-radius: 4px;
+          display: inline-block;
           margin-bottom: 12px;
         }
 
-        .hero-content h1 {
-          font-family: var(--serif, 'Playfair Display', Georgia, serif);
-          font-size: clamp(2.2rem, 5vw, 3.8rem);
-          font-weight: 500;
-          line-height: 1.1;
-          margin-bottom: 16px;
+        .hero-copy-box h1 {
+          font-size: 2.6rem;
+          font-weight: 800;
+          line-height: 1.15;
+          margin-bottom: 14px;
         }
 
-        .hero-content h1 i {
-          font-style: italic;
-          color: #c8a97e;
+        .hero-copy-box h1 i {
+          font-style: normal;
+          color: #b91c1c;
         }
 
-        .hero-desc {
+        .hero-copy-box p {
           font-size: 1rem;
           color: #57534e;
           line-height: 1.6;
           margin-bottom: 28px;
-          max-width: 460px;
         }
 
-        .hero-buttons {
+        .hero-actions {
           display: flex;
+          gap: 14px;
           align-items: center;
-          gap: 16px;
         }
 
-        .btn-solid {
-          background: #191514;
+        .btn-shop-now {
+          background: #1c1917;
           color: #ffffff;
           padding: 14px 28px;
-          border-radius: 99px;
+          border-radius: 8px;
+          font-size: 0.85rem;
+          font-weight: 800;
+          letter-spacing: 0.05em;
+          text-decoration: none;
+        }
+
+        .btn-wa {
+          color: #059669;
           text-decoration: none;
           font-size: 0.85rem;
-          font-weight: 600;
+          font-weight: 700;
         }
 
-        .btn-text {
-          color: #191514;
-          text-decoration: none;
-          font-size: 0.85rem;
-          font-weight: 600;
-          border-bottom: 1px solid #191514;
-          padding-bottom: 2px;
-        }
-
-        .image-frame {
-          border-radius: 20px;
-          overflow: hidden;
-          box-shadow: 0 16px 36px rgba(0, 0, 0, 0.06);
-          border: 1px solid rgba(25, 21, 20, 0.08);
-        }
-
-        .image-frame img {
+        .hero-image-box img {
           width: 100%;
-          height: 380px;
+          height: 340px;
           object-fit: cover;
-          display: block;
+          border-radius: 16px;
         }
 
-        /* Brand Strip */
-        .brand-strip {
-          border-y: 1px solid rgba(25, 21, 20, 0.08);
-          background: #f7f2ec;
-          padding: 14px 0;
+        /* Skin Goals Section */
+        .skin-goals-section {
+          padding: 40px 0;
         }
 
-        .content-container {
+        .main-container {
           max-width: 1280px;
           margin: 0 auto;
           padding: 0 24px;
         }
 
-        .strip-title {
-          font-size: 0.68rem;
-          letter-spacing: 0.18em;
-          color: #78716c;
-          font-weight: 700;
-          margin-right: 14px;
+        .section-title-wrap {
+          margin-bottom: 24px;
         }
 
-        .brand-pills {
-          display: inline-flex;
+        .eyebrow-text {
+          font-size: 0.68rem;
+          font-weight: 800;
+          letter-spacing: 0.15em;
+          color: #b91c1c;
+        }
+
+        .eyebrow-text.gold {
+          color: #d4af37;
+        }
+
+        .section-title-wrap h2 {
+          font-size: 2rem;
+          font-weight: 800;
+          margin-top: 4px;
+        }
+
+        .section-title-wrap h2 i {
+          font-style: normal;
+          color: #b91c1c;
+        }
+
+        .goals-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+        }
+
+        .goal-card {
+          background: #ffffff;
+          border: 1px solid #e7e5e4;
+          border-radius: 16px;
+          padding: 20px;
+          text-align: left;
+          cursor: pointer;
+          transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .goal-card:hover {
+          transform: translateY(-4px);
+          border-color: #b91c1c;
+        }
+
+        .goal-icon {
+          font-size: 1.8rem;
+          display: block;
+          margin-bottom: 10px;
+        }
+
+        .goal-card h3 {
+          font-size: 0.95rem;
+          font-weight: 700;
+          margin-bottom: 4px;
+        }
+
+        .goal-card p {
+          font-size: 0.78rem;
+          color: #78716c;
+          line-height: 1.4;
+        }
+
+        /* Brands Strip */
+        .brands-strip-section {
+          background: #ffffff;
+          border-y: 1px solid #e7e5e4;
+          padding: 16px 0;
+        }
+
+        .flex-brands {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .strip-label {
+          font-size: 0.7rem;
+          font-weight: 800;
+          letter-spacing: 0.1em;
+          color: #78716c;
+        }
+
+        .brand-buttons-row {
+          display: flex;
           gap: 8px;
           overflow-x: auto;
         }
 
-        .brand-btn {
-          background: #ffffff;
-          border: 1px solid rgba(25, 21, 20, 0.08);
+        .brand-pill {
+          background: #f5f5f4;
+          border: 1px solid #e7e5e4;
           padding: 6px 14px;
           border-radius: 99px;
           font-size: 0.78rem;
+          font-weight: 600;
           color: #57534e;
           cursor: pointer;
         }
 
-        .brand-btn.active,
-        .brand-btn:hover {
-          background: #191514;
+        .brand-pill.active {
+          background: #1c1917;
           color: #ffffff;
         }
 
-        /* Catalog Section */
-        .catalog-section {
+        /* Products Catalog Grid */
+        .products-catalog-section {
           padding: 60px 0;
         }
 
-        .section-head {
+        .catalog-header-row {
           display: flex;
           justify-content: space-between;
           align-items: flex-end;
-          margin-bottom: 28px;
+          margin-bottom: 24px;
         }
 
-        .sub-eyebrow {
-          font-size: 0.68rem;
-          letter-spacing: 0.18em;
-          color: #c8a97e;
-          font-weight: 700;
-        }
-
-        .section-head h2 {
-          font-family: var(--serif, 'Playfair Display', Georgia, serif);
+        .catalog-header-row h2 {
           font-size: 2rem;
-          font-weight: 500;
-          margin-top: 4px;
+          font-weight: 800;
         }
 
-        .section-head h2 i {
-          font-style: italic;
-          color: #c8a97e;
+        .catalog-header-row h2 i {
+          font-style: normal;
+          color: #b91c1c;
         }
 
-        .bnpl-note {
-          background: #f7f2ec;
+        .bnpl-header-pill {
+          background: #ffffff;
+          border: 1px solid #e7e5e4;
           padding: 8px 16px;
           border-radius: 99px;
           font-size: 0.78rem;
           color: #57534e;
         }
 
-        .filter-tabs {
+        .category-filter-bar {
           display: flex;
           gap: 8px;
           margin-bottom: 32px;
           overflow-x: auto;
-          padding-bottom: 4px;
         }
 
-        .filter-tab {
-          background: none;
-          border: 1px solid rgba(25, 21, 20, 0.1);
-          padding: 8px 16px;
+        .cat-btn {
+          background: #ffffff;
+          border: 1px solid #e7e5e4;
+          padding: 8px 18px;
           border-radius: 99px;
           font-size: 0.78rem;
-          font-weight: 500;
+          font-weight: 700;
           color: #57534e;
           cursor: pointer;
           white-space: nowrap;
         }
 
-        .filter-tab.active {
-          background: #191514;
+        .cat-btn.active {
+          background: #b91c1c;
           color: #ffffff;
-          border-color: #191514;
+          border-color: #b91c1c;
         }
 
-        .luxury-product-grid {
+        .hibeauty-product-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
           gap: 24px;
         }
 
-        .product-card {
+        .hibeauty-card {
           background: #ffffff;
-          border: 1px solid rgba(25, 21, 20, 0.08);
+          border: 1px solid #e7e5e4;
           border-radius: 16px;
           overflow: hidden;
           display: flex;
@@ -911,180 +1002,202 @@ export default function Home() {
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .product-card:hover {
+        .hibeauty-card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 16px 32px rgba(0, 0, 0, 0.05);
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
         }
 
-        .card-media {
+        .card-image-box {
           position: relative;
           height: 240px;
-          background: #fdfbf7;
+          background: #faf8f5;
+          padding: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 16px;
         }
 
-        .product-image {
+        .product-thumb {
           width: 100%;
           height: 100%;
           object-fit: cover;
           border-radius: 12px;
         }
 
-        .tag-pill {
+        .card-badge {
           position: absolute;
           top: 12px;
           left: 12px;
-          background: #191514;
+          background: #b91c1c;
           color: #ffffff;
           font-size: 0.62rem;
-          font-weight: 700;
+          font-weight: 800;
           padding: 4px 8px;
           border-radius: 4px;
         }
 
-        .quick-btn {
+        .quick-view-overlay-btn {
           position: absolute;
           bottom: 12px;
           right: 12px;
-          background: rgba(253, 251, 247, 0.9);
-          border: 1px solid rgba(25, 21, 20, 0.1);
+          background: rgba(255, 255, 255, 0.95);
+          border: 1px solid #e7e5e4;
           padding: 6px 12px;
           border-radius: 99px;
           font-size: 0.72rem;
-          font-weight: 600;
+          font-weight: 700;
           cursor: pointer;
         }
 
-        .card-body {
+        .card-content-box {
           padding: 18px;
           display: flex;
           flex-direction: column;
           flex: 1;
         }
 
-        .brand-label {
+        .card-brand-name {
           font-size: 0.68rem;
-          font-weight: 700;
+          font-weight: 800;
           letter-spacing: 0.12em;
           color: #78716c;
           text-transform: uppercase;
         }
 
-        .title-link {
+        .card-title-link {
           text-decoration: none;
           color: inherit;
         }
 
-        .card-body h3 {
+        .card-product-title {
           font-size: 0.92rem;
-          font-weight: 600;
+          font-weight: 700;
           margin: 4px 0 8px;
           line-height: 1.35;
         }
 
-        .rating-row {
+        .card-rating-line {
           display: flex;
           align-items: center;
           gap: 6px;
           font-size: 0.78rem;
-          margin-bottom: 12px;
+          margin-bottom: 10px;
         }
 
-        .gold-stars { color: #c8a97e; }
-        .rating-val { font-weight: 700; }
-        .count { color: #78716c; }
+        .stars-fill { color: #d4af37; }
+        .rating-num { font-weight: 700; }
+        .rev-num { color: #78716c; }
 
-        .pricing {
+        .card-price-line {
           display: flex;
           align-items: baseline;
           gap: 8px;
           margin-top: auto;
         }
 
-        .price {
-          font-size: 1.05rem;
-          font-weight: 700;
-          color: #191514;
+        .main-lkr {
+          font-size: 1.1rem;
+          font-weight: 800;
+          color: #1c1917;
         }
 
-        .original-price {
-          font-size: 0.78rem;
+        .strike-lkr {
+          font-size: 0.8rem;
           text-decoration: line-through;
           color: #a8a29e;
         }
 
-        .bnpl-line {
-          font-size: 0.72rem;
-          color: #78716c;
-          margin: 8px 0 14px;
+        .bnpl-installment-box {
+          background: #faf8f5;
+          border: 1px solid #e7e5e4;
+          padding: 8px 10px;
+          border-radius: 8px;
+          margin: 10px 0 14px;
+          font-size: 0.7rem;
         }
 
-        .add-bag-btn {
+        .bnpl-text {
+          color: #57534e;
+        }
+
+        .bnpl-badges-flex {
+          display: flex;
+          gap: 4px;
+          margin-top: 4px;
+        }
+
+        .bnpl-chip {
+          font-size: 0.6rem;
+          font-weight: 800;
+          padding: 2px 6px;
+          border-radius: 4px;
+          color: #ffffff;
+        }
+
+        .bnpl-chip.mintpay { background: #1c1917; }
+        .bnpl-chip.koko { background: #b91c1c; }
+        .bnpl-chip.payzy { background: #0284c7; }
+
+        .btn-add-to-bag {
           width: 100%;
-          background: #191514;
+          background: #1c1917;
           color: #ffffff;
           border: none;
           padding: 12px;
           border-radius: 8px;
           font-size: 0.82rem;
-          font-weight: 600;
+          font-weight: 800;
           cursor: pointer;
         }
 
-        /* WhatsApp Section */
-        .wa-banner {
-          background: #191514;
+        .btn-add-to-bag:hover {
+          background: #b91c1c;
+        }
+
+        /* WhatsApp Advisory Banner */
+        .hibeauty-wa-banner {
+          background: #1c1917;
           color: #ffffff;
           padding: 50px 0;
         }
 
-        .wa-flex {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .wa-copy h2 {
-          font-family: var(--serif, 'Playfair Display', Georgia, serif);
-          font-size: 2rem;
-          font-weight: 500;
+        .wa-info h2 {
+          font-size: 2.2rem;
+          font-weight: 800;
           margin: 8px 0 12px;
         }
 
-        .wa-copy h2 i {
-          font-style: italic;
-          color: #c8a97e;
+        .wa-info h2 i {
+          font-style: normal;
+          color: #d4af37;
         }
 
-        .wa-copy p {
+        .wa-info p {
           font-size: 0.95rem;
           color: #a8a29e;
-          max-width: 500px;
-          margin-bottom: 20px;
+          max-width: 520px;
+          margin-bottom: 24px;
         }
 
-        .wa-cta {
-          display: inline-block;
-          background: #c8a97e;
-          color: #191514;
+        .btn-connect-wa {
+          background: #059669;
+          color: #ffffff;
           padding: 12px 24px;
-          border-radius: 99px;
-          text-decoration: none;
-          font-weight: 700;
+          border-radius: 8px;
+          font-weight: 800;
           font-size: 0.85rem;
+          text-decoration: none;
+          display: inline-block;
         }
 
         /* Footer */
-        .luxury-footer {
+        .hibeauty-footer {
           background: #0f0d0c;
           color: #78716c;
           padding: 50px 0 80px;
         }
 
-        .footer-grid {
+        .footer-cols-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
           gap: 32px;
@@ -1092,60 +1205,49 @@ export default function Home() {
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .brand-col p {
-          font-size: 0.82rem;
-          margin-top: 10px;
-          line-height: 1.6;
-        }
-
-        .links-col {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .links-col h4,
-        .payments-col h4 {
+        .f-col h4 {
           color: #ffffff;
           font-size: 0.85rem;
-          margin-bottom: 4px;
+          margin-bottom: 12px;
         }
 
-        .links-col a {
+        .f-col a {
           color: #a8a29e;
           text-decoration: none;
           font-size: 0.8rem;
+          display: block;
+          margin-bottom: 6px;
         }
 
-        .p-badges {
+        .payment-chips {
           display: flex;
           flex-wrap: wrap;
           gap: 6px;
           margin-top: 10px;
         }
 
-        .p-badges span {
-          background: #191514;
+        .payment-chips span {
+          background: #1c1917;
           color: #d6d3d1;
           font-size: 0.68rem;
           padding: 4px 8px;
           border-radius: 4px;
         }
 
-        .footer-bottom {
+        .footer-bottom-copyright {
           text-align: center;
           padding-top: 20px;
           font-size: 0.72rem;
         }
 
-        /* Mobile App Bottom Sticky Navigation Bar */
-        .mobile-app-bottom-bar {
+        /* Sticky Mobile App Bar */
+        .sticky-mobile-app-bar {
           display: none;
         }
 
-        /* Drawer & Modal */
-        .drawer-overlay,
-        .modal-overlay {
+        /* Cart Drawer & Modals */
+        .drawer-backdrop-overlay,
+        .modal-backdrop-overlay {
           position: fixed;
           inset: 0;
           background: rgba(0, 0, 0, 0.5);
@@ -1155,13 +1257,13 @@ export default function Home() {
           justify-content: flex-end;
         }
 
-        .modal-overlay {
+        .modal-backdrop-overlay {
           justify-content: center;
           align-items: center;
           padding: 20px;
         }
 
-        .bag-drawer {
+        .bag-slide-drawer {
           width: 100%;
           max-width: 380px;
           background: #ffffff;
@@ -1177,83 +1279,74 @@ export default function Home() {
           justify-content: space-between;
         }
 
-        .close-btn,
-        .close-modal {
-          background: none;
-          border: none;
-          font-size: 1.2rem;
-          cursor: pointer;
-        }
-
-        .drawer-body {
+        .drawer-active-body {
           display: flex;
           flex-direction: column;
           flex: 1;
         }
 
-        .cart-list {
+        .cart-items-scroll {
           flex: 1;
           overflow-y: auto;
           padding: 18px;
         }
 
-        .cart-item {
+        .cart-item-row {
           display: flex;
           gap: 12px;
           align-items: center;
           margin-bottom: 14px;
         }
 
-        .cart-item img {
+        .cart-item-row img {
           width: 48px;
           height: 48px;
           object-fit: cover;
           border-radius: 6px;
         }
 
-        .item-meta {
+        .item-details {
           flex: 1;
         }
 
-        .item-meta strong {
+        .item-details strong {
           display: block;
           font-size: 0.82rem;
         }
 
-        .remove-btn {
+        .btn-remove {
           background: none;
           border: none;
           color: #a8a29e;
           cursor: pointer;
         }
 
-        .drawer-foot {
+        .drawer-footer-summary {
           padding: 18px;
           border-top: 1px solid #f5f5f4;
-          background: #fdfbf7;
+          background: #faf8f5;
         }
 
-        .total-row,
-        .installment-row {
+        .summary-row {
           display: flex;
           justify-content: space-between;
           margin-bottom: 8px;
           font-size: 0.85rem;
         }
 
-        .checkout-btn {
+        .btn-checkout-now {
           width: 100%;
-          background: #191514;
+          background: #b91c1c;
           color: #ffffff;
           border: none;
-          padding: 12px;
+          padding: 14px;
           border-radius: 8px;
-          font-weight: 600;
+          font-weight: 800;
           margin-top: 10px;
           cursor: pointer;
         }
 
-        .modal-card {
+        .quick-view-card {
           background: #ffffff;
           border-radius: 16px;
           max-width: 600px;
@@ -1262,111 +1355,95 @@ export default function Home() {
           position: relative;
         }
 
-        .modal-grid {
+        .modal-grid-layout {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 20px;
         }
 
-        .modal-grid img {
+        .modal-grid-layout img {
           width: 100%;
           height: 220px;
           object-fit: cover;
           border-radius: 10px;
         }
 
-        .benefits {
+        .benefits-list {
           display: flex;
           flex-wrap: wrap;
           gap: 6px;
           margin: 10px 0;
         }
 
-        .b-pill {
-          background: #f7f2ec;
+        .b-chip {
+          background: #fef2f2;
+          color: #b91c1c;
           font-size: 0.7rem;
           padding: 4px 8px;
           border-radius: 4px;
+          font-weight: 600;
         }
 
-        .price-box {
+        .price-installment-box {
           margin-bottom: 14px;
         }
 
-        .price-box strong {
+        .price-installment-box strong {
           font-size: 1.2rem;
           display: block;
         }
 
-        .add-modal-btn {
+        .btn-modal-add-bag {
           width: 100%;
-          background: #191514;
+          background: #1c1917;
           color: #ffffff;
           border: none;
           padding: 12px;
           border-radius: 8px;
-          font-weight: 600;
+          font-weight: 800;
           cursor: pointer;
         }
 
-        /* Responsive Breakpoints (<768px Mobile First) */
         @media (max-width: 768px) {
-          .mobile-menu-trigger {
+          .mobile-toggle-btn {
             display: block;
           }
 
-          .header-menu {
+          .desktop-nav,
+          .search-input-box,
+          .hide-mobile,
+          .bnpl-header-pill {
             display: none;
           }
 
-          .search-bar {
-            display: none;
-          }
-
-          .hide-mobile {
-            display: none;
-          }
-
-          .hero-grid {
+          .hero-banner-container {
             grid-template-columns: 1fr;
-            gap: 24px;
+            padding: 24px;
           }
 
-          .image-frame img {
-            height: 260px;
+          .hero-image-box img {
+            height: 240px;
           }
 
-          .bnpl-note {
-            display: none;
-          }
-
-          .luxury-product-grid {
+          .hibeauty-product-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
           }
 
-          .card-media {
+          .card-image-box {
             height: 160px;
             padding: 10px;
           }
 
-          .card-body {
+          .card-content-box {
             padding: 12px;
           }
 
-          .card-body h3 {
-            font-size: 0.8rem;
-          }
-
-          .price {
-            font-size: 0.95rem;
-          }
-
-          .modal-grid {
+          .modal-grid-layout {
             grid-template-columns: 1fr;
           }
 
-          .mobile-app-bottom-bar {
+          .sticky-mobile-app-bar {
             display: flex;
             position: fixed;
             bottom: 0;
@@ -1374,13 +1451,13 @@ export default function Home() {
             right: 0;
             height: 56px;
             background: #ffffff;
-            border-top: 1px solid rgba(25, 21, 20, 0.1);
+            border-top: 1px solid #e7e5e4;
             z-index: 45;
             justify-content: space-around;
             align-items: center;
           }
 
-          .mobile-bar-btn {
+          .m-bar-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1388,16 +1465,16 @@ export default function Home() {
             background: none;
             border: none;
             color: #78716c;
-            text-decoration: none;
             font-size: 0.65rem;
             font-weight: 600;
             flex: 1;
             height: 100%;
+            text-decoration: none;
           }
 
-          .mobile-bar-btn.active,
-          .mobile-bar-btn:hover {
-            color: #191514;
+          .m-bar-btn.active,
+          .m-bar-btn:hover {
+            color: #b91c1c;
           }
         }
       `}</style>

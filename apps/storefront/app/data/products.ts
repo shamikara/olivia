@@ -2,186 +2,209 @@ export interface BeautyProduct {
   id: string;
   name: string;
   brand: string;
-  category: string;
+  category: "SERUM" | "MOISTURIZERS" | "DEVICE" | "SUN CREAM" | "TONER";
   priceLKR: number;
   originalPriceLKR?: number;
   rating: number;
   reviewsCount: number;
   image: string;
   secondaryImage: string;
-  tag?: string;
-  stockCount?: number;
-  viewersCount?: number;
   description: string;
   benefits: string[];
+  stockCount: number;
+  viewersCount: number;
+  tag?: string;
 }
 
 export const PRODUCTS_CATALOG: BeautyProduct[] = [
   {
     id: "prod-01",
-    name: "Medicube Mini Booster Pro Plus Full Facial Device Set",
+    name: "Medicube AGE-R Booster Pro 6-in-1 Beauty Tech Device",
     brand: "Medicube",
     category: "DEVICE",
     priceLKR: 87000,
-    originalPriceLKR: 95700,
+    originalPriceLKR: 96000,
     rating: 4.9,
-    reviewsCount: 328,
+    reviewsCount: 128,
     image: "/images/device_hero.png",
     secondaryImage: "/images/hero_cover.png",
-    tag: "BESTSELLER • 10% OFF",
-    stockCount: 4,
-    viewersCount: 38,
-    description: "6-in-1 total facial care device for electroporation, microcurrent, EMS, electric needle, and LED therapy. Clinically proven to boost skin absorption by 473%.",
-    benefits: ["Pore Elasticity", "Radiance Booster", "Deep Absorption", "Collagen Tightening"],
+    description: "The ultimate 6-in-1 Korean facial device featuring Electroporation, Microcurrent, EMS, and Electric Needling for needle-free glow and absorption boost.",
+    benefits: [
+      "490% deeper skin absorption",
+      "Pore tightening & elastic contouring",
+      "Clinical LED light therapy mode",
+      "App-controlled Bluetooth custom routines"
+    ],
+    stockCount: 3,
+    viewersCount: 48,
+    tag: "BESTSELLER"
   },
   {
     id: "prod-02",
-    name: "Olivia Glow Morning Dew Hydration Serum (50ml)",
+    name: "Olivia Glow Morning Dew Hydrating Barrier Serum 50ml",
     brand: "Olivia Glow",
     category: "SERUM",
     priceLKR: 8400,
     originalPriceLKR: 9800,
-    rating: 5.0,
-    reviewsCount: 214,
+    rating: 4.95,
+    reviewsCount: 86,
     image: "/images/serum_hero.png",
     secondaryImage: "/images/hero_cover.png",
-    tag: "VIRAL GLOW • SIGNATURE",
+    description: "Consciously formulated barrier serum enriched with Quadruple Hyaluronic Complex, Centella Asiatica, and Squalane for instant glass skin dewiness.",
+    benefits: [
+      "Instant 24-hour hydration barrier",
+      "Calms redness & post-acne irritation",
+      "Lightweight silk texture absorbs in 5 seconds",
+      "100% Vegan & Hypoallergenic"
+    ],
     stockCount: 8,
-    viewersCount: 52,
-    description: "Triple molecular hyaluronic acid with 5% Niacinamide and Botanical Squalane for instant glass skin radiance and 24-hour hydration.",
-    benefits: ["Instant Hydration", "Brightening", "Skin Barrier Balance"],
+    viewersCount: 36,
+    tag: "10% OFF"
   },
   {
     id: "prod-03",
-    name: "Beauty of Joseon Relief Sun : Rice + Probiotics SPF50+ PA++++",
-    brand: "Beauty of Joseon",
-    category: "SUN CREAM",
-    priceLKR: 4950,
-    originalPriceLKR: 5600,
-    rating: 5.0,
-    reviewsCount: 512,
-    image: "https://cdn.greencloudpos.com/hibeauty.lk/product/medicube-zero-pore-blackhead-mud-mask-1779608027971.jpeg?width=800",
-    secondaryImage: "/images/serum_hero.png",
-    tag: "TOP RATED",
-    stockCount: 12,
+    name: "Medicube Turmeric Vitamin Gold Jelly Mist Serum 100ml",
+    brand: "Medicube",
+    category: "SERUM",
+    priceLKR: 9427,
+    originalPriceLKR: 10800,
+    rating: 4.8,
+    reviewsCount: 64,
+    image: "/images/serum_hero.png",
+    secondaryImage: "/images/device_hero.png",
+    description: "Radiance boosting jelly mist serum with Turmeric Extract and Vitamin C to fade hyperpigmentation and reveal glowing, even skin tone.",
+    benefits: [
+      "Fades dark spots & sun hyperpigmentation",
+      "Fine mist spray over makeup or bare skin",
+      "Antioxidant shield against urban pollution"
+    ],
+    stockCount: 5,
     viewersCount: 29,
-    description: "Lightweight organic sun cream enriched with 30% rice extract and grain probiotics for dewy protection without white cast.",
-    benefits: ["Zero White Cast", "Deep Hydration", "Broad Spectrum Protection"],
+    tag: "POPULAR"
   },
   {
     id: "prod-04",
-    name: "Medicube Zero Pore Blackhead Mud Mask (100g)",
+    name: "Medicube AGE-R Glutathione Glow Capsule Cream 50ml",
     brand: "Medicube",
-    category: "FACE MASK",
-    priceLKR: 6800,
-    originalPriceLKR: 7500,
-    rating: 4.8,
-    reviewsCount: 142,
-    image: "https://cdn.greencloudpos.com/hibeauty.lk/product/medicube-zero-pore-blackhead-mud-mask-1779608027971.jpeg?width=800",
-    secondaryImage: "/images/device_hero.png",
-    tag: "PORE CLEARING",
+    category: "MOISTURIZERS",
+    priceLKR: 9224,
+    originalPriceLKR: 10500,
+    rating: 4.85,
+    reviewsCount: 72,
+    image: "/images/hero_cover.png",
+    secondaryImage: "/images/serum_hero.png",
+    description: "Encapsulated Glutathione and Niacinamide moisture cream engineered for intense skin whitening, spot correction, and glass skin finish.",
+    benefits: [
+      "Pristine Glutathione capsules melt into skin",
+      "Protects collagen & tightens skin texture",
+      "Non-greasy satin moisture barrier"
+    ],
     stockCount: 6,
-    viewersCount: 19,
-    description: "Deep pore cleansing mud mask infused with kaolin clay and BHA to dissolve blackheads and refine skin texture.",
-    benefits: ["Blackhead Removal", "Sebum Control", "Pore Minimizing"],
+    viewersCount: 42,
+    tag: "NEW"
   },
   {
     id: "prod-05",
-    name: "COSRX Advanced Snail 96 Mucin Power Essence (100ml)",
-    brand: "COSRX",
-    category: "SERUM",
-    priceLKR: 5200,
-    originalPriceLKR: 6100,
+    name: "Anua Azelaic 10 Hyaluron Redness Soothing Pads 70 Pcs",
+    brand: "Anua",
+    category: "TONER",
+    priceLKR: 8802,
+    originalPriceLKR: 9900,
     rating: 4.9,
-    reviewsCount: 640,
+    reviewsCount: 94,
     image: "/images/serum_hero.png",
     secondaryImage: "/images/hero_cover.png",
-    tag: "HOLY GRAIL",
-    stockCount: 15,
-    viewersCount: 64,
-    description: "Lightweight essence formulated with 96% snail secretion filtrate to soothe, repair, and plump dry skin.",
-    benefits: ["Skin Repair", "Barrier Strengthening", "Glass Skin Glow"],
+    description: "Calming toner pads infused with 10% Azelaic Acid and Hyaluronic Acid to rapidly soothe active breakout redness and refine skin texture.",
+    benefits: [
+      "Reduces redness & inflammatory breakouts",
+      "Exfoliates dead skin cells gently without peeling",
+      "Dual-sided cotton pads for targeted skin pack"
+    ],
+    stockCount: 12,
+    viewersCount: 31,
+    tag: "VIRAL FAV"
   },
   {
     id: "prod-06",
-    name: "Anua Heartleaf 77% Soothing Toner (250ml)",
-    brand: "Anua",
-    category: "TONER",
-    priceLKR: 6400,
-    originalPriceLKR: 7200,
-    rating: 4.8,
-    reviewsCount: 285,
-    image: "https://cdn.greencloudpos.com/hibeauty.lk/product/medicube-zero-pore-blackhead-mud-mask-1779608027971.jpeg?width=800",
-    secondaryImage: "/images/serum_hero.png",
-    tag: "ACNE SOOTHING",
-    stockCount: 9,
-    viewersCount: 31,
-    description: "Formulated with 77% Heartleaf extract to calm redness, soothe acne inflammation, and balance moisture.",
-    benefits: ["Redness Relief", "pH Balancing", "Gentle Exfoliation"],
+    name: "Beauty of Joseon Relief Sun: Rice + Probiotics SPF50+ 50ml",
+    brand: "Beauty of Joseon",
+    category: "SUN CREAM",
+    priceLKR: 5900,
+    originalPriceLKR: 6800,
+    rating: 4.98,
+    reviewsCount: 210,
+    image: "/images/serum_hero.png",
+    secondaryImage: "/images/device_hero.png",
+    description: "Lightweight organic chemical sunscreen enriched with 30% Rice Extract and Grain Probiotics for zero white cast and velvety hydration.",
+    benefits: [
+      "Broad Spectrum SPF50+ PA++++ protection",
+      "Zero white cast or sticky residue",
+      "Featherlight moist finish ideal under makeup"
+    ],
+    stockCount: 15,
+    viewersCount: 65,
+    tag: "HOLY GRAIL"
   },
   {
     id: "prod-07",
-    name: "Olivia Glow Cloud Milk Cleanser (150ml)",
-    brand: "Olivia Glow",
-    category: "CLEANSER",
-    priceLKR: 5600,
-    originalPriceLKR: 6400,
-    rating: 4.9,
-    reviewsCount: 176,
-    image: "/images/hero_cover.png",
-    secondaryImage: "/images/serum_hero.png",
-    tag: "GENTLE CARE",
-    stockCount: 11,
-    viewersCount: 24,
-    description: "Creamy pH-balanced cleansing milk enriched with oat extract and ceramide complex that cleanses without stripping.",
-    benefits: ["Non-Stripping", "Soothes Sensitivity", "Removes Makeup"],
+    name: "COSRX Advanced Snail 96 Mucin Power Essence 100ml",
+    brand: "COSRX",
+    category: "SERUM",
+    priceLKR: 6850,
+    originalPriceLKR: 7800,
+    rating: 4.92,
+    reviewsCount: 340,
+    image: "/images/serum_hero.png",
+    secondaryImage: "/images/hero_cover.png",
+    description: "Formulated with 96.3% Snail Secretion Filtrate, this light essence repairs damaged barrier, restores elasticity, and locks in deep moisture.",
+    benefits: [
+      "Fades dark acne scars & smooths roughness",
+      "Soothes sensitive, dehydrated skin",
+      "Clean snail mucin filtered cruelty-free"
+    ],
+    stockCount: 10,
+    viewersCount: 52,
+    tag: "BESTSELLER"
   },
   {
     id: "prod-08",
-    name: "Olivia Glow Velvet Barrier Moisturizing Cream (50g)",
-    brand: "Olivia Glow",
+    name: "Skin1004 Madagascar Centella Soothing Cream 75ml",
+    brand: "Skin1004",
     category: "MOISTURIZERS",
-    priceLKR: 7500,
-    originalPriceLKR: 8800,
-    rating: 4.9,
-    reviewsCount: 192,
+    priceLKR: 6400,
+    originalPriceLKR: 7200,
+    rating: 4.87,
+    reviewsCount: 88,
     image: "/images/hero_cover.png",
     secondaryImage: "/images/serum_hero.png",
-    tag: "BARRIER REPAIR",
+    description: "Quadruple Ceramide barrier cream with pure Centella Asiatica harvested from Madagascar to strengthen fragile skin barriers.",
+    benefits: [
+      "Restores damaged skin barrier in 7 days",
+      "Light gel-cream texture for tropical climates",
+      "Non-comedogenic & dermatologically tested"
+    ],
     stockCount: 7,
-    viewersCount: 45,
-    description: "Rich lipid moisture cream with 5 Ceramides, Fatty Acids, and Centella to lock in moisture for 48 hours.",
-    benefits: ["48H Hydration", "Restores Skin Barrier", "Smooth Velvet Finish"],
-  },
+    viewersCount: 24,
+    tag: "BARRIER CARE"
+  }
 ];
 
-export const CATEGORIES = [
-  "NEW ARRIVALS",
-  "MOISTURIZERS",
-  "SERUM",
-  "CLEANSER",
-  "TONER",
-  "SUN CREAM",
-  "FACE MASK",
-  "HAIR CARE",
-  "DEVICE",
-];
+export const CATEGORIES = ["SERUM", "MOISTURIZERS", "DEVICE", "SUN CREAM", "TONER"];
 
 export const FEATURED_BRANDS = [
-  { name: "Medicube", logo: "M" },
-  { name: "Beauty of Joseon", logo: "BOJ" },
-  { name: "COSRX", logo: "CX" },
-  { name: "Anua", logo: "AN" },
-  { name: "Dr.G", logo: "DRG" },
-  { name: "Skin1004", logo: "1004" },
-  { name: "Olivia Glow", logo: "OG" },
+  { name: "Medicube", logo: "/images/brand_logo.png" },
+  { name: "Olivia Glow", logo: "/images/olivia-glow-logo.jpeg" },
+  { name: "Beauty of Joseon", logo: "/images/brand_logo.png" },
+  { name: "Anua", logo: "/images/brand_logo.png" },
+  { name: "COSRX", logo: "/images/brand_logo.png" },
+  { name: "Skin1004", logo: "/images/brand_logo.png" }
 ];
 
 export function formatLKR(amount: number): string {
-  return `LKR ${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `LKR ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export function calculateInstallment(price: number, months: number = 3): string {
-  const perMonth = price / months;
-  return formatLKR(perMonth);
+export function calculateInstallment(amount: number, months: number = 3): string {
+  const monthly = amount / months;
+  return formatLKR(monthly);
 }
