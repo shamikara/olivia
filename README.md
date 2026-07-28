@@ -1,6 +1,19 @@
 # Olivia Glow
 
-An original, responsive luxury skincare storefront built with Next.js 16, React 19, and TypeScript.
+An original, responsive luxury skincare commerce platform built as an npm workspace monorepo with Next.js 16, React 19, and TypeScript.
+
+## Workspace architecture
+
+```
+apps/
+  storefront/    customer-facing Next.js storefront
+  admin/         future dedicated Commerce Admin app
+  api/           future REST/tRPC API app
+  platform-os/   future jobs, workflows, and integrations
+packages/
+  commerce/      products, orders, inventory, customers, marketing, payments, shipping, reports
+  ui/ auth/ database/ notifications/ analytics/
+```
 
 ## Included experiences
 
