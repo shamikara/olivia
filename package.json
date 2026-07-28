@@ -5,7 +5,8 @@
   "workspaces": ["apps/*", "packages/*", "packages/commerce/*"],
   "scripts": {
     "dev": "npm run dev --workspace @olivia/storefront",
-    "build": "npm run build --workspace @olivia/storefront",
+    "dev:admin": "npm run dev --workspace @olivia/admin",
+    "build": "npm run build --workspace @olivia/storefront && npm run build --workspace @olivia/admin",
     "start": "npm run start --workspace @olivia/storefront",
     "typecheck": "npm run typecheck --workspaces --if-present"
   }
