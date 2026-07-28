@@ -81,7 +81,7 @@ export default function Home() {
               {searchQuery && <button className="clear-search" onClick={() => setSearchQuery("")}>✕</button>}
             </div>
 
-            <a href="https://wa.me/94770000000?text=Hi!%20I%20would%20like%20a%20free%20skincare%20consultation." target="_blank" rel="noopener noreferrer" className="wa-consult-btn" title="WhatsApp Consultation">
+            <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="wa-consult-btn" title="WhatsApp Consultation">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               <span className="hide-mobile">Consultation</span>
             </a>
@@ -122,16 +122,14 @@ export default function Home() {
               </div>
 
               <div className="mobile-nav-links">
-                <span className="drawer-subhead">HOUSES</span>
-                {FEATURED_BRANDS.map((b) => (
-                  <button key={b.name} className={`m-link ${selectedBrand === b.name ? "active" : ""}`} onClick={() => { setSelectedBrand(b.name); setIsMobileMenuOpen(false); }}>
-                    {b.name}
-                  </button>
-                ))}
+                <span className="drawer-subhead">SOCIAL CHANNELS</span>
+                <a href="https://www.instagram.com/oliviaglow.lk?utm_source=qr" target="_blank" rel="noopener noreferrer" className="m-link">Instagram (@oliviaglow.lk)</a>
+                <a href="https://www.tiktok.com/@oliviaglow41?_r=1&_t=ZS-98MOQHA4s9l" target="_blank" rel="noopener noreferrer" className="m-link">TikTok (@oliviaglow41)</a>
+                <a href="https://www.facebook.com/share/1DB3Bx18WX/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="m-link">Facebook Page</a>
               </div>
 
               <div className="mobile-drawer-footer">
-                <a href="https://wa.me/94770000000?text=Hi!%20I%20have%20a%20question." target="_blank" rel="noopener noreferrer" className="m-wa-btn">
+                <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="m-wa-btn">
                   💬 Chat on WhatsApp
                 </a>
                 <a href="/admin" className="m-admin-link">Admin Portal</a>
@@ -152,7 +150,7 @@ export default function Home() {
             </p>
             <div className="hero-buttons">
               <a href="#catalog" className="btn-solid">Explore Collection</a>
-              <a href="https://wa.me/94770000000?text=Hi!%20I%20need%20skincare%20advice." target="_blank" rel="noopener noreferrer" className="btn-text">
+              <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="btn-text">
                 Book Consultation <span>→</span>
               </a>
             </div>
@@ -259,8 +257,8 @@ export default function Home() {
             <span className="sub-eyebrow light">PERSONALIZED CONSULTATION</span>
             <h2>Curate Your Custom <i>Routine.</i></h2>
             <p>Unsure which formulations fit your skin type? Connect directly with our Colombo skincare specialists on WhatsApp.</p>
-            <a href="https://wa.me/94770000000?text=Hi!%20I%20would%20like%20a%20free%20skincare%20routine%20consultation." target="_blank" rel="noopener noreferrer" className="wa-cta">
-              Connect with Specialist →
+            <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="wa-cta">
+              Connect on WhatsApp →
             </a>
           </div>
         </div>
@@ -283,6 +281,14 @@ export default function Home() {
             <a href="#catalog" onClick={() => setSelectedCategory("MOISTURIZERS")}>Moisturizers</a>
             <a href="#catalog" onClick={() => setSelectedCategory("SUN CREAM")}>Sun Care</a>
             <a href="#catalog" onClick={() => setSelectedCategory("DEVICE")}>Beauty Tech</a>
+          </div>
+
+          <div className="links-col">
+            <h4>Connect</h4>
+            <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer">WhatsApp Advisory</a>
+            <a href="https://www.instagram.com/oliviaglow.lk?utm_source=qr" target="_blank" rel="noopener noreferrer">Instagram (@oliviaglow.lk)</a>
+            <a href="https://www.tiktok.com/@oliviaglow41?_r=1&_t=ZS-98MOQHA4s9l" target="_blank" rel="noopener noreferrer">TikTok (@oliviaglow41)</a>
+            <a href="https://www.facebook.com/share/1DB3Bx18WX/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">Facebook Community</a>
           </div>
 
           <div className="payments-col">
@@ -312,7 +318,7 @@ export default function Home() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
           <span>Menu</span>
         </button>
-        <a href="https://wa.me/94770000000?text=Hi!%20I%20have%20a%20question." target="_blank" rel="noopener noreferrer" className="mobile-bar-btn">
+        <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" className="mobile-bar-btn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <span>WhatsApp</span>
         </a>

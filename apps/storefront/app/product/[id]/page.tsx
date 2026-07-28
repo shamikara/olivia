@@ -39,7 +39,7 @@ export default function ProductDetailPage() {
     <main className="luxury-product-root">
       {/* Top Announcement */}
       <div className="announcement-bar">
-        <span>Complimentary Islandwide Shipping on Orders Over LKR 15,000 • 3-Month Installments with Koko & Mintpay</span>
+        <span>Complimentary Islandwide Shipping on Orders Over LKR 15,000 • <a href="https://wa.me/message/RXH3PJIFMXAEP1" target="_blank" rel="noopener noreferrer" style={{ color: "#c8a97e", textDecoration: "underline" }}>Connect on WhatsApp</a></span>
       </div>
 
       {/* Header */}
