@@ -2,6 +2,7 @@ import Link from "next/link";
 import { StoreShell } from "./components/StoreShell";
 import { ProductCard } from "./components/ProductCard";
 import { NewsletterForm } from "./components/NewsletterForm";
+import { HeroSlideshow } from "./components/HeroSlideshow";
 import { PRODUCTS_CATALOG, FEATURED_BRANDS, SKIN_GOALS } from "./data/products";
 import { SITE } from "./lib/site";
 
@@ -38,6 +39,7 @@ export default function Home() {
     <StoreShell>
       {/* Hero */}
       <section className="hero">
+        <HeroSlideshow />
         <div className="container hero-inner">
           <div className="hero-copy">
             <p className="eyebrow">Sri Lanka&apos;s K-Beauty house</p>
@@ -110,7 +112,7 @@ export default function Home() {
       {/* Shop by skin goal */}
       <section className="section has-aura">
         <div className="aura aura-blush" style={{ width: 400, height: 400, top: 20, right: -180 }} />
-        <div className="container">
+        <div className="container reveal">
           <div className="section-head">
             <div>
               <p className="eyebrow">Targeted results</p>
@@ -138,7 +140,7 @@ export default function Home() {
       {/* Bestsellers */}
       <section className="section-tight has-aura">
         <div className="aura aura-gold" style={{ width: 460, height: 460, bottom: -220, left: -160 }} />
-        <div className="container">
+        <div className="container reveal">
           <div className="section-head">
             <div>
               <p className="eyebrow">Loved by our customers</p>
@@ -164,7 +166,7 @@ export default function Home() {
         <div className="split-media">
           <img src="/images/olivia-hero.png" alt="Olivia Glow founder ritual" />
         </div>
-        <div className="split-copy">
+        <div className="split-copy reveal">
           <p className="eyebrow">Our promise</p>
           <h2>
             Every formula earns its place on <span className="accent">your shelf.</span>
@@ -194,7 +196,7 @@ export default function Home() {
 
       {/* New arrivals */}
       <section className="section">
-        <div className="container">
+        <div className="container reveal">
           <div className="section-head">
             <div>
               <p className="eyebrow">Fresh on the shelf</p>
@@ -218,7 +220,7 @@ export default function Home() {
       {/* Reviews */}
       <section className="section-tight has-aura">
         <div className="aura aura-blush" style={{ width: 420, height: 420, top: -120, right: -140 }} />
-        <div className="container">
+        <div className="container reveal">
           <div className="section-head">
             <div>
               <p className="eyebrow">Real routines</p>
@@ -246,7 +248,7 @@ export default function Home() {
 
       {/* WhatsApp CTA */}
       <section className="section-tight">
-        <div className="container">
+        <div className="container reveal">
           <div className="cta-banner">
             <p className="eyebrow">Free skincare advisory</p>
             <h2>Not sure what your skin needs?</h2>
@@ -263,7 +265,7 @@ export default function Home() {
 
       {/* Newsletter */}
       <section className="newsletter">
-        <div className="container newsletter-inner">
+        <div className="container newsletter-inner reveal">
           <div>
             <p className="eyebrow">Stay in the glow</p>
             <h2>

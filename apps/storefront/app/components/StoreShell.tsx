@@ -5,6 +5,7 @@ import { MobileNav } from "./MobileNav";
 import { QuickView } from "./QuickView";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
+import { SmoothScroll } from "./SmoothScroll";
 import { TabBar } from "./TabBar";
 import { Toast } from "./Toast";
 
@@ -12,6 +13,7 @@ import { Toast } from "./Toast";
 export function StoreShell({ children }: { children: ReactNode }) {
   return (
     <div className="storefront">
+      <SmoothScroll />
       <AnnouncementBar />
       <SiteHeader />
       <main>{children}</main>

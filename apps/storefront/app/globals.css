@@ -97,7 +97,8 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* Lenis owns scroll easing; native smooth scrolling fights it. */
+  scroll-behavior: auto;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -759,7 +760,13 @@ p {
 .header-nav {
   display: none;
   margin-inline: auto;
-  gap: 30px;
+  gap: 22px;
+}
+
+@media (min-width: 1180px) {
+  .header-nav {
+    gap: 30px;
+  }
 }
 
 .header-nav a {
@@ -768,6 +775,7 @@ p {
   font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  white-space: nowrap;
   color: var(--gold-soft);
   padding-block: 6px;
   transition: color 0.2s var(--ease);
@@ -1458,13 +1466,84 @@ p {
   isolation: isolate;
   color: var(--gold-soft);
   background-color: var(--dark);
-  background-image: url('/images/olivia-hero.png');
-  background-size: cover;
-  background-position: 72% center;
   overflow: hidden;
   /* Sits under the sticky header, which is transparent at the top of the page. */
   margin-top: calc(var(--header-h) * -1);
   padding-top: var(--header-h);
+}
+
+/* Crossfading backdrop layers, beneath the scrim. */
+.hero-slides {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: 72% center;
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity 1.8s ease-in-out, transform 8s linear;
+  will-change: opacity;
+}
+
+.hero-slide[data-active='true'] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/*
+ * Reduced motion keeps the rotation but loses the drift — a crossfade alone
+ * carries no movement to be bothered by.
+ *
+ * The blanket reduced-motion reset at the end of this file zeroes every
+ * transition with !important, which would turn this fade into a hard cut, so
+ * the duration is reasserted the same way. `.hero-slide` outranks `*`, so this
+ * wins the tie.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide {
+    transform: none !important;
+    transition: opacity 0.9s ease-in-out !important;
+  }
+}
+
+.hero-dots {
+  position: absolute;
+  z-index: 2;
+  left: var(--gutter);
+  bottom: 22px;
+  display: flex;
+  gap: 9px;
+}
+
+.hero-dots button {
+  width: 26px;
+  height: 3px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: rgba(243, 221, 210, 0.32);
+  cursor: pointer;
+  transition: background 0.3s var(--ease), width 0.3s var(--ease);
+}
+
+.hero-dots button:hover {
+  background: rgba(243, 221, 210, 0.6);
+}
+
+.hero-dots button[data-active='true'] {
+  width: 44px;
+  background: var(--gold-bright);
+}
+
+@media (min-width: 900px) {
+  .hero-dots {
+    bottom: 34px;
+  }
 }
 
 .hero::before {
@@ -1483,7 +1562,7 @@ p {
 }
 
 @media (max-width: 899px) {
-  .hero {
+  .hero-slide {
     background-position: 68% center;
   }
   /* Portrait viewport: the copy stacks over the image, so darken everything. */
@@ -1690,6 +1769,7 @@ p {
   font-size: 1.5rem;
   line-height: 1;
   margin-bottom: 4px;
+  color: var(--gold);
 }
 
 .goal-card b {
