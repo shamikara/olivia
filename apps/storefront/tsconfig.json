@@ -21,7 +21,11 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "paths": {
+      "@olivia/auth": ["../../packages/auth/index.ts"],
+      "@olivia/auth/*": ["../../packages/auth/*"]
+    }
   },
   "include": [
     "next-env.d.ts",
