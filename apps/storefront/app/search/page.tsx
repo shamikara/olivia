@@ -1,17 +1,100 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { StoreShell } from "../components/StoreShell";
+import { ProductCard } from "../components/ProductCard";
+import { SearchIcon } from "../components/Icons";
+import { PRODUCTS_CATALOG } from "../data/products";
 
-const products = [
-  { name: "Cloud Milk Cleanser", type: "Cleanser", price: 32, tone: "peach" },
-  { name: "Morning Dew Serum", type: "Serum", price: 48, tone: "rose" },
-  { name: "Velvet Barrier Cream", type: "Moisturizer", price: 42, tone: "cream" },
-  { name: "Golden Hour Oil", type: "Treatment", price: 54, tone: "amber" },
-];
+const SUGGESTIONS = ["Sunscreen", "Barrier repair", "Snail mucin", "Acne", "Glass skin", "Medicube"];
 
-export default function Search() {
-  const [query, setQuery] = useState("");
-  const [type, setType] = useState("All");
-  const filtered = useMemo(() => products.filter(p => (type === "All" || p.type === type) && p.name.toLowerCase().includes(query.toLowerCase())), [query, type]);
-  return <main className="utility-page"><header><a className="wordmark" href="/"><span className="brand-symbol"/>OLIVIA <em>GLOW</em></a><nav><a href="/shop">Shop</a><a href="/brands">Brands</a><a href="/search">Search</a></nav><a className="bag" href="/cart">Bag</a></header><section className="utility-hero"><p className="eyebrow">DISCOVER OLIVIA GLOW</p><h1>Find your next<br/><i>favourite.</i></h1><div className="search-field"><span>⌕</span><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search products, concerns, ingredients..."/><button onClick={()=>setQuery("")}>Clear</button></div><div className="popular-searches"><span>Popular:</span>{["Hydration", "Sensitive skin", "Vitamin C", "Barrier repair"].map(item=><button key={item} onClick={()=>setQuery(item)}>{item}</button>)}</div></section><section className="search-results"><div className="filter-set">{["All", "Cleanser", "Serum", "Moisturizer", "Treatment"].map(item=><button className={type===item?"selected":""} key={item} onClick={()=>setType(item)}>{item}</button>)}</div><p className="result-count">{filtered.length} results {query && <>for “{query}”</>}</p><div className="search-list">{filtered.map((p, i)=><a href={p.name === "Morning Dew Serum" ? "/product/morning-dew-serum" : "/shop"} className="search-product" key={p.name}><div className={`search-product-image ${p.tone}`}><div className={`bottle b${i}`}><strong>OLIVIA</strong><span>GLOW</span><i>{p.type}</i></div></div><div><p>{p.type}</p><h2>{p.name}</h2><b>${p.price}.00</b></div><span>View product →</span></a>)}</div></section></main>;
+function SearchExperience() {
+  const params = useSearchParams();
+  const [query, setQuery] = useState(params.get("q") ?? "");
+
+  const results = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return PRODUCTS_CATALOG;
+
+    return PRODUCTS_CATALOG.filter((product) =>
+      [product.name, product.brand, product.category, product.description, ...product.concerns, ...product.benefits]
+        .join(" ")
+        .toLowerCase()
+        .includes(needle),
+    );
+  }, [query]);
+
+  return (
+    <>
+      <header className="page-head has-aura">
+        <div className="aura aura-blush" style={{ width: 420, height: 420, top: -180, left: -140 }} />
+        <div className="container" style={{ position: "relative", zIndex: 1 }}>
+          <p className="eyebrow">Discover</p>
+          <h1>
+            Find your next <span className="accent">favourite.</span>
+          </h1>
+
+          <div className="search-field">
+            <SearchIcon size={20} />
+            <input
+              autoFocus
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search products, concerns, ingredients…"
+              aria-label="Search products"
+            />
+            {query && (
+              <button className="chip" onClick={() => setQuery("")}>
+                Clear
+              </button>
+            )}
+          </div>
+
+          <div className="rail" style={{ marginTop: 18 }}>
+            {SUGGESTIONS.map((suggestion) => (
+              <button key={suggestion} className="chip" onClick={() => setQuery(suggestion)}>
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        </div>
+      </header>
+
+      <section className="container section-tight">
+        <p className="mono muted" style={{ fontSize: "0.7rem", letterSpacing: "0.12em", marginBottom: 22 }}>
+          {results.length} {results.length === 1 ? "RESULT" : "RESULTS"}
+          {query.trim() && ` FOR “${query.trim().toUpperCase()}”`}
+        </p>
+
+        {results.length === 0 ? (
+          <div className="empty-state">
+            <span>✦</span>
+            <h3>No matches for that search</h3>
+            <p>Try a concern like &ldquo;redness&rdquo;, or message us on WhatsApp and we&apos;ll find it for you.</p>
+            <button className="btn" onClick={() => setQuery("")}>
+              Show everything
+            </button>
+          </div>
+        ) : (
+          <div className="product-grid">
+            {results.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </section>
+    </>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <StoreShell>
+      <Suspense fallback={<div className="section container muted">Loading search…</div>}>
+        <SearchExperience />
+      </Suspense>
+    </StoreShell>
+  );
 }

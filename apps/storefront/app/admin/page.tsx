@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import "./admin.css";
 
 const products = [
   ["Morning Dew Serum", "OG-SER-001", "Olivia Glow", "$48.00", "128", "Active"],
