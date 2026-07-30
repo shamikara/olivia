@@ -9,7 +9,7 @@ export function SiteFooter() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <Wordmark />
+            <Wordmark variant="footer" />
             <p>{SITE.description}</p>
           </div>
 

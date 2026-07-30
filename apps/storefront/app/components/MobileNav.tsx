@@ -14,14 +14,14 @@ export function MobileNav() {
   return (
     <div className="overlay" onClick={closeNav} role="presentation">
       <aside
-        className="panel panel-left"
+        className="panel panel-left panel-dark"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label="Site menu"
       >
         <div className="panel-head">
-          <Wordmark showTagline={false} />
+          <Wordmark variant="drawer" />
           <button className="icon-btn" onClick={closeNav} aria-label="Close menu">
             <CloseIcon />
           </button>

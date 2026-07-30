@@ -12,6 +12,11 @@ import { BagIcon, HeartIcon, MenuIcon, SearchIcon } from "./Icons";
  * Condenses once the page scrolls, and slides out of the way while the reader
  * moves down the page — returning the moment they scroll back up.
  */
+const HIDE_BELOW = 260; // Never retreat while the hero is still in view.
+const DIRECTION_THRESHOLD = 8; // Ignore scroll jitter and rubber-banding.
+const SCROLLED_ON = 24;
+const SCROLLED_OFF = 8;
+
 function useHeaderScroll() {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -21,12 +26,19 @@ function useHeaderScroll() {
     let ticking = false;
 
     const update = () => {
-      const y = window.scrollY;
-      setScrolled(y > 20);
-      // Only retreat well below the fold, and ignore sub-pixel scroll jitter.
-      setHidden(y > 260 && y - lastY > 4);
-      if (Math.abs(y - lastY) > 4) lastY = y;
       ticking = false;
+      const y = Math.max(0, window.scrollY);
+      const delta = y - lastY;
+
+      // Separate on/off points, so hovering near the boundary can't oscillate.
+      setScrolled((was) => (was ? y > SCROLLED_OFF : y > SCROLLED_ON));
+
+      // Only commit a direction change once the reader has actually moved,
+      // and move the baseline with it — comparing against a stale baseline is
+      // what made the header flicker on every frame.
+      if (Math.abs(delta) < DIRECTION_THRESHOLD) return;
+      setHidden(delta > 0 && y > HIDE_BELOW);
+      lastY = y;
     };
 
     const onScroll = () => {

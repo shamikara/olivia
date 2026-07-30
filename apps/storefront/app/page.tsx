@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { StoreShell } from "./components/StoreShell";
 import { ProductCard } from "./components/ProductCard";
+import { NewsletterForm } from "./components/NewsletterForm";
 import { PRODUCTS_CATALOG, FEATURED_BRANDS, SKIN_GOALS } from "./data/products";
 import { SITE } from "./lib/site";
 
@@ -36,10 +37,7 @@ export default function Home() {
   return (
     <StoreShell>
       {/* Hero */}
-      <section className="hero has-aura">
-        <div className="aura aura-blush" style={{ width: 520, height: 520, top: -160, left: -140 }} />
-        <div className="aura aura-gold" style={{ width: 460, height: 460, bottom: -200, right: -120 }} />
-
+      <section className="hero">
         <div className="container hero-inner">
           <div className="hero-copy">
             <p className="eyebrow">Sri Lanka&apos;s K-Beauty house</p>
@@ -60,6 +58,11 @@ export default function Home() {
               </a>
             </div>
 
+            <div className="hero-badge">
+              <b>3×</b>
+              <small>Split any order into three interest-free monthly payments with Mintpay, Koko &amp; Payzy.</small>
+            </div>
+
             <div className="hero-stats">
               <div>
                 <b>4.9★</b>
@@ -73,16 +76,6 @@ export default function Home() {
                 <b>1–3 days</b>
                 <small>Islandwide delivery</small>
               </div>
-            </div>
-          </div>
-
-          <div className="hero-media">
-            <img src="/images/hero_cover.png" alt="Olivia Glow skincare ritual" />
-            <div className="hero-badge">
-              <b>3×</b>
-              <small>
-                Split any order into three interest-free monthly payments with Mintpay, Koko &amp; Payzy.
-              </small>
             </div>
           </div>
         </div>
@@ -277,13 +270,7 @@ export default function Home() {
               10% off your <span className="accent">first order.</span>
             </h2>
           </div>
-          <form action={SITE.whatsapp} target="_blank">
-            <input type="email" name="email" placeholder="your@email.com" aria-label="Email address" required />
-            <button className="btn" type="submit">
-              Get my code
-            </button>
-            <small>Restock alerts and routine guides. No spam, unsubscribe any time.</small>
-          </form>
+          <NewsletterForm />
         </div>
       </section>
     </StoreShell>

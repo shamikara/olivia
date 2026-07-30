@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 import { StoreShell } from "../components/StoreShell";
 import { formatLKR, installmentAmount } from "../data/products";
-import { SITE } from "../lib/site";
+import { SITE, canPrefillWhatsApp, whatsappLink } from "../lib/site";
 import { useStore } from "../lib/store";
 
 export default function CartPage() {
-  const { lines, subtotal, itemCount, setQuantity, removeFromCart } = useStore();
+  const { lines, subtotal, itemCount, setQuantity, removeFromCart, showToast } = useStore();
   const [code, setCode] = useState("");
   const [applied, setApplied] = useState(false);
 
@@ -17,16 +17,23 @@ export default function CartPage() {
   const total = subtotal - discount + shipping;
 
   // MVP checkout: hand the order to a human on WhatsApp rather than fake a gateway.
-  const orderMessage = encodeURIComponent(
-    [
-      "Hi Olivia Glow, I'd like to place this order:",
-      ...lines.map((line) => `• ${line.quantity} × ${line.product.name} — ${formatLKR(line.lineTotal)}`),
-      applied ? `Discount code: ${code.toUpperCase()}` : "",
-      `Total: ${formatLKR(total)}`,
-    ]
-      .filter(Boolean)
-      .join("\n"),
-  );
+  const orderMessage = [
+    "Hi Olivia Glow, I'd like to place this order:",
+    ...lines.map((line) => `• ${line.quantity} × ${line.product.name} — ${formatLKR(line.lineTotal)}`),
+    applied ? `Discount code: ${code.toUpperCase()}` : "",
+    `Total: ${formatLKR(total)}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const copyOrder = async () => {
+    try {
+      await navigator.clipboard.writeText(orderMessage);
+      showToast("Order copied — paste it into the chat");
+    } catch {
+      showToast("Couldn't copy automatically, please type your order");
+    }
+  };
 
   return (
     <StoreShell>
@@ -150,12 +157,23 @@ export default function CartPage() {
 
             <a
               className="btn btn-block"
-              href={`${SITE.whatsapp}?text=${orderMessage}`}
+              href={whatsappLink(orderMessage)}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => {
+                // Without a configured number WhatsApp drops the prefilled text,
+                // so put the order on the clipboard on the way out.
+                if (!canPrefillWhatsApp) void copyOrder();
+              }}
             >
               Place order on WhatsApp
             </a>
+
+            {!canPrefillWhatsApp && (
+              <button className="btn btn-ghost btn-sm btn-block" onClick={copyOrder} style={{ marginTop: 10 }}>
+                Copy order details
+              </button>
+            )}
 
             <p className="muted center" style={{ fontSize: "0.72rem", marginTop: 12 }}>
               We confirm stock and delivery with you before any payment. Cash on delivery available islandwide.

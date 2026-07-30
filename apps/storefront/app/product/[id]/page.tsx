@@ -13,7 +13,7 @@ import {
   formatLKR,
   installmentAmount,
 } from "../../data/products";
-import { SITE } from "../../lib/site";
+import { SITE, whatsappLink } from "../../lib/site";
 import { useStore } from "../../lib/store";
 
 export default function ProductDetailPage() {
@@ -148,7 +148,7 @@ export default function ProductDetailPage() {
             </button>
             <a
               className="btn btn-whatsapp btn-sm"
-              href={`${SITE.whatsapp}?text=${encodeURIComponent(`Hi Olivia Glow, I'd like to ask about ${product.name}.`)}`}
+              href={whatsappLink(`Hi Olivia Glow, I'd like to ask about ${product.name}.`)}
               target="_blank"
               rel="noopener noreferrer"
             >

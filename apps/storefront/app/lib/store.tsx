@@ -61,6 +61,19 @@ function readStored<T>(key: string, fallback: T): T {
   }
 }
 
+/*
+ * Private browsing, blocked site data and a full quota all make setItem throw.
+ * Unguarded, that exception escapes the effect and takes the whole cart down,
+ * so persistence degrades to in-memory-only instead.
+ */
+function writeStored(key: string, value: unknown): void {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* session-only cart */
+  }
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
@@ -76,11 +89,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    writeStored(CART_KEY, cart);
   }, [cart]);
 
   useEffect(() => {
-    window.localStorage.setItem(WISH_KEY, JSON.stringify(wishlist));
+    writeStored(WISH_KEY, wishlist);
   }, [wishlist]);
 
   // Lock background scrolling while a full-screen overlay is showing.
