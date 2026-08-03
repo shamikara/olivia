@@ -6,33 +6,26 @@ import { useState } from "react";
 import { StoreShell } from "../../components/StoreShell";
 import { ProductCard } from "../../components/ProductCard";
 import { HeartIcon } from "../../components/Icons";
-import {
-  PRODUCTS_CATALOG,
-  discountPercent,
-  findProduct,
-  formatLKR,
-  installmentAmount,
-} from "../../data/products";
+import { discountPercent, formatLKR, installmentAmount } from "../../data/products";
 import { SITE, whatsappLink } from "../../lib/site";
 import { useStore } from "../../lib/store";
 
 export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
-  const product = findProduct(params.id);
-
-  const { addToCart, openCart, toggleWishlist, isWishlisted } = useStore();
+  const { addToCart, openCart, toggleWishlist, isWishlisted, catalog } = useStore();
+  const product = catalog.find((item) => item.id === params.id);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
 
   if (!product) notFound();
 
-  const images = [product.image, product.secondaryImage];
+  const images = [product.image, product.secondaryImage].filter((src): src is string => Boolean(src));
   const discount = discountPercent(product);
   const saved = isWishlisted(product.id);
 
-  const related = PRODUCTS_CATALOG.filter(
-    (item) => item.id !== product.id && (item.category === product.category || item.brand === product.brand),
-  ).slice(0, 4);
+  const related = catalog
+    .filter((item) => item.id !== product.id && (item.category === product.category || item.brand === product.brand))
+    .slice(0, 4);
 
   const buyNow = () => {
     addToCart(product.id, quantity);
@@ -76,12 +69,19 @@ export default function ProductDetailPage() {
           <h1 style={{ fontSize: "clamp(1.8rem, 4.4vw, 2.7rem)" }}>{product.name}</h1>
 
           <div className="product-rating" style={{ marginTop: 14 }}>
-            <span className="stars" aria-hidden="true">
-              ★★★★★
-            </span>
-            <span>
-              {product.rating} · {product.reviewsCount} reviews · {product.size}
-            </span>
+            {product.rating !== undefined && (
+              <>
+                <span className="stars" aria-hidden="true">
+                  ★★★★★
+                </span>
+                <span>
+                  {product.rating}
+                  {product.reviewsCount ? ` · ${product.reviewsCount} reviews` : ""}
+                </span>
+              </>
+            )}
+            {product.size && <span>{product.size}</span>}
+            <span>{product.brand}</span>
           </div>
 
           <div className="pdp-price">
@@ -107,18 +107,25 @@ export default function ProductDetailPage() {
             {product.description}
           </p>
 
-          <div className="pdp-meta">
-            {product.concerns.map((concern) => (
-              <span className="tag" key={concern}>
-                {concern}
-              </span>
-            ))}
-          </div>
+          {product.concerns && product.concerns.length > 0 && (
+            <div className="pdp-meta">
+              {product.concerns.map((concern) => (
+                <span className="tag" key={concern}>
+                  {concern}
+                </span>
+              ))}
+            </div>
+          )}
 
-          {product.stockCount <= 5 && (
+          {product.stockCount > 0 && product.stockCount <= 5 && (
             <div className="urgency">
               <span>Only {product.stockCount} left in stock</span>
-              <span>{product.viewersCount} people viewing this today</span>
+              {product.viewersCount && <span>{product.viewersCount} people viewing this today</span>}
+            </div>
+          )}
+          {product.stockCount === 0 && (
+            <div className="urgency">
+              <span>Currently out of stock — message us to be notified</span>
             </div>
           )}
 
@@ -173,15 +180,19 @@ export default function ProductDetailPage() {
               </div>
             </details>
 
-            <details>
-              <summary>How to use</summary>
-              <div className="accordion-body">{product.howToUse}</div>
-            </details>
+            {product.howToUse && (
+              <details>
+                <summary>How to use</summary>
+                <div className="accordion-body">{product.howToUse}</div>
+              </details>
+            )}
 
-            <details>
-              <summary>Key ingredients</summary>
-              <div className="accordion-body">{product.keyIngredients}</div>
-            </details>
+            {product.keyIngredients && (
+              <details>
+                <summary>Key ingredients</summary>
+                <div className="accordion-body">{product.keyIngredients}</div>
+              </details>
+            )}
 
             <details>
               <summary>Delivery &amp; payment</summary>

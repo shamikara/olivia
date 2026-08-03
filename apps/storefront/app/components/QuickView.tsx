@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { findProduct, formatLKR, installmentAmount } from "../data/products";
+import { formatLKR, installmentAmount } from "../data/products";
 import { SITE } from "../lib/site";
 import { useStore } from "../lib/store";
 import { CloseIcon } from "./Icons";
 
 export function QuickView() {
-  const { quickViewId, closeQuickView, addToCart } = useStore();
-  const product = quickViewId ? findProduct(quickViewId) : undefined;
+  const { quickViewId, closeQuickView, addToCart, catalog } = useStore();
+  const product = quickViewId ? catalog.find((item) => item.id === quickViewId) : undefined;
   if (!product) return null;
 
   return (
@@ -32,12 +32,18 @@ export function QuickView() {
             <h2 style={{ fontSize: "1.5rem" }}>{product.name}</h2>
 
             <div className="product-rating" style={{ marginTop: 10 }}>
-              <span className="stars" aria-hidden="true">
-                ★★★★★
-              </span>
-              <span>
-                {product.rating} · {product.reviewsCount} reviews
-              </span>
+              {product.rating !== undefined && (
+                <>
+                  <span className="stars" aria-hidden="true">
+                    ★★★★★
+                  </span>
+                  <span>
+                    {product.rating}
+                    {product.reviewsCount ? ` · ${product.reviewsCount} reviews` : ""}
+                  </span>
+                </>
+              )}
+              {product.size && <span>{product.size}</span>}
             </div>
 
             <p className="muted" style={{ fontSize: "0.88rem", lineHeight: 1.7, marginBlock: 14 }}>

@@ -4,7 +4,8 @@ import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { StoreShell } from "../components/StoreShell";
 import { ProductCard } from "../components/ProductCard";
-import { CATEGORIES, FEATURED_BRANDS, PRODUCTS_CATALOG, type Category } from "../data/products";
+import { CATEGORIES, type Category } from "../data/products";
+import { useStore } from "../lib/store";
 
 type Sort = "featured" | "price-asc" | "price-desc" | "rating";
 
@@ -19,9 +20,15 @@ function ShopCatalog() {
   const params = useSearchParams();
   const router = useRouter();
 
+  const { catalog } = useStore();
   const category = params.get("category") as Category | null;
   const brand = params.get("brand");
   const [sort, setSort] = useState<Sort>("featured");
+
+  const brands = useMemo(
+    () => [...new Set(catalog.map((product) => product.brand))].sort(),
+    [catalog],
+  );
 
   const setFilter = (key: string, value: string | null) => {
     const next = new URLSearchParams(params.toString());
@@ -31,7 +38,7 @@ function ShopCatalog() {
   };
 
   const products = useMemo(() => {
-    const filtered = PRODUCTS_CATALOG.filter(
+    const filtered = catalog.filter(
       (product) => (!category || product.category === category) && (!brand || product.brand === brand),
     );
 
@@ -41,11 +48,11 @@ function ShopCatalog() {
       case "price-desc":
         return [...filtered].sort((a, b) => b.priceLKR - a.priceLKR);
       case "rating":
-        return [...filtered].sort((a, b) => b.rating - a.rating);
+        return [...filtered].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
       default:
         return filtered;
     }
-  }, [category, brand, sort]);
+  }, [catalog, category, brand, sort]);
 
   const activeCategory = CATEGORIES.find((item) => item.value === category);
 
@@ -86,14 +93,14 @@ function ShopCatalog() {
             <button className="chip" aria-pressed={!brand} onClick={() => setFilter("brand", null)}>
               All brands
             </button>
-            {FEATURED_BRANDS.map((item) => (
+            {brands.map((item) => (
               <button
-                key={item.name}
+                key={item}
                 className="chip"
-                aria-pressed={brand === item.name}
-                onClick={() => setFilter("brand", item.name)}
+                aria-pressed={brand === item}
+                onClick={() => setFilter("brand", item)}
               >
-                {item.name}
+                {item}
               </button>
             ))}
           </div>

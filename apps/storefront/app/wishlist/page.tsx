@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { StoreShell } from "../components/StoreShell";
 import { ProductCard } from "../components/ProductCard";
-import { findProduct } from "../data/products";
 import { useStore } from "../lib/store";
 
 export default function WishlistPage() {
-  const { wishlist } = useStore();
-  const saved = wishlist.map(findProduct).filter((product) => product !== undefined);
+  const { wishlist, catalog } = useStore();
+  const saved = wishlist
+    .map((id) => catalog.find((product) => product.id === id))
+    .filter((product) => product !== undefined);
 
   return (
     <StoreShell>

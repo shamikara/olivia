@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import "./admin.css";
+import { ProductsManager } from "./ProductsManager";
 
 const products = [
   ["Morning Dew Serum", "OG-SER-001", "Olivia Glow", "$48.00", "128", "Active"],
@@ -37,7 +38,7 @@ export default function Admin() {
   return <main className="admin-shell">
     <aside className="admin-sidebar"><a className="admin-brand" href="/"><span className="brand-symbol"/>OLIVIA <em>GLOW</em></a><p className="admin-label">STORE MANAGEMENT</p><nav className="admin-nav">{nav.map(item=><button key={item} className={active===item?"active":""} onClick={()=>setActive(item)}>{item}{item === "Orders" && <span>8</span>}{item === "Reviews" && <span>3</span>}</button>)}</nav><div className="admin-user"><div>OC</div><p>Olivia Chen<small>Super admin</small></p><button onClick={handleLogout} className="admin-logout-btn" title="Sign Out" disabled={isLoggingOut}>{isLoggingOut ? "..." : "⎋"}</button></div></aside>
     <section className="admin-content"><header className="admin-header"><div><p className="eyebrow">TUESDAY, JULY 28</p><h1>{active === "Overview" ? <>Good morning, <i>Olivia.</i></> : <>{active}<i>.</i></>}</h1></div><div className="admin-actions"><button aria-label="Notifications">♢</button><button onClick={handleLogout} className="signout-header-btn" disabled={isLoggingOut}>{isLoggingOut ? "Signing out..." : "Sign out ⎋"}</button><a href="/">View store ↗</a></div></header>
-      {isProduct ? <ProductManager query={query} setQuery={setQuery} products={shownProducts} selected={selected} setSelected={setSelected}/> : active === "Overview" ? <Overview/> : <ModulePanel title={active}/>} 
+      {isProduct ? <ProductsManager/> : active === "Overview" ? <Overview/> : <ModulePanel title={active}/>}
     </section>
   </main>;
 }

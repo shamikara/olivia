@@ -3,7 +3,9 @@ import { StoreShell } from "./components/StoreShell";
 import { ProductCard } from "./components/ProductCard";
 import { NewsletterForm } from "./components/NewsletterForm";
 import { HeroSlideshow } from "./components/HeroSlideshow";
-import { PRODUCTS_CATALOG, FEATURED_BRANDS, SKIN_GOALS } from "./data/products";
+import { BrandMarquee } from "./components/BrandMarquee";
+import { SKIN_GOALS } from "./data/products";
+import { getProducts } from "./lib/product-store";
 import { SITE } from "./lib/site";
 
 const REVIEWS = [
@@ -31,9 +33,13 @@ const TRUST = [
   { title: "Free consultation", copy: "A real advisor on WhatsApp before you buy" },
 ];
 
-export default function Home() {
-  const bestsellers = PRODUCTS_CATALOG.filter((product) => product.bestseller).slice(0, 4);
-  const newIn = PRODUCTS_CATALOG.filter((product) => !product.bestseller).slice(0, 8);
+export default async function Home() {
+  const catalog = await getProducts();
+  const inStock = catalog.filter((product) => product.stockCount > 0);
+  // Lead with the discounted lines, then fill from whatever else is in stock.
+  const onOffer = inStock.filter((product) => product.originalPriceLKR);
+  const bestsellers = [...onOffer, ...inStock].slice(0, 4);
+  const newIn = inStock.filter((product) => !bestsellers.includes(product)).slice(0, 8);
 
   return (
     <StoreShell>
@@ -95,19 +101,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Brand rail */}
-      <section className="brand-strip">
-        <div className="container brand-strip-inner">
-          <span className="brand-strip-label">Stocked brands</span>
-          <div className="rail">
-            {FEATURED_BRANDS.map((brand) => (
-              <Link key={brand.name} href={`/shop?brand=${encodeURIComponent(brand.name)}`} className="chip">
-                {brand.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Brand wall */}
+      <BrandMarquee />
 
       {/* Shop by skin goal */}
       <section className="section has-aura">

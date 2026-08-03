@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { PRODUCTS_CATALOG, type BeautyProduct } from "../data/products";
+import { type BeautyProduct } from "../data/products";
 
 const CART_KEY = "olivia.cart.v1";
 const WISH_KEY = "olivia.wishlist.v1";
@@ -25,6 +25,8 @@ export interface CartEntry extends CartLine {
 }
 
 interface StoreValue {
+  /** The live catalogue, supplied by the server so admin edits show up here. */
+  catalog: BeautyProduct[];
   lines: CartEntry[];
   itemCount: number;
   subtotal: number;
@@ -74,7 +76,7 @@ function writeStored(key: string, value: unknown): void {
   }
 }
 
-export function StoreProvider({ children }: { children: ReactNode }) {
+export function StoreProvider({ children, catalog }: { children: ReactNode; catalog: BeautyProduct[] }) {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [isCartOpen, setCartOpen] = useState(false);
@@ -135,9 +137,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { id, quantity }];
     });
-    const product = PRODUCTS_CATALOG.find((item) => item.id === id);
+    const product = catalog.find((item) => item.id === id);
     setToast(product ? `${product.shortName} added to your bag` : "Added to your bag");
-  }, []);
+  }, [catalog]);
 
   const setQuantity = useCallback((id: string, quantity: number) => {
     setCart((prev) =>
@@ -164,7 +166,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const value = useMemo<StoreValue>(() => {
     const lines = cart
       .map((line) => {
-        const product = PRODUCTS_CATALOG.find((item) => item.id === line.id);
+        const product = catalog.find((item) => item.id === line.id);
         return product
           ? { ...line, product, lineTotal: product.priceLKR * line.quantity }
           : null;
@@ -172,6 +174,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       .filter((line): line is CartEntry => line !== null);
 
     return {
+      catalog,
       lines,
       itemCount: lines.reduce((total, line) => total + line.quantity, 0),
       subtotal: lines.reduce((total, line) => total + line.lineTotal, 0),
@@ -199,6 +202,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       dismissToast: () => setToast(""),
     };
   }, [
+    catalog,
     cart,
     wishlist,
     isCartOpen,

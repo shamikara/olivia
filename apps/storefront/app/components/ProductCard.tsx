@@ -40,14 +40,19 @@ export function ProductCard({ product }: { product: BeautyProduct }) {
           <h3 className="product-name">{product.name}</h3>
         </Link>
 
-        <div className="product-rating">
-          <span className="stars" aria-hidden="true">
-            ★★★★★
-          </span>
-          <span>
-            {product.rating} · {product.reviewsCount}
-          </span>
-        </div>
+        {product.rating !== undefined ? (
+          <div className="product-rating">
+            <span className="stars" aria-hidden="true">
+              ★★★★★
+            </span>
+            <span>
+              {product.rating}
+              {product.reviewsCount ? ` · ${product.reviewsCount}` : ""}
+            </span>
+          </div>
+        ) : (
+          product.size && <div className="product-rating">{product.size}</div>
+        )}
 
         <div className="product-price">
           <span className="price-now">{formatLKR(product.priceLKR)}</span>
@@ -68,10 +73,18 @@ export function ProductCard({ product }: { product: BeautyProduct }) {
           </div>
         </div>
 
-        {product.stockCount <= 5 && <p className="stock-note">Only {product.stockCount} left in stock</p>}
+        {product.stockCount === 0 ? (
+          <p className="stock-note">Out of stock</p>
+        ) : (
+          product.stockCount <= 5 && <p className="stock-note">Only {product.stockCount} left</p>
+        )}
 
-        <button className="btn btn-sm btn-block" onClick={() => addToCart(product.id)}>
-          Add to bag
+        <button
+          className="btn btn-sm btn-block"
+          onClick={() => addToCart(product.id)}
+          disabled={product.stockCount === 0}
+        >
+          {product.stockCount === 0 ? "Sold out" : "Add to bag"}
         </button>
       </div>
     </article>

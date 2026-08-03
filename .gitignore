@@ -1,6 +1,10 @@
 node_modules/
 .next/
 out/
+
+# Catalogue edited through the admin panel. Runtime state, not source — the
+# checked-in catalogue in app/data/products.ts seeds it on first run.
+apps/storefront/data/products.json
 .env*
 !.env.example
 *.tsbuildinfo

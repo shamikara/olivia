@@ -5,25 +5,33 @@ import { useSearchParams } from "next/navigation";
 import { StoreShell } from "../components/StoreShell";
 import { ProductCard } from "../components/ProductCard";
 import { SearchIcon } from "../components/Icons";
-import { PRODUCTS_CATALOG } from "../data/products";
+import { useStore } from "../lib/store";
 
 const SUGGESTIONS = ["Sunscreen", "Barrier repair", "Snail mucin", "Acne", "Glass skin", "Medicube"];
 
 function SearchExperience() {
   const params = useSearchParams();
+  const { catalog } = useStore();
   const [query, setQuery] = useState(params.get("q") ?? "");
 
   const results = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    if (!needle) return PRODUCTS_CATALOG;
+    if (!needle) return catalog;
 
-    return PRODUCTS_CATALOG.filter((product) =>
-      [product.name, product.brand, product.category, product.description, ...product.concerns, ...product.benefits]
+    return catalog.filter((product) =>
+      [
+        product.name,
+        product.brand,
+        product.category,
+        product.description,
+        ...(product.concerns ?? []),
+        ...product.benefits,
+      ]
         .join(" ")
         .toLowerCase()
         .includes(needle),
     );
-  }, [query]);
+  }, [catalog, query]);
 
   return (
     <>
