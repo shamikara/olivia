@@ -1,0 +1,91 @@
+[
+  {
+    "customerId": "cus_39823451-d41",
+    "contactName": "Nethmi Perera",
+    "contactPhone": "0771234567",
+    "contactEmail": "shot1785747044605@example.com",
+    "lines": [
+      {
+        "productId": "p46",
+        "name": "Anua Azelaic 10 Hyaluron Redness Soothing Pad",
+        "brand": "Anua",
+        "image": "/images/products/anua-azelaic-10-hyaluron-redness-soothing-pad-clean.webp",
+        "quantity": 2,
+        "unitPriceLKR": 8802,
+        "lineTotalLKR": 17604
+      },
+      {
+        "productId": "p86",
+        "name": "APRILSKIN Carrotene Clarifying Cream",
+        "brand": "AprilSkin",
+        "image": "/images/products/aprilskin-carrotene-clarifying-cream-1.webp",
+        "quantity": 1,
+        "unitPriceLKR": 8392,
+        "lineTotalLKR": 8392
+      }
+    ],
+    "subtotalLKR": 25996,
+    "discountLKR": 0,
+    "shippingLKR": 0,
+    "totalLKR": 25996,
+    "address": {
+      "id": "adr_978b5e41",
+      "label": "Home",
+      "fullName": "Nethmi Perera",
+      "phone": "077 123 4567",
+      "line1": "42 Horton Place",
+      "city": "Colombo 07",
+      "district": "Colombo",
+      "postalCode": "00700",
+      "isDefault": true
+    },
+    "id": "ord_201b188e-a58",
+    "reference": "OG-1002",
+    "status": "pending",
+    "createdAt": "2026-08-03T08:50:45.253Z"
+  },
+  {
+    "customerId": "cus_84f08cf1-a22",
+    "contactName": "Test Buyer",
+    "contactPhone": "0771234567",
+    "contactEmail": "tester1785746990428@example.com",
+    "lines": [
+      {
+        "productId": "p46",
+        "name": "Anua Azelaic 10 Hyaluron Redness Soothing Pad",
+        "brand": "Anua",
+        "image": "/images/products/anua-azelaic-10-hyaluron-redness-soothing-pad-clean.webp",
+        "quantity": 2,
+        "unitPriceLKR": 8802,
+        "lineTotalLKR": 17604
+      },
+      {
+        "productId": "p1",
+        "name": "ANUA Niacinamide 10 + TXA 4 Serum",
+        "brand": "Anua",
+        "image": "/images/products/anua-niacinamide-10-txa-4-serum-clean.webp",
+        "quantity": 1,
+        "unitPriceLKR": 8580,
+        "lineTotalLKR": 8580
+      }
+    ],
+    "subtotalLKR": 26184,
+    "discountLKR": 2618,
+    "shippingLKR": 0,
+    "totalLKR": 23566,
+    "discountCode": "GLOW10",
+    "address": {
+      "id": "adr_15d0e6ca",
+      "label": "Office",
+      "fullName": "Test Buyer",
+      "phone": "0771234567",
+      "line1": "5 Union Place",
+      "city": "Colombo 02",
+      "isDefault": true
+    },
+    "id": "ord_ebb6053c-67b",
+    "reference": "OG-1001",
+    "status": "pending",
+    "createdAt": "2026-08-03T08:49:54.418Z"
+  }
+]

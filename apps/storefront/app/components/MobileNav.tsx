@@ -54,6 +54,9 @@ export function MobileNav() {
             <Link href="/cart" onClick={closeNav}>
               Your bag <span className="meta">→</span>
             </Link>
+            <Link href="/account" onClick={closeNav}>
+              My account <span className="meta">→</span>
+            </Link>
           </div>
 
           <div className="nav-group">

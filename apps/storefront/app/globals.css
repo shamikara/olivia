@@ -2614,6 +2614,408 @@ p {
 }
 
 /* ==========================================================================
+   Account: sign in, register, profile
+   ========================================================================== */
+
+.auth-page {
+  background: linear-gradient(160deg, var(--blush-wash), var(--paper));
+  padding-block: 46px 70px;
+}
+
+.auth-inner {
+  max-width: 480px;
+}
+
+.auth-inner .lede {
+  margin-block: 14px 0;
+}
+
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 28px;
+  padding: 26px 24px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--r-md);
+  box-shadow: var(--glass-shadow);
+}
+
+.auth-card label,
+.details-form label,
+.address-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.auth-card input,
+.details-form input,
+.address-fields input,
+.checkout-contact input {
+  min-height: 46px;
+  padding: 12px 15px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
+  outline: 0;
+}
+
+.auth-card input:focus,
+.details-form input:focus,
+.address-fields input:focus,
+.checkout-contact input:focus {
+  border-color: var(--gold);
+}
+
+.details-form input:disabled {
+  background: var(--surface-warm);
+  color: var(--muted);
+}
+
+.auth-optional,
+.auth-hint {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--faint);
+}
+
+.auth-error {
+  padding: 11px 14px;
+  border-radius: var(--r-sm);
+  background: var(--blush-wash);
+  border-left: 3px solid var(--berry);
+  color: var(--berry);
+  font-size: 0.82rem;
+}
+
+.auth-swap {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.auth-swap a {
+  color: var(--gold);
+  border-bottom: 1px solid var(--gold-soft);
+}
+
+.account-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 26px;
+}
+
+.account-signout {
+  margin-left: auto;
+}
+
+.account-flash {
+  margin-bottom: 18px;
+  padding: 11px 14px;
+  border-radius: var(--r-sm);
+  background: var(--green-soft);
+  border-left: 3px solid var(--green);
+  color: var(--green);
+  font-size: 0.82rem;
+}
+
+/* ---- Orders ---- */
+
+.order-list {
+  display: grid;
+  gap: 16px;
+}
+
+.order-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--r-md);
+  padding: 20px;
+}
+
+.order-card > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.order-card > header b {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+}
+
+.order-card > header small {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.order-status {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: var(--r-xs);
+  white-space: nowrap;
+  background: var(--gold-wash);
+  color: var(--gold);
+}
+
+.order-status.status-delivered {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.order-status.status-cancelled {
+  background: var(--blush-wash);
+  color: var(--berry);
+}
+
+.order-line {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding-block: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.order-line:last-child {
+  border-bottom: 0;
+}
+
+.order-line img {
+  width: 52px;
+  height: 62px;
+  object-fit: cover;
+  border-radius: var(--r-xs);
+  background: var(--surface-warm);
+}
+
+.order-line small {
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.order-line p {
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  line-height: 1.35;
+  margin-top: 3px;
+}
+
+.order-line span {
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+.order-card > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 0.8rem;
+}
+
+.order-card > footer strong {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+}
+
+.order-totals {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.order-confirm {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 900px) {
+  .order-confirm {
+    grid-template-columns: 1.4fr 0.8fr;
+    align-items: start;
+  }
+}
+
+.order-next {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 24px;
+  background: var(--surface-warm);
+  border-radius: var(--r-md);
+}
+
+/* ---- Addresses ---- */
+
+.address-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 700px) {
+  .address-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+}
+
+.address-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--r-md);
+  padding: 20px;
+}
+
+.address-card .tag {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+}
+
+.address-card h3 {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+
+.address-card p {
+  font-size: 0.84rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+.address-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.address-actions button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: 0.74rem;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.address-actions button:hover {
+  color: var(--gold);
+}
+
+.address-add {
+  min-height: 150px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--muted);
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.address-add:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.address-form {
+  margin-top: 22px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.address-form h3 {
+  margin-bottom: 18px;
+}
+
+.address-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 700px) {
+  .address-fields {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .address-fields .span-2 {
+    grid-column: span 3;
+  }
+}
+
+.address-default {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 10px !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-family: var(--sans) !important;
+  font-size: 0.82rem !important;
+  color: var(--ink-soft) !important;
+}
+
+.address-default input {
+  width: 17px;
+  min-height: 17px;
+  accent-color: var(--gold);
+}
+
+.address-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.details-form {
+  display: grid;
+  gap: 16px;
+  max-width: 420px;
+}
+
+.checkout-contact {
+  display: grid;
+  gap: 10px;
+  margin-block: 16px;
+}
+
+/* ==========================================================================
    Search
    ========================================================================== */
 

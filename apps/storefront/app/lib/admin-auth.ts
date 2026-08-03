@@ -19,7 +19,12 @@ export async function requireAdmin(request: NextRequest): Promise<NextResponse |
   if (!token) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
 
   try {
-    await jwtVerify(token, secretKey());
+    const { payload } = await jwtVerify(token, secretKey());
+    // A valid signature is not enough: customer tokens must never satisfy the
+    // admin guard, even if they were ever signed with the same secret.
+    if (payload.role === "customer" || !payload.role) {
+      return NextResponse.json({ error: "Not authorised" }, { status: 403 });
+    }
     return null;
   } catch {
     return NextResponse.json({ error: "Session expired, please sign in again" }, { status: 401 });

@@ -6,7 +6,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { NAV_LINKS } from "../lib/site";
 import { useStore } from "../lib/store";
 import { Wordmark } from "./Wordmark";
-import { BagIcon, HeartIcon, MenuIcon, SearchIcon } from "./Icons";
+import { BagIcon, HeartIcon, MenuIcon, SearchIcon, UserIcon } from "./Icons";
 
 /**
  * Condenses once the page scrolls, and slides out of the way while the reader
@@ -105,6 +105,10 @@ export function SiteHeader() {
 
           <Link href="/search" className="icon-btn search-jump" aria-label="Search">
             <SearchIcon size={20} />
+          </Link>
+
+          <Link href="/account" className="icon-btn header-account" aria-label="My account">
+            <UserIcon size={20} />
           </Link>
 
           <Link href="/wishlist" className="icon-btn header-wish" aria-label="Saved items">

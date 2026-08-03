@@ -24,7 +24,9 @@ export async function middleware(request: NextRequest) {
 
     try {
       const secret = getSecretKey();
-      await jwtVerify(token, secret);
+      const { payload } = await jwtVerify(token, secret);
+      // A customer token must never open the admin panel, whatever it is signed with.
+      if (payload.role === "customer" || !payload.role) throw new Error("not an admin token");
       return NextResponse.next();
     } catch {
       // Invalid/expired token -> clear cookie and redirect to login
