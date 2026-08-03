@@ -12,13 +12,42 @@ export default function CartPage() {
   const { lines, subtotal, itemCount, setQuantity, removeFromCart, showToast, clearCart } = useStore();
   const router = useRouter();
   const [code, setCode] = useState("");
-  const [applied, setApplied] = useState(false);
+  const [applied, setApplied] = useState(0);
+  const [checking, setChecking] = useState(false);
+  const [codeError, setCodeError] = useState<string | null>(null);
   const [placing, setPlacing] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
   const [needsContact, setNeedsContact] = useState(false);
   const [contact, setContact] = useState({ name: "", phone: "" });
 
-  const discount = applied ? Math.round(subtotal * 0.1) : 0;
+  // The server is the authority on what a code is worth; this only mirrors it.
+  const checkCode = async () => {
+    setChecking(true);
+    setCodeError(null);
+    try {
+      const res = await fetch("/api/discount", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code,
+          items: lines.map((line) => ({ id: line.product.id, quantity: line.quantity })),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setApplied(0);
+        setCodeError(data.error ?? "That code isn't valid");
+        return;
+      }
+      setApplied(data.discount.amountLKR);
+    } catch {
+      setCodeError("Could not check that code");
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  const discount = applied;
   const shipping = subtotal >= SITE.freeShippingThreshold || subtotal === 0 ? 0 : 450;
   const total = subtotal - discount + shipping;
 
@@ -166,9 +195,9 @@ export default function CartPage() {
               <span>Delivery</span>
               <strong>{shipping === 0 ? "Free" : formatLKR(shipping)}</strong>
             </div>
-            {applied && (
+            {applied > 0 && (
               <div className="summary-row" style={{ color: "var(--green)" }}>
-                <span>Discount (GLOW10)</span>
+                <span>Discount ({code.trim().toUpperCase()})</span>
                 <strong>−{formatLKR(discount)}</strong>
               </div>
             )}
@@ -180,17 +209,12 @@ export default function CartPage() {
                 placeholder="Discount code"
                 aria-label="Discount code"
               />
-              <button
-                className="btn btn-ghost btn-sm"
-                onClick={() => setApplied(code.trim().toUpperCase() === "GLOW10")}
-              >
-                Apply
+              <button className="btn btn-ghost btn-sm" onClick={checkCode} disabled={checking}>
+                {checking ? "…" : "Apply"}
               </button>
             </div>
-            {code && !applied && (
-              <p className="muted" style={{ fontSize: "0.72rem", marginBottom: 12 }}>
-                Try GLOW10 for 10% off your first order.
-              </p>
+            {codeError && (
+              <p style={{ fontSize: "0.72rem", marginBottom: 12, color: "var(--berry)" }}>{codeError}</p>
             )}
 
             <div className="summary-row summary-total">

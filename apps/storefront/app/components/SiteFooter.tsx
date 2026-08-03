@@ -52,7 +52,10 @@ export function SiteFooter() {
         </div>
 
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} Olivia Glow · Colombo, Sri Lanka</span>
+          <span>
+            © {new Date().getFullYear()} Olivia Glow <span className="footer-sep">|</span> Built with Platform OS by
+            SpandhaLabs
+          </span>
           <span>100% authentic K-Beauty, sourced direct</span>
         </div>
       </div>

@@ -2236,6 +2236,11 @@ p {
   color: rgba(232, 205, 191, 0.78);
 }
 
+.footer-sep {
+  color: var(--gold-bright);
+  margin-inline: 4px;
+}
+
 .footer-bottom {
   display: flex;
   flex-direction: column;

@@ -4,7 +4,8 @@ import { createOrder, ordersForCustomer, type OrderLine } from "../../lib/order-
 import { findById } from "../../lib/customer-store";
 import { CUSTOMER_COOKIE, readCustomerToken } from "../../lib/customer-auth";
 import { getProducts } from "../../lib/product-store";
-import { SITE } from "../../lib/site";
+import { getSettings } from "../../lib/settings-store";
+import { applyDiscount, recordDiscountUse } from "../../lib/discount-store";
 
 /** Orders belonging to the signed-in customer. */
 export async function GET(request: NextRequest) {
@@ -66,9 +67,22 @@ export async function POST(request: NextRequest) {
   }
 
   const subtotal = lines.reduce((total, line) => total + line.lineTotalLKR, 0);
-  const code = (body.discountCode ?? "").trim().toUpperCase();
-  const discount = code === "GLOW10" ? Math.round(subtotal * 0.1) : 0;
-  const shipping = subtotal >= SITE.freeShippingThreshold ? 0 : 450;
+  const settings = await getSettings();
+
+  // Discount rules are resolved server-side; an invalid or ineligible code is
+  // simply worth nothing rather than failing the whole order.
+  const requested = (body.discountCode ?? "").trim();
+  let discount = 0;
+  let appliedCode: string | undefined;
+  if (requested) {
+    const result = await applyDiscount(requested, subtotal);
+    if ("discount" in result) {
+      discount = result.discount.amountLKR;
+      appliedCode = result.discount.code;
+    }
+  }
+
+  const shipping = subtotal >= settings.freeShippingThresholdLKR ? 0 : settings.flatShippingLKR;
 
   const address = customer?.addresses.find((entry) => entry.id === body.addressId) ??
     customer?.addresses.find((entry) => entry.isDefault);
@@ -84,10 +98,14 @@ export async function POST(request: NextRequest) {
       discountLKR: discount,
       shippingLKR: shipping,
       totalLKR: subtotal - discount + shipping,
-      discountCode: discount > 0 ? code : undefined,
+      discountCode: appliedCode,
       address,
       note: body.note?.trim() || undefined,
     });
+
+    // Only count a redemption once the order actually exists.
+    if (appliedCode) await recordDiscountUse(appliedCode);
+
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {
     const errno = (error as NodeJS.ErrnoException)?.code;
