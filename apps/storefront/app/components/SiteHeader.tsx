@@ -69,6 +69,9 @@ export function SiteHeader() {
   return (
     <header
       className="site-header glass"
+      // Only the homepage puts a dark hero behind the header; everywhere else it
+      // sits over light content and needs its solid background from the start.
+      data-over-hero={pathname === "/"}
       data-scrolled={scrolled}
       data-hidden={hidden && !isCartOpen && !isNavOpen}
     >

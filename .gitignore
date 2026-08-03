@@ -2,9 +2,11 @@ node_modules/
 .next/
 out/
 
-# Catalogue edited through the admin panel. Runtime state, not source — the
-# checked-in catalogue in app/data/products.ts seeds it on first run.
-apps/storefront/data/products.json
+# Runtime state written by the app: the catalogue edited through the admin
+# panel, customer accounts and orders. Source of truth for products is the
+# checked-in catalogue in app/data/products.ts, which seeds it on first run.
+# customers.json holds password hashes — it must never reach the repository.
+apps/storefront/data/
 .env*
 !.env.example
 *.tsbuildinfo

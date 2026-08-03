@@ -589,10 +589,16 @@ p {
   top: 0;
   z-index: 40;
   color: var(--gold-soft);
-  background: rgba(30, 16, 24, 0.42);
-  border-bottom: 1px solid transparent;
+  background: var(--glass-bg-dark);
+  border-bottom: 1px solid var(--glass-edge-dark);
   transition: transform 0.42s var(--ease), background 0.35s var(--ease), border-color 0.35s var(--ease),
     box-shadow 0.35s var(--ease);
+}
+
+/* Over the homepage hero it can afford to be barely there. */
+.site-header[data-over-hero='true'] {
+  background: rgba(30, 16, 24, 0.42);
+  border-bottom-color: transparent;
 }
 
 /* Condensed state, once the page has scrolled past the top. */
