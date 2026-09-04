@@ -3716,6 +3716,222 @@ p {
   }
 }
 
+
+/* ==========================================================================
+   Checkout
+   ========================================================================== */
+
+.checkout-layout {
+  display: grid;
+  gap: 34px;
+  padding-block: 34px 70px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .checkout-layout {
+    grid-template-columns: 1.5fr 0.85fr;
+    gap: 60px;
+    padding-block: 54px 100px;
+  }
+}
+
+.checkout-main {
+  display: grid;
+  gap: 18px;
+}
+
+.checkout-block {
+  background: rgba(255, 255, 255, 0.66);
+  backdrop-filter: var(--glass-blur-lg);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--r-md);
+  padding: 24px 22px;
+  box-shadow: var(--glass-shadow);
+}
+
+.checkout-block h2 {
+  margin: 0 0 16px;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.field-grid {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+@media (min-width: 620px) {
+  .field-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .field-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.field-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.field-grid input,
+.checkout-block textarea {
+  min-height: 46px;
+  padding: 12px 15px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
+  outline: 0;
+}
+
+.checkout-block textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.field-grid input:focus,
+.checkout-block textarea:focus {
+  border-color: var(--gold);
+}
+
+/* Address and payment pickers share a card shape. */
+.address-choices,
+.pay-choices {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.address-choice,
+.pay-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.address-choice[data-active='true'],
+.pay-choice[data-active='true'] {
+  border-color: var(--gold);
+  background: var(--gold-wash);
+}
+
+.address-choice input,
+.pay-choice input {
+  margin-top: 3px;
+  accent-color: var(--gold);
+  flex-shrink: 0;
+}
+
+.address-choice span,
+.pay-choice span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.address-choice b,
+.pay-choice b {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.address-choice small,
+.pay-choice small {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.pay-test {
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--berry);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  font-style: normal;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pay-split {
+  margin-top: 2px;
+  color: var(--gold);
+}
+
+.checkout-warning {
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--blush-wash);
+  border: 1px solid var(--blush);
+  border-radius: var(--r-sm);
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+}
+
+.checkout-summary .summary-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.checkout-summary .summary-line img {
+  width: 46px;
+  height: 46px;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  background: var(--surface-warm);
+}
+
+.checkout-summary .summary-line span {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.checkout-summary .summary-line b {
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.checkout-summary .summary-line small {
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.checkout-summary .summary-line strong {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
 /* ==========================================================================
    Utilities
    ========================================================================== */

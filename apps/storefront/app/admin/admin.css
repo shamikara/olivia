@@ -424,3 +424,87 @@
 .admin-shell{display:grid;grid-template-columns:245px 1fr;min-height:100vh;background:#f7f5f1}.admin-sidebar{background:#312a27;color:#eee6df;padding:32px 22px;display:flex;flex-direction:column}.admin-brand{font:500 16px var(--serif);letter-spacing:.12em;display:flex;align-items:center;gap:7px}.admin-brand em{font:8px var(--sans);font-style:normal;letter-spacing:.18em}.admin-label{font:9px var(--mono);letter-spacing:.12em;color:#a99d94;margin:53px 10px 13px}.admin-nav{display:flex;flex-direction:column;gap:4px}.admin-nav a{padding:11px 12px;font-size:12px;color:#c9bdb5;display:flex;justify-content:space-between}.admin-nav a.active,.admin-nav a:hover{background:#4a3f3a;color:#fff}.admin-nav span{font:9px var(--mono);background:#d48b78;color:#fff;border-radius:10px;padding:2px 5px}.admin-user{border-top:1px solid #5a4e48;margin-top:auto;padding:20px 8px 0;display:flex;align-items:center;gap:10px}.admin-user>div{width:29px;height:29px;border-radius:50%;background:#e5c4b5;color:#46322b;font:10px var(--mono);display:grid;place-items:center}.admin-user p{font-size:11px;margin:0;flex:1}.admin-user small{display:block;color:#a99d94;font-size:9px;margin-top:2px}.admin-user b{font-size:14px}.admin-content{padding:48px 5.5%}.admin-header{height:auto;border:0;background:none;padding:0;display:flex;align-items:start;justify-content:space-between}.admin-header h1{font-size:42px;margin:0}.admin-actions{display:flex;gap:13px;align-items:center}.admin-actions button{border:1px solid var(--line);background:#fff;width:38px;height:38px;font-size:18px}.admin-actions a,.admin-card-title>a{font-size:11px;border:1px solid #352d2a;padding:12px 15px}.admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin:43px 0 18px}.admin-stats article,.sales-card,.stock-card,.orders-card{background:#fff;border:1px solid #e6e0d9}.admin-stats article{padding:22px}.admin-stats p{font:9px var(--mono);letter-spacing:.1em;color:var(--muted);margin-bottom:16px}.admin-stats h2{font:500 27px var(--serif);margin:0 0 5px}.admin-stats h2 span,.admin-card-title h2 span{font:10px var(--sans);color:#587d62;background:#eef5ed;padding:4px;margin-left:6px;vertical-align:middle}.admin-stats small{font-size:9px;color:var(--muted)}.admin-grid{display:grid;grid-template-columns:1.7fr .8fr;gap:18px}.sales-card,.stock-card,.orders-card{padding:25px}.admin-card-title{display:flex;justify-content:space-between;align-items:start}.admin-card-title h2,.stock-card h2{font:500 24px var(--serif);margin:0}.admin-card-title button{background:none;border:1px solid var(--line);font-size:10px;padding:7px}.chart{height:188px;margin:36px 6px 14px;display:flex;align-items:end;gap:3.5%;border-bottom:1px solid #d6d0c8;background:repeating-linear-gradient(to bottom,transparent 0,transparent 46px,#f1eeea 47px)}.chart i{background:#d69f91;flex:1;min-width:7px;transition:height .2s}.chart i:hover{background:#443532}.chart-labels{display:flex;justify-content:space-between;font:9px var(--mono);color:var(--muted)}.stock-card>div{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line);font-size:11px}.stock-card b{color:#b15949;font-weight:500}.stock-card>a{display:block;margin-top:19px;font-size:10px;text-decoration:underline}.orders-card{margin-top:18px}.order-table{margin-top:20px}.order-row{display:grid;grid-template-columns:1.1fr 1.6fr .9fr .9fr 1.2fr;gap:10px;padding:14px 5px;border-top:1px solid #eeeae5;align-items:center;font-size:11px}.order-row.heading{font:9px var(--mono);color:var(--muted);padding-top:0}.order-row b{font:500 11px var(--mono)}.order-row em{font-style:normal;color:#4e7659;background:#edf5ee;padding:4px 6px;justify-self:start;font-size:9px}.order-row small{font-size:10px;color:var(--muted)}
 @media(max-width:900px){.admin-shell{display:block}.admin-sidebar{padding:18px 20px;min-height:auto}.admin-label,.admin-nav,.admin-user{display:none}.admin-content{padding:38px 20px}.admin-header h1{font-size:34px}.admin-stats{grid-template-columns:1fr 1fr}.admin-grid{grid-template-columns:1fr}.order-table{overflow-x:auto}.order-row{min-width:590px}.orders-card{overflow:hidden}}
 .admin-logout-btn{background:none;border:1px solid #5a4e48;color:#a99d94;border-radius:4px;padding:4px 8px;font-size:12px;cursor:pointer;transition:all .2s}.admin-logout-btn:hover{background:#d48b78;color:#fff;border-color:#d48b78}.signout-header-btn{background:#fff;border:1px solid #352d2a;color:#352d2a;padding:9px 14px;font-size:11px;cursor:pointer;transition:all .2s}.signout-header-btn:hover{background:#352d2a;color:#fff}
+
+/* Payments module ------------------------------------------------------- */
+.admin-hint {
+  font: 11px var(--sans);
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.admin-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 9px !important;
+  font: 11px var(--sans) !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  color: var(--ink) !important;
+  cursor: pointer;
+}
+.admin-check input {
+  width: auto;
+  accent-color: #b06e58;
+}
+.admin-panel input:disabled,
+.admin-panel textarea:disabled {
+  background: #f4f0ec;
+  color: #8b7c74;
+  cursor: not-allowed;
+}
+.admin-panel textarea {
+  font-family: var(--mono);
+  font-size: 10px;
+  resize: vertical;
+}
+.admin-warn {
+  margin: 6px 0 0;
+  padding: 11px 13px;
+  background: #fdf3ef;
+  border: 1px solid #eccdc0;
+  border-left: 3px solid #8f3a4a;
+  border-radius: 3px;
+  font: 11px var(--sans);
+  line-height: 1.65;
+  color: #5c4048;
+}
+.gw-ok,
+.gw-off {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font: 9px var(--mono);
+  font-style: normal;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.gw-ok {
+  background: #eaf2ed;
+  color: #2f6b53;
+}
+.gw-off {
+  background: #f1ece9;
+  color: #8b7c74;
+}
+
+/* Payment state on the orders table ------------------------------------- */
+.pay-badge {
+  display: inline-block;
+  margin-top: 3px;
+  font: 9px var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pay-badge.pay-paid {
+  color: #2f6b53;
+}
+.pay-badge.pay-failed,
+.pay-badge.pay-cancelled {
+  color: #8f3a4a;
+}
+.pay-badge.pay-weak {
+  color: #9a6a2f;
+}

@@ -1,5 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { DEFAULT_PAYMENTS, type PaymentConfig } from "./payments/config";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const FILE = path.join(DATA_DIR, "settings.json");
@@ -19,6 +20,8 @@ export interface StoreSettings {
   installmentMonths: number;
   lowStockThreshold: number;
   announcements: string[];
+  /** Gateway credentials. Secrets here are overridden by env vars at read time. */
+  payments: PaymentConfig;
 }
 
 export const DEFAULT_SETTINGS: StoreSettings = {
@@ -41,13 +44,26 @@ export const DEFAULT_SETTINGS: StoreSettings = {
     "Pay in 3 with Mintpay, Koko & Payzy",
     "Free skin consultation on WhatsApp",
   ],
+  payments: DEFAULT_PAYMENTS,
 };
 
 export async function getSettings(): Promise<StoreSettings> {
   try {
     const raw = await fs.readFile(FILE, "utf8");
-    // Merge over defaults so a new field never arrives undefined.
-    return { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<StoreSettings>) };
+    const stored = JSON.parse(raw) as Partial<StoreSettings>;
+    // Merge over defaults so a new field never arrives undefined. Payments
+    // needs its own pass: a shallow spread would drop a gateway added after
+    // the file was written.
+    return {
+      ...DEFAULT_SETTINGS,
+      ...stored,
+      payments: {
+        ...DEFAULT_PAYMENTS,
+        ...(stored.payments ?? {}),
+        koko: { ...DEFAULT_PAYMENTS.koko, ...(stored.payments?.koko ?? {}) },
+        mintpay: { ...DEFAULT_PAYMENTS.mintpay, ...(stored.payments?.mintpay ?? {}) },
+      },
+    };
   } catch {
     return DEFAULT_SETTINGS;
   }

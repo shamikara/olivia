@@ -3,6 +3,36 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Order, OrderStatus } from "../lib/order-store";
 
+const METHOD_LABEL: Record<string, string> = {
+  cod: "Cash on delivery",
+  whatsapp: "WhatsApp",
+  koko: "Koko",
+  mintpay: "Mintpay",
+};
+
+/*
+ * The evidence matters as much as the status: Koko signs its callbacks, while
+ * a Mintpay payment rests on a hash we generated ourselves, so those need
+ * reconciling against the merchant portal before they are treated as money.
+ */
+const EVIDENCE_LABEL: Record<string, string> = {
+  "signed-callback": "signed callback",
+  "order-view": "confirmed with gateway",
+  "return-hash": "return hash — reconcile",
+  manual: "marked by hand",
+};
+
+function PaymentBadge({ order }: { order: Order }) {
+  const method = METHOD_LABEL[order.paymentMethod] ?? order.paymentMethod;
+  const weak = order.paymentStatus === "paid" && order.paymentEvidence === "return-hash";
+  return (
+    <small className={`pay-badge pay-${order.paymentStatus}${weak ? " pay-weak" : ""}`}>
+      {method} · {order.paymentStatus}
+      {order.paymentEvidence ? ` (${EVIDENCE_LABEL[order.paymentEvidence] ?? order.paymentEvidence})` : ""}
+    </small>
+  );
+}
+
 const STATUSES: OrderStatus[] = ["pending", "confirmed", "packing", "shipped", "delivered", "cancelled"];
 const lkr = (value: number) => `LKR ${Math.round(value).toLocaleString("en-US")}`;
 
@@ -109,7 +139,11 @@ export function OrdersManager() {
                 <small className="muted">{order.contactPhone}</small>
               </span>
               <span>{order.lines.reduce((total, line) => total + line.quantity, 0)}</span>
-              <span>{lkr(order.totalLKR)}</span>
+              <span>
+                {lkr(order.totalLKR)}
+                <br />
+                <PaymentBadge order={order} />
+              </span>
               <span>{new Date(order.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
               <select
                 className="admin-select"

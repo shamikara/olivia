@@ -2,11 +2,32 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { StoreShell } from "../../components/StoreShell";
-import { findOrderByReference } from "../../lib/order-store";
+import { findOrderByReference, type Order } from "../../lib/order-store";
 import { formatLKR } from "../../data/products";
 import { SITE, whatsappLink } from "../../lib/site";
 
 export const metadata: Metadata = { title: "Order confirmed" };
+
+/**
+ * What happens next depends on how it was paid — telling a shopper who has
+ * already paid Koko that we will take payment later is worse than saying
+ * nothing.
+ */
+function settlementLine(order: Order): string {
+  if (order.paymentStatus === "paid") {
+    return "Payment is confirmed, and we are packing it now. We will message you when it ships.";
+  }
+  if (order.paymentStatus === "failed" || order.paymentStatus === "cancelled") {
+    return "That payment did not go through, so nothing has been charged. Message us and we will sort it out.";
+  }
+  if (order.paymentMethod === "cod") {
+    return "Pay the courier when it arrives. We will confirm stock and delivery on WhatsApp first.";
+  }
+  if (order.paymentStatus === "pending") {
+    return "We are waiting for your payment to be confirmed. This page updates once it is.";
+  }
+  return "We will confirm stock and delivery on WhatsApp before any payment is taken.";
+}
 
 export default async function OrderPage({ params }: { params: Promise<{ reference: string }> }) {
   const { reference } = await params;
@@ -23,8 +44,7 @@ export default async function OrderPage({ params }: { params: Promise<{ referenc
             Thank you, <span className="accent">{order.contactName.split(" ")[0]}.</span>
           </h1>
           <p className="lede">
-            Your reference is <strong>{order.reference}</strong>. We&apos;ll confirm stock and delivery on WhatsApp
-            before any payment is taken.
+            Your reference is <strong>{order.reference}</strong>. {settlementLine(order)}
           </p>
         </div>
       </header>

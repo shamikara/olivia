@@ -10,17 +10,21 @@ import { Overview } from "./Overview";
 import { InventoryManager } from "./InventoryManager";
 import { MarketingManager } from "./MarketingManager";
 import { SettingsManager } from "./SettingsManager";
+import { PaymentsManager } from "./PaymentsManager";
 import { ReportsPanel } from "./ReportsPanel";
 
 /*
  * Every module in the sidebar is backed by real data. Modules from the original
  * scaffold that had nothing behind them (Collections, Content, Loyalty, AI
- * tools, Audit logs, System health, Payments, Shipping) were removed rather
- * than left as dead links — Payments and Shipping now live under Settings.
+ * tools, Audit logs, System health, Shipping) were removed rather than left as
+ * dead links — Shipping lives under Settings.
  */
-const BUILT = new Set(["Overview", "Orders", "Products", "Inventory", "Customers", "Marketing", "Reports", "Settings"]);
+const nav = [
+  "Overview", "Orders", "Products", "Inventory",
+  "Customers", "Marketing", "Reports", "Payments", "Settings",
+];
 
-const nav = ["Overview", "Orders", "Products", "Inventory", "Customers", "Marketing", "Reports", "Settings"];
+const BUILT = new Set(nav);
 
 export default function Admin() {
   const router = useRouter();
@@ -57,6 +61,7 @@ export default function Admin() {
         : active === "Customers" ? <CustomersManager/>
         : active === "Marketing" ? <MarketingManager/>
         : active === "Reports" ? <ReportsPanel/>
+        : active === "Payments" ? <PaymentsManager/>
         : <SettingsManager/>}
     </section>
   </main>;

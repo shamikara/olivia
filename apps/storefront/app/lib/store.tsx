@@ -27,6 +27,13 @@ export interface CartEntry extends CartLine {
 interface StoreValue {
   /** The live catalogue, supplied by the server so admin edits show up here. */
   catalog: BeautyProduct[];
+  /**
+   * False until the cart has been read back from localStorage. Anything that
+   * branches on an empty bag has to wait for this, or it acts on the empty
+   * first render — which is how /checkout ended up redirecting to /cart before
+   * the bag had loaded.
+   */
+  hydrated: boolean;
   lines: CartEntry[];
   itemCount: number;
   subtotal: number;
@@ -83,20 +90,24 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
   const [isNavOpen, setNavOpen] = useState(false);
   const [quickViewId, setQuickViewId] = useState<string | null>(null);
   const [toast, setToast] = useState("");
+  const [hydrated, setHydrated] = useState(false);
 
   // Hydrate from localStorage after mount so server and client markup match.
   useEffect(() => {
     setCart(readStored<CartLine[]>(CART_KEY, []));
     setWishlist(readStored<string[]>(WISH_KEY, []));
+    setHydrated(true);
   }, []);
 
+  // Guarded on `hydrated` so the empty first render cannot overwrite a stored
+  // cart before it has been read.
   useEffect(() => {
-    writeStored(CART_KEY, cart);
-  }, [cart]);
+    if (hydrated) writeStored(CART_KEY, cart);
+  }, [cart, hydrated]);
 
   useEffect(() => {
-    writeStored(WISH_KEY, wishlist);
-  }, [wishlist]);
+    if (hydrated) writeStored(WISH_KEY, wishlist);
+  }, [wishlist, hydrated]);
 
   // Lock background scrolling while a full-screen overlay is showing.
   useEffect(() => {
@@ -175,6 +186,7 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
 
     return {
       catalog,
+      hydrated,
       lines,
       itemCount: lines.reduce((total, line) => total + line.quantity, 0),
       subtotal: lines.reduce((total, line) => total + line.lineTotal, 0),
@@ -203,6 +215,7 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
     };
   }, [
     catalog,
+    hydrated,
     cart,
     wishlist,
     isCartOpen,

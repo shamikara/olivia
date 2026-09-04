@@ -6,7 +6,14 @@ import { requireAdmin } from "../../../lib/admin-auth";
 export async function GET(request: NextRequest) {
   const denied = await requireAdmin(request);
   if (denied) return denied;
-  return NextResponse.json({ settings: await getSettings() });
+  /*
+   * `payments` holds gateway secrets, so it is served — and written — only by
+   * /api/admin/payments, which masks them. Keeping it out of this response
+   * means a future field added to this form cannot accidentally carry a private
+   * key into the browser.
+   */
+  const { payments: _payments, ...settings } = await getSettings();
+  return NextResponse.json({ settings });
 }
 
 export async function PUT(request: NextRequest) {
