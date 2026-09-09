@@ -3,6 +3,7 @@ import { StoreShell } from "../components/StoreShell";
 import { CheckoutForm } from "./CheckoutForm";
 import { paymentOptions } from "../lib/payments";
 import { getSettings } from "../lib/settings-store";
+import { DISTRICTS } from "../lib/address";
 import { CUSTOMER_COOKIE, readCustomerToken } from "../lib/customer-auth";
 import { findById } from "../lib/customer-store";
 import { cookies } from "next/headers";
@@ -32,6 +33,7 @@ export default async function CheckoutPage() {
 
       <CheckoutForm
         options={options}
+        districts={DISTRICTS}
         installmentMonths={settings.installmentMonths}
         freeShippingThresholdLKR={settings.freeShippingThresholdLKR}
         flatShippingLKR={settings.flatShippingLKR}

@@ -5,6 +5,7 @@ import { currentCustomer } from "../lib/customer-auth";
 import { findById, toPublic } from "../lib/customer-store";
 import { ordersForCustomer } from "../lib/order-store";
 import { AccountDashboard } from "./AccountDashboard";
+import { DISTRICTS } from "../lib/address";
 
 export const metadata: Metadata = { title: "My account" };
 
@@ -19,7 +20,7 @@ export default async function AccountPage() {
 
   return (
     <StoreShell>
-      <AccountDashboard customer={toPublic(customer)} orders={orders} />
+      <AccountDashboard customer={toPublic(customer)} orders={orders} districts={DISTRICTS} />
     </StoreShell>
   );
 }

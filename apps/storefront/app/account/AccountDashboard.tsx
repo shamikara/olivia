@@ -6,6 +6,7 @@ import { useState, type FormEvent } from "react";
 import type { Address, PublicCustomer } from "../lib/customer-store";
 import type { Order } from "../lib/order-store";
 import { formatLKR } from "../data/products";
+import { AddressFields } from "../components/AddressFields";
 
 const BLANK_ADDRESS = {
   id: "",
@@ -29,7 +30,15 @@ const STATUS_LABEL: Record<Order["status"], string> = {
   cancelled: "Cancelled",
 };
 
-export function AccountDashboard({ customer, orders }: { customer: PublicCustomer; orders: Order[] }) {
+export function AccountDashboard({
+  customer,
+  orders,
+  districts,
+}: {
+  customer: PublicCustomer;
+  orders: Order[];
+  districts: string[];
+}) {
   const router = useRouter();
   const [tab, setTab] = useState<"orders" | "addresses" | "details">("orders");
   const [profile, setProfile] = useState({ name: customer.name, phone: customer.phone ?? "" });
@@ -221,29 +230,12 @@ export function AccountDashboard({ customer, orders }: { customer: PublicCustome
                     Phone
                     <input value={draft.phone} onChange={(e) => setDraft({ ...draft, phone: e.target.value })} required />
                   </label>
-                  <label className="span-2">
-                    Address line 1
-                    <input value={draft.line1} onChange={(e) => setDraft({ ...draft, line1: e.target.value })} required />
-                  </label>
-                  <label className="span-2">
-                    Address line 2
-                    <input value={draft.line2} onChange={(e) => setDraft({ ...draft, line2: e.target.value })} />
-                  </label>
-                  <label>
-                    City
-                    <input value={draft.city} onChange={(e) => setDraft({ ...draft, city: e.target.value })} required />
-                  </label>
-                  <label>
-                    District
-                    <input value={draft.district} onChange={(e) => setDraft({ ...draft, district: e.target.value })} />
-                  </label>
-                  <label>
-                    Postal code
-                    <input
-                      value={draft.postalCode}
-                      onChange={(e) => setDraft({ ...draft, postalCode: e.target.value })}
-                    />
-                  </label>
+                  <AddressFields
+                    value={draft}
+                    onChange={(next) => setDraft({ ...draft, ...next })}
+                    districts={districts}
+                    wideClassName="span-2"
+                  />
                   <label className="address-default">
                     <input
                       type="checkbox"

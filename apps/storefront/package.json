@@ -17,7 +17,8 @@
     "next": "16.2.12",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "resend": "^6.18.1"
+    "resend": "^6.18.1",
+    "sri-lanka-postal-locations": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^22",

@@ -9,16 +9,18 @@ import type { GatewayRedirect } from "../lib/payments/types";
 import { formatLKR, installmentAmount } from "../data/products";
 import { canPrefillWhatsApp, whatsappLink } from "../lib/site";
 import { useStore } from "../lib/store";
+import { AddressFields, type AddressDraft } from "../components/AddressFields";
 
 interface Props {
   options: PaymentOption[];
+  districts: string[];
   installmentMonths: number;
   freeShippingThresholdLKR: number;
   flatShippingLKR: number;
   customer: { name: string; email: string; phone: string; addresses: Address[] } | null;
 }
 
-const BLANK = { fullName: "", phone: "", line1: "", line2: "", city: "", district: "", postalCode: "" };
+const BLANK: AddressDraft = { line1: "", line2: "", city: "", district: "", postalCode: "" };
 
 /**
  * Posts the gateway hand-off.
@@ -45,6 +47,7 @@ function submitToGateway(redirect: GatewayRedirect): void {
 
 export function CheckoutForm({
   options,
+  districts,
   installmentMonths,
   freeShippingThresholdLKR,
   flatShippingLKR,
@@ -121,7 +124,7 @@ export function CheckoutForm({
           contactPhone: contact.phone,
           contactEmail: contact.email || undefined,
           addressId: usingSaved ? addressId : undefined,
-          address: usingSaved || !needsAddress ? undefined : { ...address, fullName: address.fullName || contact.name, phone: address.phone || contact.phone },
+          address: usingSaved || !needsAddress ? undefined : { ...address, fullName: contact.name, phone: contact.phone },
           discountCode: discount ? code : undefined,
           note: note || undefined,
           paymentMethod: method,
@@ -263,45 +266,12 @@ export function CheckoutForm({
 
             {!usingSaved && (
               <div className="field-grid">
-                <label className="field-wide">
-                  <span>Address line 1</span>
-                  <input
-                    value={address.line1}
-                    onChange={(e) => setAddress({ ...address, line1: e.target.value })}
-                    autoComplete="address-line1"
-                  />
-                </label>
-                <label className="field-wide">
-                  <span>Address line 2 (optional)</span>
-                  <input
-                    value={address.line2}
-                    onChange={(e) => setAddress({ ...address, line2: e.target.value })}
-                    autoComplete="address-line2"
-                  />
-                </label>
-                <label>
-                  <span>City</span>
-                  <input
-                    value={address.city}
-                    onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                    autoComplete="address-level2"
-                  />
-                </label>
-                <label>
-                  <span>District (optional)</span>
-                  <input
-                    value={address.district}
-                    onChange={(e) => setAddress({ ...address, district: e.target.value })}
-                  />
-                </label>
-                <label>
-                  <span>Postal code (optional)</span>
-                  <input
-                    value={address.postalCode}
-                    onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
-                    autoComplete="postal-code"
-                  />
-                </label>
+                <AddressFields
+                  value={address}
+                  onChange={setAddress}
+                  districts={districts}
+                  wideClassName="field-wide"
+                />
               </div>
             )}
           </section>
