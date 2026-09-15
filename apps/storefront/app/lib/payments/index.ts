@@ -1,5 +1,5 @@
 import { getSettings } from "../settings-store";
-import { kokoReady, mintpayReady, resolvePaymentConfig, type PaymentConfig } from "./config";
+import { kokoReady, resolvePaymentConfig, type PaymentConfig } from "./config";
 import { kokoProvider } from "./koko";
 import { mintpayProvider } from "./mintpay";
 import type { PaymentMethod, PaymentProvider } from "./types";
@@ -38,35 +38,36 @@ export async function paymentOptions(config?: PaymentConfig): Promise<PaymentOpt
     });
   }
 
-  if (payments.mintpay.enabled && mintpayReady(payments.mintpay)) {
-    options.push({
-      method: "mintpay",
-      label: "Mintpay",
-      blurb: "Pay in 3 instalments, or take instant cashback instead.",
-      testMode: payments.mintpay.testMode,
-      instalments: true,
-    });
-  }
+  // Other payment methods disabled for now — Koko only until further notice.
+  // if (payments.mintpay.enabled && mintpayReady(payments.mintpay)) {
+  //   options.push({
+  //     method: "mintpay",
+  //     label: "Mintpay",
+  //     blurb: "Pay in 3 instalments, or take instant cashback instead.",
+  //     testMode: payments.mintpay.testMode,
+  //     instalments: true,
+  //   });
+  // }
 
-  if (payments.codEnabled) {
-    options.push({
-      method: "cod",
-      label: "Cash on delivery",
-      blurb: "Pay the courier when it arrives. Available islandwide.",
-      testMode: false,
-      instalments: false,
-    });
-  }
+  // if (payments.codEnabled) {
+  //   options.push({
+  //     method: "cod",
+  //     label: "Cash on delivery",
+  //     blurb: "Pay the courier when it arrives. Available islandwide.",
+  //     testMode: false,
+  //     instalments: false,
+  //   });
+  // }
 
-  if (payments.whatsappEnabled) {
-    options.push({
-      method: "whatsapp",
-      label: "Arrange on WhatsApp",
-      blurb: "We confirm stock and delivery with you, then take payment however suits.",
-      testMode: false,
-      instalments: false,
-    });
-  }
+  // if (payments.whatsappEnabled) {
+  //   options.push({
+  //     method: "whatsapp",
+  //     label: "Arrange on WhatsApp",
+  //     blurb: "We confirm stock and delivery with you, then take payment however suits.",
+  //     testMode: false,
+  //     instalments: false,
+  //   });
+  // }
 
   return options;
 }

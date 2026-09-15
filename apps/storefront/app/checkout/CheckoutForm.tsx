@@ -290,7 +290,11 @@ export function CheckoutForm({
                 />
                 <span>
                   <b>
-                    {option.label}
+                    {option.method === "koko" ? (
+                      <img src="/images/payments/koko-logo.png" alt="Koko" className="pay-logo" />
+                    ) : (
+                      option.label
+                    )}
                     {option.testMode && <em className="pay-test">sandbox</em>}
                   </b>
                   <small>{option.blurb}</small>

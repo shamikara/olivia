@@ -3865,6 +3865,11 @@ p {
   color: var(--muted);
 }
 
+.pay-logo {
+  height: 18px;
+  width: auto;
+}
+
 .pay-test {
   padding: 2px 8px;
   border-radius: var(--r-pill);
