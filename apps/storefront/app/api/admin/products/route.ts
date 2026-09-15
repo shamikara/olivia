@@ -3,6 +3,24 @@ import type { NextRequest } from "next/server";
 import { getProducts, upsertProduct } from "../../../lib/product-store";
 import { requireAdmin } from "../../../lib/admin-auth";
 import { normaliseProduct } from "../../../lib/product-schema";
+import { getMediaEnv } from "../../../lib/media/env";
+import { reconcileProductMedia } from "../../../lib/media/media-store";
+import type { BeautyProduct } from "../../../data/products";
+
+/**
+ * Retires any active media asset the product no longer references (e.g. an
+ * image swapped or removed by means other than the upload endpoint). Never
+ * blocks or fails the product save — media bookkeeping is secondary to it.
+ */
+export async function reconcileMediaBestEffort(product: BeautyProduct): Promise<void> {
+  const env = getMediaEnv();
+  if (!env) return;
+  try {
+    await reconcileProductMedia(env, product.id, { main: product.image, secondary: product.secondaryImage });
+  } catch (error) {
+    console.error(`[media-sync] reconcile failed for ${product.id}:`, (error as Error).message);
+  }
+}
 
 export async function GET() {
   const products = await getProducts();
@@ -31,6 +49,8 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return NextResponse.json({ error: storageMessage(error) }, { status: 500 });
   }
+
+  await reconcileMediaBestEffort(result.product);
 
   return NextResponse.json({ product: result.product }, { status: 201 });
 }

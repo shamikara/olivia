@@ -3,9 +3,12 @@ import type { NextRequest } from "next/server";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { requireAdmin } from "../../../lib/admin-auth";
+import { isMediaPipelineConfigured } from "../../../lib/media/env";
+import { ingestAdminUpload } from "../../../lib/media/sync-service";
+import type { ImageRole } from "../../../lib/media/types";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "images", "products");
-const MAX_BYTES = 8 * 1024 * 1024;
+const MAX_BYTES = 20 * 1024 * 1024;
 const ALLOWED = new Map([
   ["image/webp", ".webp"],
   ["image/jpeg", ".jpg"],
@@ -20,6 +23,12 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
     .slice(0, 50) || "image";
+
+// Maps the editor's field names to the pipeline's role vocabulary.
+const ROLE_MAP: Record<string, Extract<ImageRole, "main" | "secondary">> = {
+  image: "main",
+  secondaryImage: "secondary",
+};
 
 export async function POST(request: NextRequest) {
   const denied = await requireAdmin(request);
@@ -36,7 +45,7 @@ export async function POST(request: NextRequest) {
   if (!(file instanceof File)) return NextResponse.json({ error: "No file supplied" }, { status: 400 });
   if (file.size === 0) return NextResponse.json({ error: "File is empty" }, { status: 400 });
   if (file.size > MAX_BYTES) {
-    return NextResponse.json({ error: "Image must be 8MB or smaller" }, { status: 413 });
+    return NextResponse.json({ error: "Image must be 20MB or smaller" }, { status: 413 });
   }
 
   const extension = ALLOWED.get(file.type);
@@ -44,6 +53,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Use a WebP, JPG, PNG or AVIF image" }, { status: 415 });
   }
 
+  if (isMediaPipelineConfigured()) {
+    const productId = form.get("productId")?.toString().trim();
+    const role = ROLE_MAP[form.get("role")?.toString().trim() ?? ""];
+    if (!productId || !role) {
+      return NextResponse.json({ error: "Missing product id or image role for upload" }, { status: 400 });
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const result = await ingestAdminUpload(productId, role, buffer, file.type, file.name);
+    if (!result.ok) return NextResponse.json({ error: result.message }, { status: 502 });
+    return NextResponse.json({ url: result.url }, { status: 201 });
+  }
+
+  // Local fallback when Drive/Supabase credentials aren't configured (e.g. local dev).
   // Timestamp suffix so re-uploading under the same name busts any cache.
   const fileName = `${slugify(form.get("name")?.toString() || file.name)}-${Date.now()}${extension}`;
 

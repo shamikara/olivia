@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { StoreSettings } from "../lib/settings-store";
+import { MediaSyncPanel } from "./MediaSyncPanel";
 
 export function SettingsManager() {
   const [settings, setSettings] = useState<StoreSettings | null>(null);
@@ -130,6 +131,8 @@ export function SettingsManager() {
             <input value={settings.facebook} onChange={(e) => set("facebook", e.target.value)} />
           </label>
         </article>
+
+        <MediaSyncPanel />
 
         <article className="admin-panel admin-panel-wide">
           <h3>Announcement bar</h3>

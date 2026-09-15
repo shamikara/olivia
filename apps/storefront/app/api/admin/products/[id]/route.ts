@@ -3,7 +3,9 @@ import type { NextRequest } from "next/server";
 import { deleteProduct, getProduct, upsertProduct } from "../../../../lib/product-store";
 import { requireAdmin } from "../../../../lib/admin-auth";
 import { normaliseProduct } from "../../../../lib/product-schema";
-import { storageMessage } from "../route";
+import { storageMessage, reconcileMediaBestEffort } from "../route";
+import { getMediaEnv } from "../../../../lib/media/env";
+import { retireAllAssetsForProduct } from "../../../../lib/media/media-store";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -39,6 +41,8 @@ export async function PUT(request: NextRequest, { params }: Context) {
     return NextResponse.json({ error: storageMessage(error) }, { status: 500 });
   }
 
+  await reconcileMediaBestEffort(result.product);
+
   return NextResponse.json({ product: result.product });
 }
 
@@ -52,6 +56,15 @@ export async function DELETE(request: NextRequest, { params }: Context) {
     if (!removed) return NextResponse.json({ error: "Not found" }, { status: 404 });
   } catch (error) {
     return NextResponse.json({ error: storageMessage(error) }, { status: 500 });
+  }
+
+  const env = getMediaEnv();
+  if (env) {
+    try {
+      await retireAllAssetsForProduct(env, id);
+    } catch (error) {
+      console.error(`[media-sync] retiring media for deleted product ${id} failed:`, (error as Error).message);
+    }
   }
 
   return NextResponse.json({ ok: true });

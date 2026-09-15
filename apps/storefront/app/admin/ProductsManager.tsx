@@ -30,6 +30,16 @@ const BLANK: BeautyProduct = {
 
 const money = (value: number) => `LKR ${Math.round(value).toLocaleString("en-US")}`;
 
+// Mirrors the id the server assigns in product-schema.ts's normaliseProduct,
+// so an image uploaded before the first save lands in the same Drive/media
+// folder the product ends up with.
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 60);
+
 export function ProductsManager() {
   const [products, setProducts] = useState<BeautyProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -216,12 +226,26 @@ function ProductEditor({
     setDraft((current) => ({ ...current, [key]: value }));
 
   const upload = async (slot: "image" | "secondaryImage", file: File) => {
+    let productId = draft.id;
+    if (!productId) {
+      if (!draft.name.trim()) {
+        setUploadError("Enter a product name before uploading images");
+        return;
+      }
+      // Locked in for the rest of this editing session — renaming afterwards
+      // doesn't move the product's Drive folder.
+      productId = `p-${slugify(draft.name)}`;
+      setDraft((current) => ({ ...current, id: productId! }));
+    }
+
     setUploading(slot);
     setUploadError(null);
     try {
       const body = new FormData();
       body.append("file", file);
       body.append("name", draft.name || file.name);
+      body.append("productId", productId);
+      body.append("role", slot);
       const res = await fetch("/api/admin/upload", { method: "POST", body });
       const data = await res.json();
       if (!res.ok) {
