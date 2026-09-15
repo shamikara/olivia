@@ -5,6 +5,7 @@ import { StoreShell } from "../../components/StoreShell";
 import { findOrderByReference, type Order } from "../../lib/order-store";
 import { formatLKR } from "../../data/products";
 import { SITE, whatsappLink } from "../../lib/site";
+import { KOKO_SURCHARGE_PERCENT } from "../../lib/payments/surcharge";
 
 export const metadata: Metadata = { title: "Order confirmed" };
 
@@ -95,6 +96,14 @@ export default async function OrderPage({ params }: { params: Promise<{ referenc
               <span>Delivery</span>
               <strong>{order.shippingLKR === 0 ? "Free" : formatLKR(order.shippingLKR)}</strong>
             </div>
+            {order.paymentMethod === "koko" && (
+              <div className="summary-row">
+                <span>Koko fee ({KOKO_SURCHARGE_PERCENT}%)</span>
+                <strong>
+                  {formatLKR(order.totalLKR - (order.subtotalLKR - order.discountLKR + order.shippingLKR))}
+                </strong>
+              </div>
+            )}
             <div className="summary-row summary-total">
               <span>Total</span>
               <strong>{formatLKR(order.totalLKR)}</strong>

@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Order, OrderStatus } from "../lib/order-store";
+import { KOKO_SURCHARGE_PERCENT } from "../lib/payments/surcharge";
 
 const METHOD_LABEL: Record<string, string> = {
   cod: "Cash on delivery",
   whatsapp: "WhatsApp",
   koko: "Koko",
   mintpay: "Mintpay",
+  paypal: "PayPal",
 };
 
 /*
@@ -237,6 +239,12 @@ export function OrdersManager() {
                   <span>Delivery</span>
                   <b>{open.shippingLKR === 0 ? "Free" : lkr(open.shippingLKR)}</b>
                 </div>
+                {open.paymentMethod === "koko" && (
+                  <div>
+                    <span>Koko fee ({KOKO_SURCHARGE_PERCENT}%)</span>
+                    <b>{lkr(open.totalLKR - (open.subtotalLKR - open.discountLKR + open.shippingLKR))}</b>
+                  </div>
+                )}
                 <div className="admin-order-total">
                   <span>Total</span>
                   <b>{lkr(open.totalLKR)}</b>

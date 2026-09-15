@@ -7,6 +7,7 @@ import type { Address } from "../lib/customer-store";
 import type { PaymentOption } from "../lib/payments";
 import type { GatewayRedirect } from "../lib/payments/types";
 import { formatLKR, installmentAmount } from "../data/products";
+import { KOKO_SURCHARGE_PERCENT, withKokoSurcharge } from "../lib/payments/surcharge";
 import { canPrefillWhatsApp, whatsappLink } from "../lib/site";
 import { useStore } from "../lib/store";
 import { AddressFields, type AddressDraft } from "../components/AddressFields";
@@ -167,7 +168,9 @@ export function CheckoutForm({
   const paypalReferenceRef = useRef<string | null>(null);
 
   const shipping = subtotal >= freeShippingThresholdLKR || subtotal === 0 ? 0 : flatShippingLKR;
-  const total = subtotal - discount + shipping;
+  const preSurchargeTotal = subtotal - discount + shipping;
+  const kokoSurcharge = method === "koko" ? withKokoSurcharge(preSurchargeTotal) - preSurchargeTotal : 0;
+  const total = preSurchargeTotal + kokoSurcharge;
   const chosen = useMemo(() => options.find((o) => o.method === method), [options, method]);
   const needsAddress = method === "koko" || method === "mintpay" || method === "cod" || method === "paypal";
   const usingSaved = addressId !== "new";
@@ -491,6 +494,12 @@ export function CheckoutForm({
           <div className="summary-row" style={{ color: "var(--green)" }}>
             <span>Discount ({code.trim().toUpperCase()})</span>
             <strong>−{formatLKR(discount)}</strong>
+          </div>
+        )}
+        {kokoSurcharge > 0 && (
+          <div className="summary-row">
+            <span>Koko fee ({KOKO_SURCHARGE_PERCENT}%)</span>
+            <strong>{formatLKR(kokoSurcharge)}</strong>
           </div>
         )}
 

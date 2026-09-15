@@ -14,6 +14,7 @@ import { getProducts } from "../../lib/product-store";
 import { getSettings } from "../../lib/settings-store";
 import { applyDiscount, recordDiscountUse } from "../../lib/discount-store";
 import { gatewayFor, isEmbeddedMethod, isGatewayMethod, type PaymentMethod } from "../../lib/payments";
+import { withKokoSurcharge } from "../../lib/payments/surcharge";
 import { siteOrigin } from "../../lib/site-url";
 
 /** Orders belonging to the signed-in customer. */
@@ -129,6 +130,10 @@ export async function POST(request: NextRequest) {
 
   const shipping = subtotal >= settings.freeShippingThresholdLKR ? 0 : settings.flatShippingLKR;
 
+  // Koko's cut on top of everything else — see withKokoSurcharge.
+  const preSurchargeTotal = subtotal - discount + shipping;
+  const total = paymentMethod === "koko" ? withKokoSurcharge(preSurchargeTotal) : preSurchargeTotal;
+
   const address =
     customer?.addresses.find((entry) => entry.id === body.addressId) ??
     guestAddress(body.address) ??
@@ -151,7 +156,7 @@ export async function POST(request: NextRequest) {
       subtotalLKR: subtotal,
       discountLKR: discount,
       shippingLKR: shipping,
-      totalLKR: subtotal - discount + shipping,
+      totalLKR: total,
       discountCode: appliedCode,
       address,
       note: body.note?.trim() || undefined,

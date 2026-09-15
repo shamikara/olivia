@@ -1,4 +1,5 @@
 import type { Order } from "../order-store";
+import { KOKO_SURCHARGE_PERCENT } from "../payments/surcharge";
 import { BRAND, button, eyebrow, heading, money, panel, paragraph, siteUrl, wrap } from "./shell";
 
 export interface Email {
@@ -72,6 +73,14 @@ function orderLinesTable(order: Order): string {
       ${totalRow("Subtotal", money(order.subtotalLKR))}
       ${order.discountLKR > 0 ? totalRow(`Discount${order.discountCode ? ` (${order.discountCode})` : ""}`, `− ${money(order.discountLKR)}`) : ""}
       ${totalRow("Delivery", order.shippingLKR === 0 ? "Free" : money(order.shippingLKR))}
+      ${
+        order.paymentMethod === "koko"
+          ? totalRow(
+              `Koko fee (${KOKO_SURCHARGE_PERCENT}%)`,
+              money(order.totalLKR - (order.subtotalLKR - order.discountLKR + order.shippingLKR)),
+            )
+          : ""
+      }
       <tr><td colspan="2" style="border-top:1px solid ${BRAND.line};padding-top:8px;"></td></tr>
       ${totalRow("Total", money(order.totalLKR), true)}
     </table>`;
