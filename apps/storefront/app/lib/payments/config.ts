@@ -35,11 +35,21 @@ export interface MintpayConfig {
   merchantSecret: string;
 }
 
+export interface PaypalConfig {
+  enabled: boolean;
+  testMode: boolean;
+  /** Public — sent to the browser so it can load PayPal's buttons SDK. */
+  clientId: string;
+  /** Private — used server-side only, to get an access token and to capture. */
+  clientSecret: string;
+}
+
 export interface PaymentConfig {
   codEnabled: boolean;
   whatsappEnabled: boolean;
   koko: KokoConfig;
   mintpay: MintpayConfig;
+  paypal: PaypalConfig;
 }
 
 export const DEFAULT_PAYMENTS: PaymentConfig = {
@@ -60,6 +70,12 @@ export const DEFAULT_PAYMENTS: PaymentConfig = {
     testMode: true,
     merchantId: "",
     merchantSecret: "",
+  },
+  paypal: {
+    enabled: false,
+    testMode: true,
+    clientId: "",
+    clientSecret: "",
   },
 };
 
@@ -88,6 +104,11 @@ export function resolvePaymentConfig(stored: PaymentConfig = DEFAULT_PAYMENTS): 
       merchantId: env("MINTPAY_MERCHANT_ID") || stored.mintpay.merchantId,
       merchantSecret: env("MINTPAY_MERCHANT_SECRET") || stored.mintpay.merchantSecret,
     },
+    paypal: {
+      ...stored.paypal,
+      clientId: env("PAYPAL_CLIENT_ID") || stored.paypal.clientId,
+      clientSecret: env("PAYPAL_CLIENT_SECRET") || stored.paypal.clientSecret,
+    },
   };
 }
 
@@ -96,6 +117,9 @@ export const kokoReady = (config: KokoConfig): boolean =>
 
 export const mintpayReady = (config: MintpayConfig): boolean =>
   Boolean(config.merchantId && config.merchantSecret);
+
+export const paypalReady = (config: PaypalConfig): boolean =>
+  Boolean(config.clientId && config.clientSecret);
 
 /** Which values are coming from the environment, for the admin panel to show. */
 export function secretSources(): Record<string, boolean> {
@@ -106,5 +130,7 @@ export function secretSources(): Record<string, boolean> {
     kokoPrivateKey: Boolean(env("KOKO_PRIVATE_KEY")),
     mintpayMerchantId: Boolean(env("MINTPAY_MERCHANT_ID")),
     mintpayMerchantSecret: Boolean(env("MINTPAY_MERCHANT_SECRET")),
+    paypalClientId: Boolean(env("PAYPAL_CLIENT_ID")),
+    paypalClientSecret: Boolean(env("PAYPAL_CLIENT_SECRET")),
   };
 }

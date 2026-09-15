@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Address } from "../lib/customer-store";
 import type { PaymentOption } from "../lib/payments";
 import type { GatewayRedirect } from "../lib/payments/types";
@@ -45,6 +45,98 @@ function submitToGateway(redirect: GatewayRedirect): void {
   form.submit();
 }
 
+declare global {
+  interface Window {
+    paypal?: {
+      Buttons: (options: {
+        createOrder: () => Promise<string>;
+        onApprove: (data: { orderID: string }) => Promise<void>;
+        onError?: (error: unknown) => void;
+      }) => { render: (container: HTMLElement) => void };
+    };
+  }
+}
+
+// Keyed by client id so switching between sandbox/live (different ids) never
+// reuses a script tag meant for the other one.
+const paypalSdkLoads = new Map<string, Promise<void>>();
+
+function loadPaypalSdk(clientId: string): Promise<void> {
+  const cached = paypalSdkLoads.get(clientId);
+  if (cached) return cached;
+
+  const promise = new Promise<void>((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture`;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Could not load PayPal"));
+    document.body.appendChild(script);
+  });
+  paypalSdkLoads.set(clientId, promise);
+  return promise;
+}
+
+/**
+ * PayPal's own embedded button, rendered in place of the usual "Place order"
+ * button. There is no redirect to build here — clicking the button itself
+ * drives `onCreateOrder` and `onCaptured` against our API.
+ */
+function PaypalButton({
+  clientId,
+  onCreateOrder,
+  onCaptured,
+  onFailure,
+}: {
+  clientId: string;
+  onCreateOrder: () => Promise<string>;
+  onCaptured: (orderID: string) => Promise<void>;
+  onFailure: (message: string) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Read through refs inside the effect below, so typing in an unrelated
+  // field doesn't recreate these callbacks and re-render (duplicate) the
+  // button — it should only ever mount once per clientId.
+  const latest = useRef({ onCreateOrder, onCaptured, onFailure });
+  latest.current = { onCreateOrder, onCaptured, onFailure };
+
+  useEffect(() => {
+    let cancelled = false;
+    loadPaypalSdk(clientId)
+      .then(() => {
+        if (cancelled || !containerRef.current || !window.paypal) return;
+        window.paypal
+          .Buttons({
+            createOrder: async () => {
+              try {
+                return await latest.current.onCreateOrder();
+              } catch (error) {
+                latest.current.onFailure(error instanceof Error ? error.message : "Could not place the order");
+                throw error;
+              }
+            },
+            onApprove: async (data) => {
+              try {
+                await latest.current.onCaptured(data.orderID);
+              } catch (error) {
+                latest.current.onFailure(
+                  error instanceof Error ? error.message : "PayPal payment could not be confirmed",
+                );
+              }
+            },
+            onError: () => latest.current.onFailure("PayPal could not complete this payment"),
+          })
+          .render(containerRef.current);
+      })
+      .catch(() => latest.current.onFailure("Could not load PayPal"));
+    return () => {
+      cancelled = true;
+    };
+  }, [clientId]);
+
+  return <div ref={containerRef} />;
+}
+
 export function CheckoutForm({
   options,
   districts,
@@ -72,11 +164,12 @@ export function CheckoutForm({
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState("");
+  const paypalReferenceRef = useRef<string | null>(null);
 
   const shipping = subtotal >= freeShippingThresholdLKR || subtotal === 0 ? 0 : flatShippingLKR;
   const total = subtotal - discount + shipping;
   const chosen = useMemo(() => options.find((o) => o.method === method), [options, method]);
-  const needsAddress = method === "koko" || method === "mintpay" || method === "cod";
+  const needsAddress = method === "koko" || method === "mintpay" || method === "cod" || method === "paypal";
   const usingSaved = addressId !== "new";
 
   // An empty bag has nothing to check out — but only once the bag has actually
@@ -111,6 +204,63 @@ export function CheckoutForm({
     }
   };
 
+  const orderPayload = () => ({
+    items: lines.map((line) => ({ id: line.product.id, quantity: line.quantity })),
+    contactName: contact.name,
+    contactPhone: contact.phone,
+    contactEmail: contact.email || undefined,
+    addressId: usingSaved ? addressId : undefined,
+    address: usingSaved || !needsAddress ? undefined : { ...address, fullName: contact.name, phone: contact.phone },
+    discountCode: discount ? code : undefined,
+    note: note || undefined,
+    paymentMethod: method,
+  });
+
+  /**
+   * PayPal's own button drives this rather than our "Place order" button: it
+   * is the `createOrder` callback the button calls the moment it is clicked,
+   * so our order has to exist and PayPal's has to be opened before it returns.
+   */
+  const createPaypalOrder = async (): Promise<string> => {
+    setError(null);
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(orderPayload()),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? "Could not place the order");
+
+    const reference: string = data.order.reference;
+    const paypalRes = await fetch("/api/payments/paypal/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reference }),
+    });
+    const paypalData = await paypalRes.json();
+    if (!paypalRes.ok) throw new Error(paypalData.error ?? "Could not start PayPal");
+
+    paypalReferenceRef.current = reference;
+    return paypalData.id as string;
+  };
+
+  /** The PayPal button's `onApprove`, once the shopper has approved in its popup. */
+  const capturePaypalOrder = async (orderID: string): Promise<void> => {
+    const reference = paypalReferenceRef.current;
+    if (!reference) throw new Error("Missing order reference");
+
+    const res = await fetch("/api/payments/paypal/capture-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reference, orderID }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? "PayPal payment could not be confirmed");
+
+    clearCart();
+    router.push(`/order/${reference}`);
+  };
+
   const placeOrder = async () => {
     setPlacing(true);
     setError(null);
@@ -118,17 +268,7 @@ export function CheckoutForm({
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: lines.map((line) => ({ id: line.product.id, quantity: line.quantity })),
-          contactName: contact.name,
-          contactPhone: contact.phone,
-          contactEmail: contact.email || undefined,
-          addressId: usingSaved ? addressId : undefined,
-          address: usingSaved || !needsAddress ? undefined : { ...address, fullName: contact.name, phone: contact.phone },
-          discountCode: discount ? code : undefined,
-          note: note || undefined,
-          paymentMethod: method,
-        }),
+        body: JSON.stringify(orderPayload()),
       });
       const data = await res.json();
 
@@ -208,7 +348,7 @@ export function CheckoutForm({
               />
             </label>
             <label className="field-wide">
-              <span>Email {method === "koko" || method === "mintpay" ? "" : "(optional)"}</span>
+              <span>Email {method === "koko" || method === "mintpay" || method === "paypal" ? "" : "(optional)"}</span>
               <input
                 type="email"
                 value={contact.email}
@@ -374,13 +514,22 @@ export function CheckoutForm({
           <strong>{formatLKR(total)}</strong>
         </div>
 
-        <button className="btn btn-block" onClick={placeOrder} disabled={placing}>
-          {placing
-            ? "Placing order…"
-            : chosen && (method === "koko" || method === "mintpay")
-              ? `Continue to ${chosen.label}`
-              : "Place order"}
-        </button>
+        {method === "paypal" && chosen?.clientId ? (
+          <PaypalButton
+            clientId={chosen.clientId}
+            onCreateOrder={createPaypalOrder}
+            onCaptured={capturePaypalOrder}
+            onFailure={setError}
+          />
+        ) : (
+          <button className="btn btn-block" onClick={placeOrder} disabled={placing}>
+            {placing
+              ? "Placing order…"
+              : chosen && (method === "koko" || method === "mintpay")
+                ? `Continue to ${chosen.label}`
+                : "Place order"}
+          </button>
+        )}
 
         {error && (
           <p className="muted center" style={{ fontSize: "0.72rem", color: "var(--berry)", marginTop: 10 }}>

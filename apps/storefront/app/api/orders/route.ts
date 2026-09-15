@@ -13,7 +13,7 @@ import { CUSTOMER_COOKIE, readCustomerToken } from "../../lib/customer-auth";
 import { getProducts } from "../../lib/product-store";
 import { getSettings } from "../../lib/settings-store";
 import { applyDiscount, recordDiscountUse } from "../../lib/discount-store";
-import { gatewayFor, isGatewayMethod, type PaymentMethod } from "../../lib/payments";
+import { gatewayFor, isEmbeddedMethod, isGatewayMethod, type PaymentMethod } from "../../lib/payments";
 import { siteOrigin } from "../../lib/site-url";
 
 /** Orders belonging to the signed-in customer. */
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ orders: await ordersForCustomer(claims.sub) });
 }
 
-const METHODS: PaymentMethod[] = ["cod", "whatsapp", "koko", "mintpay"];
+const METHODS: PaymentMethod[] = ["cod", "whatsapp", "koko", "mintpay", "paypal"];
 
 const text = (value: unknown, max = 200): string =>
   typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
 
   // A gateway needs somewhere to deliver its customer to; without an address
   // the courier has nowhere to go either.
-  if (isGatewayMethod(paymentMethod) && !address) {
+  if ((isGatewayMethod(paymentMethod) || isEmbeddedMethod(paymentMethod)) && !address) {
     return NextResponse.json({ error: "A delivery address is required" }, { status: 422 });
   }
 
@@ -156,6 +156,9 @@ export async function POST(request: NextRequest) {
       address,
       note: body.note?.trim() || undefined,
       paymentMethod,
+      // PayPal settles through its own embedded flow right after this
+      // response, not the unpaid state cash-on-delivery/WhatsApp sit in.
+      paymentStatus: paymentMethod === "paypal" ? "pending" : undefined,
     });
   } catch (error) {
     const errno = (error as NodeJS.ErrnoException)?.code;

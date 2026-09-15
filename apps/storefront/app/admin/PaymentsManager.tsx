@@ -31,11 +31,20 @@ interface MintpayView {
   ready: boolean;
 }
 
+interface PaypalView {
+  enabled: boolean;
+  testMode: boolean;
+  clientId: string;
+  clientSecretSet: boolean;
+  ready: boolean;
+}
+
 interface PaymentsView {
   codEnabled: boolean;
   whatsappEnabled: boolean;
   koko: KokoView;
   mintpay: MintpayView;
+  paypal: PaypalView;
 }
 
 type EnvFlags = Record<string, boolean>;
@@ -95,6 +104,7 @@ export function PaymentsManager() {
     kokoPublicKey: "",
     kokoPrivateKey: "",
     mintpaySecret: "",
+    paypalClientSecret: "",
   });
 
   const load = () =>
@@ -115,6 +125,8 @@ export function PaymentsManager() {
     setView((current) => (current ? { ...current, koko: { ...current.koko, [key]: value } } : current));
   const setMintpay = <K extends keyof MintpayView>(key: K, value: MintpayView[K]) =>
     setView((current) => (current ? { ...current, mintpay: { ...current.mintpay, [key]: value } } : current));
+  const setPaypal = <K extends keyof PaypalView>(key: K, value: PaypalView[K]) =>
+    setView((current) => (current ? { ...current, paypal: { ...current.paypal, [key]: value } } : current));
 
   const save = async () => {
     setBusy(true);
@@ -141,6 +153,12 @@ export function PaymentsManager() {
           merchantId: view.mintpay.merchantId,
           merchantSecret: secrets.mintpaySecret,
         },
+        paypal: {
+          enabled: view.paypal.enabled,
+          testMode: view.paypal.testMode,
+          clientId: view.paypal.clientId,
+          clientSecret: secrets.paypalClientSecret,
+        },
       }),
     });
     const data = await res.json();
@@ -151,7 +169,7 @@ export function PaymentsManager() {
     }
     setView(data.payments);
     setEnv(data.fromEnvironment ?? {});
-    setSecrets({ kokoApiKey: "", kokoPublicKey: "", kokoPrivateKey: "", mintpaySecret: "" });
+    setSecrets({ kokoApiKey: "", kokoPublicKey: "", kokoPrivateKey: "", mintpaySecret: "", paypalClientSecret: "" });
     setFlash({ kind: "ok", text: "Payment settings saved." });
   };
 
@@ -267,6 +285,48 @@ export function PaymentsManager() {
             &ldquo;return hash&rdquo; in the order list. Reconcile them against your Mintpay merchant
             portal before treating them as settled.
           </p>
+        </article>
+
+        <article className="admin-panel">
+          <h3>
+            PayPal {view.paypal.ready ? <em className="gw-ok">ready</em> : <em className="gw-off">incomplete</em>}
+          </h3>
+          <p className="admin-hint">
+            Card/PayPal balance via PayPal&apos;s own embedded buttons — no redirect. PayPal does not
+            settle in LKR, so the shopper is charged the LKR total converted to USD at checkout time.
+          </p>
+          <label className="admin-check">
+            <input
+              type="checkbox"
+              checked={view.paypal.enabled}
+              onChange={(e) => setPaypal("enabled", e.target.checked)}
+            />
+            Offer PayPal at checkout
+          </label>
+          <label className="admin-check">
+            <input
+              type="checkbox"
+              checked={view.paypal.testMode}
+              onChange={(e) => setPaypal("testMode", e.target.checked)}
+            />
+            Sandbox mode (no real money)
+          </label>
+          <label>
+            Client ID
+            <span className="admin-hint">Public — this is sent to the browser to load PayPal&apos;s buttons.</span>
+            <input
+              value={view.paypal.clientId}
+              disabled={env.paypalClientId}
+              onChange={(e) => setPaypal("clientId", e.target.value)}
+            />
+          </label>
+          <SecretField
+            label="Client secret"
+            stored={view.paypal.clientSecretSet}
+            fromEnv={Boolean(env.paypalClientSecret)}
+            value={secrets.paypalClientSecret}
+            onChange={(v) => setSecrets({ ...secrets, paypalClientSecret: v })}
+          />
         </article>
 
         <article className="admin-panel">

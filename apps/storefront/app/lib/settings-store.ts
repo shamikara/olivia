@@ -62,6 +62,7 @@ export async function getSettings(): Promise<StoreSettings> {
         ...(stored.payments ?? {}),
         koko: { ...DEFAULT_PAYMENTS.koko, ...(stored.payments?.koko ?? {}) },
         mintpay: { ...DEFAULT_PAYMENTS.mintpay, ...(stored.payments?.mintpay ?? {}) },
+        paypal: { ...DEFAULT_PAYMENTS.paypal, ...(stored.payments?.paypal ?? {}) },
       },
     };
   } catch {

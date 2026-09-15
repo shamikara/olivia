@@ -3,17 +3,19 @@ import type { Order } from "../order-store";
 /**
  * Payment providers.
  *
- * Both gateways are Sri Lankan BNPL: the shopper is redirected to the provider,
- * approves three interest-free instalments, and we are paid in full up front.
- * Neither holds card details on our side — we never see them.
+ * Koko and Mintpay are Sri Lankan BNPL: the shopper is redirected to the
+ * provider, approves three interest-free instalments, and we are paid in full
+ * up front. PayPal is a regular card/balance payment, approved inline via
+ * PayPal's own embedded buttons rather than a redirect. None of the three
+ * holds card details on our side — we never see them.
  *
- * The contracts below were derived from each provider's own GPL WooCommerce
- * plugin (paykoko-bnpl-payment-gateway 3.0.4, mintpay). They are accurate to
- * those plugins; confirm them against the integration pack the provider sends
- * you at onboarding before going live.
+ * The Koko and Mintpay contracts were derived from each provider's own GPL
+ * WooCommerce plugin (paykoko-bnpl-payment-gateway 3.0.4, mintpay). They are
+ * accurate to those plugins; confirm them against the integration pack the
+ * provider sends you at onboarding before going live.
  */
 
-export type PaymentMethod = "cod" | "whatsapp" | "koko" | "mintpay";
+export type PaymentMethod = "cod" | "whatsapp" | "koko" | "mintpay" | "paypal";
 
 export type PaymentStatus =
   | "unpaid"

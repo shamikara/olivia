@@ -6,6 +6,7 @@ import {
   DEFAULT_PAYMENTS,
   kokoReady,
   mintpayReady,
+  paypalReady,
   resolvePaymentConfig,
   secretSources,
   type PaymentConfig,
@@ -54,6 +55,13 @@ export async function GET(request: NextRequest) {
         merchantSecretSet: mask(config.mintpay.merchantSecret),
         ready: mintpayReady(config.mintpay),
       },
+      paypal: {
+        enabled: config.paypal.enabled,
+        testMode: config.paypal.testMode,
+        clientId: config.paypal.clientId,
+        clientSecretSet: mask(config.paypal.clientSecret),
+        ready: paypalReady(config.paypal),
+      },
     },
     fromEnvironment: secretSources(),
   });
@@ -78,10 +86,11 @@ export async function PUT(request: NextRequest) {
   const denied = await requireAdmin(request);
   if (denied) return denied;
 
-  let body: { koko?: Record<string, unknown>; mintpay?: Record<string, unknown> } & Record<
-    string,
-    unknown
-  >;
+  let body: {
+    koko?: Record<string, unknown>;
+    mintpay?: Record<string, unknown>;
+    paypal?: Record<string, unknown>;
+  } & Record<string, unknown>;
   try {
     body = await request.json();
   } catch {
@@ -91,6 +100,7 @@ export async function PUT(request: NextRequest) {
   const stored = (await getSettings()).payments ?? DEFAULT_PAYMENTS;
   const koko = body.koko ?? {};
   const mintpay = body.mintpay ?? {};
+  const paypal = body.paypal ?? {};
 
   const publicKey = keepOrReplace(str(koko.publicKey), stored.koko.publicKey);
   const privateKey = keepOrReplace(str(koko.privateKey), stored.koko.privateKey);
@@ -129,6 +139,12 @@ export async function PUT(request: NextRequest) {
       merchantId: str(mintpay.merchantId, 120) ?? stored.mintpay.merchantId,
       merchantSecret: keepOrReplace(str(mintpay.merchantSecret, 500), stored.mintpay.merchantSecret),
     },
+    paypal: {
+      enabled: bool(paypal.enabled, stored.paypal.enabled),
+      testMode: bool(paypal.testMode, stored.paypal.testMode),
+      clientId: str(paypal.clientId, 200) ?? stored.paypal.clientId,
+      clientSecret: keepOrReplace(str(paypal.clientSecret, 500), stored.paypal.clientSecret),
+    },
   };
 
   // Refuse to advertise a gateway that cannot complete a payment.
@@ -145,7 +161,19 @@ export async function PUT(request: NextRequest) {
       { status: 422 },
     );
   }
-  if (!next.codEnabled && !next.whatsappEnabled && !next.koko.enabled && !next.mintpay.enabled) {
+  if (next.paypal.enabled && !paypalReady(resolved.paypal)) {
+    return NextResponse.json(
+      { error: "PayPal needs a client ID and client secret before it can be enabled" },
+      { status: 422 },
+    );
+  }
+  if (
+    !next.codEnabled &&
+    !next.whatsappEnabled &&
+    !next.koko.enabled &&
+    !next.mintpay.enabled &&
+    !next.paypal.enabled
+  ) {
     return NextResponse.json(
       { error: "At least one payment method has to stay switched on" },
       { status: 422 },

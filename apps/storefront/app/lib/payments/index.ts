@@ -1,12 +1,12 @@
 import { getSettings } from "../settings-store";
-import { kokoReady, resolvePaymentConfig, type PaymentConfig } from "./config";
+import { kokoReady, paypalReady, resolvePaymentConfig, type PaymentConfig } from "./config";
 import { kokoProvider } from "./koko";
 import { mintpayProvider } from "./mintpay";
 import type { PaymentMethod, PaymentProvider } from "./types";
 
 export * from "./types";
-export { kokoReady, mintpayReady, resolvePaymentConfig, secretSources } from "./config";
-export type { KokoConfig, MintpayConfig, PaymentConfig } from "./config";
+export { kokoReady, mintpayReady, paypalReady, resolvePaymentConfig, secretSources } from "./config";
+export type { KokoConfig, MintpayConfig, PaypalConfig, PaymentConfig } from "./config";
 
 /** The gateway config with environment overrides applied. */
 export async function getPaymentConfig(): Promise<PaymentConfig> {
@@ -22,6 +22,11 @@ export interface PaymentOption {
   testMode: boolean;
   /** Instalments only — drives the "or 3 × …" line under the option. */
   instalments: boolean;
+  /**
+   * PayPal only — its client id is public by design, so the browser can load
+   * PayPal's own Buttons SDK with it. Nothing secret ever reaches the client.
+   */
+  clientId?: string;
 }
 
 export async function paymentOptions(config?: PaymentConfig): Promise<PaymentOption[]> {
@@ -38,7 +43,7 @@ export async function paymentOptions(config?: PaymentConfig): Promise<PaymentOpt
     });
   }
 
-  // Other payment methods disabled for now — Koko only until further notice.
+  // Mintpay disabled for now.
   // if (payments.mintpay.enabled && mintpayReady(payments.mintpay)) {
   //   options.push({
   //     method: "mintpay",
@@ -49,25 +54,36 @@ export async function paymentOptions(config?: PaymentConfig): Promise<PaymentOpt
   //   });
   // }
 
-  // if (payments.codEnabled) {
-  //   options.push({
-  //     method: "cod",
-  //     label: "Cash on delivery",
-  //     blurb: "Pay the courier when it arrives. Available islandwide.",
-  //     testMode: false,
-  //     instalments: false,
-  //   });
-  // }
+  if (payments.codEnabled) {
+    options.push({
+      method: "cod",
+      label: "Cash on delivery",
+      blurb: "Pay the courier when it arrives. Available islandwide.",
+      testMode: false,
+      instalments: false,
+    });
+  }
 
-  // if (payments.whatsappEnabled) {
-  //   options.push({
-  //     method: "whatsapp",
-  //     label: "Arrange on WhatsApp",
-  //     blurb: "We confirm stock and delivery with you, then take payment however suits.",
-  //     testMode: false,
-  //     instalments: false,
-  //   });
-  // }
+  if (payments.whatsappEnabled) {
+    options.push({
+      method: "whatsapp",
+      label: "Arrange on WhatsApp",
+      blurb: "We confirm stock and delivery with you, then take payment however suits.",
+      testMode: false,
+      instalments: false,
+    });
+  }
+
+  if (payments.paypal.enabled && paypalReady(payments.paypal)) {
+    options.push({
+      method: "paypal",
+      label: "PayPal",
+      blurb: "Pay securely with your PayPal balance or card.",
+      testMode: payments.paypal.testMode,
+      instalments: false,
+      clientId: payments.paypal.clientId,
+    });
+  }
 
   return options;
 }
@@ -75,6 +91,8 @@ export async function paymentOptions(config?: PaymentConfig): Promise<PaymentOpt
 /**
  * The provider that actually talks to a gateway. Only Koko and Mintpay have
  * one — cash on delivery and the WhatsApp hand-off never leave the site.
+ * PayPal is embedded rather than a redirect, so it is handled by its own API
+ * routes instead of through this form-post abstraction — see isEmbeddedMethod.
  */
 export async function gatewayFor(
   method: PaymentMethod,
@@ -94,3 +112,6 @@ export async function gatewayFor(
 
 export const isGatewayMethod = (method: PaymentMethod): boolean =>
   method === "koko" || method === "mintpay";
+
+/** PayPal settles via its embedded buttons, not a server-built redirect — but still needs an address and a pending order the same way a gateway does. */
+export const isEmbeddedMethod = (method: PaymentMethod): boolean => method === "paypal";
