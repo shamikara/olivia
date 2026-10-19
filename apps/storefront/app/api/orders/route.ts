@@ -16,6 +16,7 @@ import { applyDiscount, recordDiscountUse } from "../../lib/discount-store";
 import { gatewayFor, isEmbeddedMethod, isGatewayMethod, type PaymentMethod } from "../../lib/payments";
 import { withKokoSurcharge } from "../../lib/payments/surcharge";
 import { siteOrigin } from "../../lib/site-url";
+import { notifyOrderPlaced } from "../../lib/order-notifications";
 
 /** Orders belonging to the signed-in customer. */
 export async function GET(request: NextRequest) {
@@ -166,16 +167,16 @@ export async function POST(request: NextRequest) {
       paymentStatus: paymentMethod === "paypal" ? "pending" : undefined,
     });
   } catch (error) {
-    const errno = (error as NodeJS.ErrnoException)?.code;
-    const message =
-      errno === "EROFS" || errno === "EACCES" || errno === "EPERM"
-        ? "Orders need a writable database on this host."
-        : "Could not place the order";
-    return NextResponse.json({ error: message }, { status: 500 });
+    // The order was not recorded, so it did not happen — say so plainly
+    // rather than returning a reference the shop has no row for.
+    console.error("[orders] could not record order:", (error as Error).message);
+    return NextResponse.json({ error: "Could not place the order" }, { status: 500 });
   }
 
   // Only count a redemption once the order actually exists.
   if (appliedCode) await recordDiscountUse(appliedCode);
+
+  await notifyOrderPlaced(order);
 
   if (!isGatewayMethod(paymentMethod)) {
     return NextResponse.json({ order }, { status: 201 });

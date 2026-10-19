@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { getPaymentConfig } from "../../../../lib/payments";
 import { verifyCallback, type KokoCallback } from "../../../../lib/payments/koko";
 import { findOrderByReference, settlePayment } from "../../../../lib/order-store";
+import { notifyPaymentSettled } from "../../../../lib/order-notifications";
 
 export const dynamic = "force-dynamic";
 
@@ -66,7 +67,11 @@ export async function POST(request: NextRequest) {
     evidence: verified.evidence,
   });
 
-  if (!settled) {
+  if (settled) {
+    // Non-null means this call is the one that moved the order, so the
+    // invoice goes out exactly once however often Koko repeats itself.
+    await notifyPaymentSettled(settled);
+  } else {
     // Already resolved — a duplicate delivery, which Koko does send.
     console.info("[koko] callback ignored, order already settled", verified.reference);
   }

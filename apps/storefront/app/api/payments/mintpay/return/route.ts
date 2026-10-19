@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { getPaymentConfig } from "../../../../lib/payments";
 import { verifyReturn } from "../../../../lib/payments/mintpay";
 import { findOrderByReference, settlePayment } from "../../../../lib/order-store";
+import { notifyPaymentSettled } from "../../../../lib/order-notifications";
 import { siteOrigin } from "../../../../lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -44,10 +45,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/order/${reference}`, 303);
   }
 
-  await settlePayment(reference, {
+  const settled = await settlePayment(reference, {
     status: verified.status,
     evidence: verified.evidence,
   });
+  if (settled) await notifyPaymentSettled(settled);
 
   return NextResponse.redirect(`${origin}/order/${reference}`, 303);
 }

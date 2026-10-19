@@ -216,3 +216,121 @@ export function passwordChangedEmail(name: string): Email {
   };
 }
 
+
+/* ---------------------------------------------------------------- invoice */
+
+const PAYMENT_LABEL: Record<Order["paymentMethod"], string> = {
+  cod: "Cash on delivery",
+  whatsapp: "Arranged on WhatsApp",
+  koko: "Koko — 3 interest-free instalments",
+  mintpay: "Mintpay — 3 interest-free instalments",
+  paypal: "PayPal",
+};
+
+const issuedOn = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+
+/**
+ * The itemised invoice, sent once an order is actually settled — on a
+ * successful gateway payment, or on confirmation for cash on delivery.
+ *
+ * Distinct from the confirmation mail on purpose: that one is sent the moment
+ * an order is placed and says nothing has been charged yet, so it cannot
+ * double as a record of payment. This one states what was paid, how, and when.
+ */
+export function invoiceEmail(order: Order): Email {
+  const first = order.contactName.split(" ")[0];
+  const paid = order.paymentStatus === "paid";
+
+  const billTo = order.address
+    ? `${order.address.fullName || order.contactName}<br>${order.address.line1}${
+        order.address.line2 ? `<br>${order.address.line2}` : ""
+      }<br>${order.address.city}${order.address.postalCode ? ` ${order.address.postalCode}` : ""}<br>${
+        order.address.phone
+      }`
+    : `${order.contactName}<br>${order.contactPhone}`;
+
+  const metaRow = (label: string, value: string) => `
+    <tr>
+      <td style="padding:4px 0;font-family:Helvetica,Arial,sans-serif;font-size:9px;letter-spacing:1.6px;
+                 text-transform:uppercase;color:${BRAND.muted};">${label}</td>
+      <td align="right" style="padding:4px 0;font-family:Helvetica,Arial,sans-serif;font-size:13px;
+                 color:${BRAND.ink};">${value}</td>
+    </tr>`;
+
+  return {
+    subject: `Invoice ${order.reference} — Olivia Glow`,
+    text:
+      `Hi ${first}, here is your invoice for order ${order.reference}, issued ${issuedOn(order.createdAt)}. ` +
+      `Total ${money(order.totalLKR)}, paid via ${PAYMENT_LABEL[order.paymentMethod]}. ` +
+      `${paid ? "This order is paid in full." : "Payment is due on delivery."} ${siteUrl(`/order/${order.reference}`)}`,
+    html: wrap({
+      title: `Invoice ${order.reference}`,
+      preview: `${money(order.totalLKR)} — ${paid ? "paid in full" : "payable on delivery"}.`,
+      body: `
+        ${eyebrow("Invoice")}
+        ${heading(`Invoice ${order.reference}`)}
+        ${paragraph(
+          paid
+            ? `Thank you, ${first}. This order is <strong style="color:${BRAND.green};">paid in full</strong> — keep this email as your receipt.`
+            : `Thank you, ${first}. Payment of <strong>${money(order.totalLKR)}</strong> is due on delivery.`,
+        )}
+        ${panel(`
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            ${metaRow("Invoice no.", order.reference)}
+            ${metaRow("Issued", issuedOn(order.createdAt))}
+            ${metaRow("Payment method", PAYMENT_LABEL[order.paymentMethod])}
+            ${metaRow("Status", paid ? "Paid" : "Due on delivery")}
+            ${order.paidAt ? metaRow("Paid on", issuedOn(order.paidAt)) : ""}
+            ${order.transactionId ? metaRow("Transaction", order.transactionId) : ""}
+          </table>`)}
+        ${orderLinesTable(order)}
+        ${panel(`
+          <div style="font-family:Helvetica,Arial,sans-serif;font-size:9px;letter-spacing:1.6px;
+                      text-transform:uppercase;color:${BRAND.gold};padding-bottom:8px;">Billed to</div>
+          <div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.8;color:${BRAND.inkSoft};">
+            ${billTo}
+          </div>`)}
+        ${button("View your order", siteUrl(`/order/${order.reference}`))}`,
+    }),
+  };
+}
+
+/* ------------------------------------------------- admin password reset */
+
+/**
+ * Sent to an administrator who asked to reset their password.
+ *
+ * The link carries a single-use token that expires; the body says both, so a
+ * recipient who did not request it knows the window is short, and one who did
+ * knows not to sit on it.
+ */
+export function adminPasswordResetEmail(name: string, resetUrl: string, minutes: number): Email {
+  const first = name.split(" ")[0];
+  return {
+    subject: "Reset your Olivia Glow admin password",
+    text:
+      `Hi ${first}, a password reset was requested for your Olivia Glow admin account. ` +
+      `Open ${resetUrl} within ${minutes} minutes to choose a new password. ` +
+      `The link works once. If you didn't request this, ignore this email — your password is unchanged.`,
+    html: wrap({
+      title: "Reset your admin password",
+      preview: `Choose a new password within ${minutes} minutes.`,
+      body: `
+        ${eyebrow("Store management")}
+        ${heading("Reset your password.")}
+        ${paragraph(
+          `Hi ${first} — a password reset was requested for your Olivia Glow admin account.`,
+        )}
+        ${button("Choose a new password", resetUrl)}
+        ${panel(`
+          <div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.8;color:${BRAND.inkSoft};">
+            This link expires in <strong>${minutes} minutes</strong> and can be used once.
+          </div>`)}
+        ${paragraph(
+          `<strong>If you didn't request this</strong>, no action is needed — your password has not changed. ` +
+            `If it keeps happening, someone knows your admin address.`,
+        )}`,
+    }),
+  };
+}

@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { getPaymentConfig } from "../../../../lib/payments";
 import { orderView } from "../../../../lib/payments/koko";
 import { findOrderByReference, settlePayment } from "../../../../lib/order-store";
+import { notifyPaymentSettled } from "../../../../lib/order-notifications";
 import { siteOrigin } from "../../../../lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -28,11 +29,12 @@ async function resolve(request: NextRequest, reference: string): Promise<NextRes
     const config = await getPaymentConfig();
     const verified = await orderView(reference, config.koko);
     if (verified) {
-      await settlePayment(reference, {
+      const settled = await settlePayment(reference, {
         status: verified.status,
         transactionId: verified.transactionId,
         evidence: verified.evidence,
       });
+      if (settled) await notifyPaymentSettled(settled);
     }
   }
 

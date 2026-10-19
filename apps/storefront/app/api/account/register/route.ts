@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createCustomer, findByEmail, toPublic } from "../../../lib/customer-store";
+import { sendEmail } from "../../../lib/email/send";
+import { welcomeEmail } from "../../../lib/email/templates";
 import { CUSTOMER_COOKIE, hashPassword, signCustomerToken } from "../../../lib/customer-auth";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,13 +38,11 @@ export async function POST(request: NextRequest) {
       passwordHash: await hashPassword(password),
     });
   } catch (error) {
-    const code = (error as NodeJS.ErrnoException)?.code;
-    const message =
-      code === "EROFS" || code === "EACCES" || code === "EPERM"
-        ? "Accounts need a writable database on this host."
-        : "Could not create your account";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[account] could not create customer:", (error as Error).message);
+    return NextResponse.json({ error: "Could not create your account" }, { status: 500 });
   }
+
+  await sendEmail(customer.email, welcomeEmail(customer.name));
 
   const token = await signCustomerToken({ sub: customer.id, email: customer.email, name: customer.name });
   const response = NextResponse.json({ customer: toPublic(customer) }, { status: 201 });
