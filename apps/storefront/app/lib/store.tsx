@@ -92,11 +92,53 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
   const [toast, setToast] = useState("");
   const [hydrated, setHydrated] = useState(false);
 
+  /*
+   * True once the wishlist has been reconciled with the signed-in account.
+   * Until then, changes are not pushed: an empty first render would otherwise
+   * replace a saved list with nothing.
+   */
+  const [wishSynced, setWishSynced] = useState(false);
+
   // Hydrate from localStorage after mount so server and client markup match.
   useEffect(() => {
     setCart(readStored<CartLine[]>(CART_KEY, []));
-    setWishlist(readStored<string[]>(WISH_KEY, []));
+    const local = readStored<string[]>(WISH_KEY, []);
+    setWishlist(local);
     setHydrated(true);
+
+    /*
+     * Reconcile with the account, if there is one. The merge is deliberate
+     * and one-way-safe: items hearted as a guest survive signing in, and a
+     * second device cannot wipe what the first one saved. A 401 simply means
+     * "guest", so the local list stands.
+     */
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/account/wishlist");
+        if (!res.ok) return;
+        const data = await res.json();
+        const remote: string[] = data.wishlist ?? [];
+        const merged = [...remote, ...local.filter((id) => !remote.includes(id))];
+        if (cancelled) return;
+        setWishlist(merged);
+        if (merged.length !== remote.length) {
+          await fetch("/api/account/wishlist", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ wishlist: merged }),
+          });
+        }
+      } catch {
+        /* offline or signed out — the local list is still correct */
+      } finally {
+        if (!cancelled) setWishSynced(true);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Guarded on `hydrated` so the empty first render cannot overwrite a stored
@@ -106,8 +148,24 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
   }, [cart, hydrated]);
 
   useEffect(() => {
-    if (hydrated) writeStored(WISH_KEY, wishlist);
-  }, [wishlist, hydrated]);
+    if (!hydrated) return;
+    writeStored(WISH_KEY, wishlist);
+
+    /*
+     * Mirror to the account once reconciled. `replace: true` because this
+     * fires on removal too, and a merge would resurrect what was just
+     * unhearted. Signed-out visitors get a 401, which is ignored.
+     */
+    if (!wishSynced) return;
+    const timer = setTimeout(() => {
+      void fetch("/api/account/wishlist", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wishlist, replace: true }),
+      }).catch(() => {});
+    }, 400); // debounced: hearting several items in a row is one write
+    return () => clearTimeout(timer);
+  }, [wishlist, hydrated, wishSynced]);
 
   // Lock background scrolling while a full-screen overlay is showing.
   useEffect(() => {

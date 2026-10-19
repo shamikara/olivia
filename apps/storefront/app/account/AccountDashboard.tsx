@@ -7,6 +7,7 @@ import type { Address, PublicCustomer } from "../lib/customer-store";
 import type { Order } from "../lib/order-store";
 import { formatLKR } from "../data/products";
 import { AddressFields } from "../components/AddressFields";
+import { useStore } from "../lib/store";
 
 const BLANK_ADDRESS = {
   id: "",
@@ -40,7 +41,43 @@ export function AccountDashboard({
   districts: string[];
 }) {
   const router = useRouter();
+  const { catalog, addToCart, openCart, showToast } = useStore();
   const [tab, setTab] = useState<"orders" | "addresses" | "details">("orders");
+
+  /**
+   * Refills the cart from a past order.
+   *
+   * Products get discontinued, renamed and sold out between orders, so this
+   * adds what is still available and says plainly what it could not. Silently
+   * dropping a line would leave someone checking out with less than they
+   * thought they had re-bought.
+   */
+  const reorder = (order: Order) => {
+    const missing: string[] = [];
+    let added = 0;
+
+    for (const line of order.lines) {
+      const product = catalog.find((item) => item.id === line.productId);
+      if (!product || product.stockCount === 0) {
+        missing.push(product ? `${line.name} (out of stock)` : line.name);
+        continue;
+      }
+      // Never add more than is actually on the shelf.
+      addToCart(product.id, Math.min(line.quantity, product.stockCount));
+      added += 1;
+    }
+
+    if (added === 0) {
+      showToast("Nothing from that order is available right now");
+      return;
+    }
+    showToast(
+      missing.length === 0
+        ? `${added} item${added === 1 ? "" : "s"} added to your bag`
+        : `${added} of ${order.lines.length} added — ${missing.join(", ")} unavailable`,
+    );
+    openCart();
+  };
   const [profile, setProfile] = useState({ name: customer.name, phone: customer.phone ?? "" });
   const [addresses, setAddresses] = useState<Address[]>(customer.addresses);
   const [draft, setDraft] = useState<typeof BLANK_ADDRESS | null>(null);
@@ -172,6 +209,9 @@ export function AccountDashboard({
                       </span>
                     )}
                     <strong>{formatLKR(order.totalLKR)}</strong>
+                    <button className="btn btn-ghost order-reorder" onClick={() => reorder(order)}>
+                      Order again
+                    </button>
                   </footer>
                 </article>
               ))}

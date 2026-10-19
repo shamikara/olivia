@@ -4059,3 +4059,11 @@ p {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* "Order again" sits with the total in an order card's footer. */
+.order-reorder {
+  margin-left: auto;
+  padding: 7px 16px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
