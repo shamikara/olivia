@@ -526,3 +526,45 @@
   opacity: 0.35;
   cursor: default;
 }
+
+/* Order status filter tabs. Each carries its own count, so the workload is
+   visible without selecting the tab first. */
+.admin-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 18px;
+}
+
+.admin-filter-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border: 1px solid var(--admin-line, #e8e0d6);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+.admin-filter-tabs button span {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.07);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-filter-tabs button.active {
+  border-color: currentColor;
+  background: #1e1018;
+  color: #fbf7f5;
+}
+
+.admin-filter-tabs button.active span {
+  background: rgba(255, 255, 255, 0.18);
+}

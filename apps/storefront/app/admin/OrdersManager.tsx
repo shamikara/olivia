@@ -63,6 +63,17 @@ export function OrdersManager() {
     void load();
   }, []);
 
+  /*
+   * Counts come from the unfiltered list on purpose: the tabs should keep
+   * showing the whole picture while one of them is selected.
+   */
+  const counts = useMemo(() => {
+    const tally: Record<string, number> = { all: orders.length };
+    for (const status of STATUSES) tally[status] = 0;
+    for (const order of orders) tally[order.status] = (tally[order.status] ?? 0) + 1;
+    return tally;
+  }, [orders]);
+
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return orders.filter((order) => {
@@ -99,14 +110,21 @@ export function OrdersManager() {
             placeholder="Search reference, name or phone"
           />
         </div>
-        <select className="admin-select" value={filter} onChange={(event) => setFilter(event.target.value as OrderStatus | "all")}>
-          <option value="all">All statuses</option>
-          {STATUSES.map((status) => (
-            <option key={status} value={status}>
-              {status}
-            </option>
-          ))}
-        </select>
+      </div>
+
+      <div className="admin-filter-tabs" role="tablist" aria-label="Filter orders by status">
+        {(["all", ...STATUSES] as const).map((status) => (
+          <button
+            key={status}
+            role="tab"
+            aria-selected={filter === status}
+            className={filter === status ? "active" : ""}
+            onClick={() => setFilter(status)}
+          >
+            {status === "all" ? "All" : status}
+            <span>{counts[status] ?? 0}</span>
+          </button>
+        ))}
       </div>
 
       {flash && <div className="admin-flash ok">{flash}</div>}
