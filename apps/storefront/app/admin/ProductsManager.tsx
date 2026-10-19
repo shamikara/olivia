@@ -363,6 +363,10 @@ function ProductEditor({
               </div>
             ))}
           </div>
+          <p className="admin-hint">
+            Max 500KB per image. Anything is accepted and converted to WebP, so upload the format
+            you have — just keep it under the size.
+          </p>
           {uploadError && <p className="admin-flash bad">{uploadError}</p>}
 
           <label className="admin-block">

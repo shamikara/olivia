@@ -4,7 +4,8 @@ export const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/web
 
 const MAX_DIMENSION = 12000;
 const MIN_DIMENSION = 20;
-const WEBP_QUALITY = 80;
+/** Exported so the local fallback encodes identically to the real pipeline. */
+export const WEBP_QUALITY = 80;
 
 const VARIANT_WIDTHS = { thumb: 400, medium: 900, large: 1600 } as const;
 export type VariantSize = keyof typeof VARIANT_WIDTHS;
