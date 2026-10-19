@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { usePublicSettings } from "../lib/public-settings";
 import { formatLKR, installmentAmount } from "../data/products";
 import { SITE } from "../lib/site";
 import { useStore } from "../lib/store";
 import { CloseIcon } from "./Icons";
 
 export function QuickView() {
+  const settings = usePublicSettings();
   const { quickViewId, closeQuickView, addToCart, catalog } = useStore();
   const product = quickViewId ? catalog.find((item) => item.id === quickViewId) : undefined;
   if (!product) return null;
@@ -67,11 +69,13 @@ export function QuickView() {
               )}
             </div>
 
-            <p className="installment">
-              {"or 3 × "}
-              <strong>{installmentAmount(product.priceLKR, SITE.installmentMonths)}</strong>
-              {" with Mintpay, Koko & Payzy"}
-            </p>
+            {settings.instalmentProviders.length > 0 && (
+              <p className="installment">
+                {`or ${settings.installmentMonths} × `}
+                <strong>{installmentAmount(product.priceLKR, settings.installmentMonths)}</strong>
+                {` with ${settings.instalmentProviders.join(", ")}`}
+              </p>
+            )}
 
             <button
               className="btn btn-block"

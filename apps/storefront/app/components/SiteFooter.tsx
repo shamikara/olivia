@@ -1,9 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { usePublicSettings } from "../lib/public-settings";
 import { CATEGORIES } from "../data/products";
 import { SITE } from "../lib/site";
 import { Wordmark } from "./Wordmark";
 
 export function SiteFooter() {
+  const settings = usePublicSettings();
   return (
     <footer className="site-footer">
       <div className="container">
@@ -43,9 +47,9 @@ export function SiteFooter() {
             <h4>Pay your way</h4>
             <p>Split any order into 3 interest-free monthly payments, or pay cash when it arrives.</p>
             <div className="footer-pay">
-              <span>Mintpay</span>
-              <span>Koko</span>
-              <span>Payzy</span>
+              {settings.instalmentProviders.map((provider) => (
+                <span key={provider}>{provider}</span>
+              ))}
               <span>Cash on delivery</span>
             </div>
           </div>

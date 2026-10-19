@@ -41,7 +41,7 @@ export const DEFAULT_SETTINGS: StoreSettings = {
     "10% off your first order with code GLOW10",
     "Islandwide delivery · Cash on delivery available",
     "100% authentic K-Beauty, sourced direct",
-    "Pay in 3 with Mintpay, Koko & Payzy",
+    "Pay in 3 interest-free instalments",
     "Free skin consultation on WhatsApp",
   ],
   payments: DEFAULT_PAYMENTS,

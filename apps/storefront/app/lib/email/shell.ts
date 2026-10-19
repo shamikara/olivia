@@ -109,7 +109,7 @@ export function wrap({
               <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;line-height:1.7;
                           color:rgba(232,205,191,.45);padding-top:14px;">
                 © ${new Date().getFullYear()} Olivia Glow · Colombo, Sri Lanka<br>
-                Islandwide delivery · Cash on delivery available · Pay in 3 with Mintpay, Koko &amp; Payzy
+                Islandwide delivery · Cash on delivery available
               </div>
             </td>
           </tr>

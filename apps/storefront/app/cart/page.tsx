@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePublicSettings } from "../lib/public-settings";
 import { useState } from "react";
 import { StoreShell } from "../components/StoreShell";
 import { formatLKR, installmentAmount } from "../data/products";
@@ -8,6 +9,7 @@ import { SITE } from "../lib/site";
 import { useStore } from "../lib/store";
 
 export default function CartPage() {
+  const settings = usePublicSettings();
   const { lines, subtotal, itemCount, setQuantity, removeFromCart } = useStore();
   const [code, setCode] = useState("");
   const [applied, setApplied] = useState(0);
@@ -151,14 +153,17 @@ export default function CartPage() {
               <strong>{formatLKR(total)}</strong>
             </div>
 
-            <p className="installment">
-              or 3 × <strong>{installmentAmount(total, SITE.installmentMonths)}</strong> interest-free
-              <span className="pay-logos">
-                <span>Mintpay</span>
-                <span>Koko</span>
-                <span>Payzy</span>
-              </span>
-            </p>
+            {settings.instalmentProviders.length > 0 && (
+              <p className="installment">
+                or {settings.installmentMonths} ×{" "}
+                <strong>{installmentAmount(total, settings.installmentMonths)}</strong> interest-free
+                <span className="pay-logos">
+                  {settings.instalmentProviders.map((provider) => (
+                    <span key={provider}>{provider}</span>
+                  ))}
+                </span>
+              </p>
+            )}
 
             <Link href="/checkout" className="btn btn-block">
               Checkout

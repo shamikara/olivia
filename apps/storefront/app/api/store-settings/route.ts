@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSettings } from "../../lib/settings-store";
+import { paymentOptions } from "../../lib/payments";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +12,20 @@ export const dynamic = "force-dynamic";
  */
 export async function GET() {
   const settings = await getSettings();
+
+  /*
+   * Which instalment providers the storefront may advertise. Derived from the
+   * same function checkout uses, so a badge cannot outlive the gateway it
+   * names — advertising a plan the shop cannot accept is worse than showing
+   * no badge at all.
+   */
+  const instalmentProviders = (await paymentOptions())
+    .filter((option) => option.instalments)
+    .map((option) => option.label);
+
   return NextResponse.json({
     settings: {
+      instalmentProviders,
       storeName: settings.storeName,
       supportEmail: settings.supportEmail,
       whatsappPhone: settings.whatsappPhone,

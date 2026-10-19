@@ -12,6 +12,8 @@ export interface PublicSettings {
   freeShippingThresholdLKR: number;
   flatShippingLKR: number;
   installmentMonths: number;
+  /** Instalment gateways currently enabled and configured. May be empty. */
+  instalmentProviders: string[];
 }
 
 /*
@@ -27,6 +29,12 @@ const FALLBACK: PublicSettings = {
   freeShippingThresholdLKR: SITE.freeShippingThreshold,
   flatShippingLKR: 450,
   installmentMonths: SITE.installmentMonths,
+  /*
+   * Empty, deliberately. The fallback is what shows before the fetch lands
+   * and if the endpoint is unreachable, so it must not name a gateway that
+   * might be switched off.
+   */
+  instalmentProviders: [],
 };
 
 /*

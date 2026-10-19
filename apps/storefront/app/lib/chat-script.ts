@@ -224,7 +224,7 @@ export function searchCatalog(catalog: BeautyProduct[], query: string, limit = 3
 
 const INTENTS: { node: string; keywords: string[] }[] = [
   { node: "delivery", keywords: ["deliver", "shipping", "ship", "courier", "how long", "post", "cod", "cash on"] },
-  { node: "pay", keywords: ["pay", "payment", "instal", "koko", "mintpay", "payzy", "card", "bank"] },
+  { node: "pay", keywords: ["pay", "payment", "instal", "koko", "mintpay", "payzy", "card", "bank"] }, // keywords only — matching what a shopper might type, not what we advertise
   { node: "authentic", keywords: ["authentic", "genuine", "original", "fake", "real", "expiry", "expire"] },
   { node: "order", keywords: ["order", "track", "parcel", "where is", "delivered yet", "status"] },
   { node: "returns", keywords: ["return", "refund", "exchange", "damaged", "wrong item", "broken"] },
@@ -334,7 +334,7 @@ export function answer(nodeId: string, context: ChatContext): ChatAnswer {
     case "pay":
       return {
         bubbles: [
-          "You can pay cash on delivery, by bank transfer, or split it into 3 interest-free instalments with Mintpay, Koko or Payzy.",
+          "You can pay cash on delivery, by bank transfer, or by any instalment plan shown at checkout.",
           `Instalments work out to a third of the total each month over ${settings.installmentMonths} months, with nothing extra added.`,
         ],
         options: BACK,

@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { usePublicSettings } from "../lib/public-settings";
 import { discountPercent, formatLKR, installmentAmount, type BeautyProduct } from "../data/products";
 import { SITE } from "../lib/site";
 import { useStore } from "../lib/store";
 import { HeartIcon } from "./Icons";
 
 export function ProductCard({ product }: { product: BeautyProduct }) {
+  const settings = usePublicSettings();
   const { addToCart, toggleWishlist, isWishlisted, openQuickView } = useStore();
   const saved = isWishlisted(product.id);
   const discount = discountPercent(product);
@@ -64,14 +66,17 @@ export function ProductCard({ product }: { product: BeautyProduct }) {
           )}
         </div>
 
-        <div className="installment">
-          or 3 × <strong>{installmentAmount(product.priceLKR, SITE.installmentMonths)}</strong>
-          <div className="pay-logos">
-            <span>Mintpay</span>
-            <span>Koko</span>
-            <span>Payzy</span>
+        {settings.instalmentProviders.length > 0 && (
+          <div className="installment">
+            or {settings.installmentMonths} ×{" "}
+            <strong>{installmentAmount(product.priceLKR, settings.installmentMonths)}</strong>
+            <div className="pay-logos">
+              {settings.instalmentProviders.map((provider) => (
+                <span key={provider}>{provider}</span>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {product.stockCount === 0 ? (
           <p className="stock-note">Out of stock</p>

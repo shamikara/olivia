@@ -115,7 +115,7 @@ export function orderConfirmationEmail(order: Order): Email {
           </div>`)}
         ${button("View your order", siteUrl(`/order/${order.reference}`))}
         ${paragraph(
-          "Payment is on delivery, by bank transfer, or split into three interest-free instalments with Mintpay, Koko or Payzy.",
+          "Payment is on delivery, by bank transfer, or by any instalment plan offered at checkout.",
         )}`,
     }),
   };
