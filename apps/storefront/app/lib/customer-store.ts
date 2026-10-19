@@ -30,6 +30,8 @@ export interface Customer {
   phone?: string;
   passwordHash: string;
   addresses: Address[];
+  /** Product ids, in the order they were saved. */
+  wishlist: string[];
   createdAt: string;
 }
 
@@ -39,7 +41,7 @@ export type PublicCustomer = Omit<Customer, "passwordHash">;
 export const toPublic = ({ passwordHash: _passwordHash, ...rest }: Customer): PublicCustomer => rest;
 
 const TABLE = "customers";
-const COLUMNS = "id, email, name, phone, password_hash, addresses, created_at";
+const COLUMNS = "id, email, name, phone, password_hash, addresses, wishlist, created_at";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function toCustomer(row: any): Customer {
@@ -50,6 +52,7 @@ function toCustomer(row: any): Customer {
     phone: row.phone ?? undefined,
     passwordHash: row.password_hash,
     addresses: (row.addresses ?? []) as Address[],
+    wishlist: (row.wishlist ?? []) as string[],
     createdAt: new Date(row.created_at).toISOString(),
   };
 }
@@ -60,6 +63,15 @@ export async function findByEmail(email: string): Promise<Customer | undefined> 
   const rows = await db().from(TABLE).select(COLUMNS).eq("email", normaliseEmail(email)).limit(1);
   const found = unwrap(rows, "findByEmail");
   return found.length > 0 ? toCustomer(found[0]) : undefined;
+}
+
+/** Every customer, newest first. For the admin list, stats and CSV export. */
+export async function allCustomers(): Promise<Customer[]> {
+  const rows = unwrap(
+    await db().from(TABLE).select(COLUMNS).order("created_at", { ascending: false }),
+    "allCustomers",
+  );
+  return rows.map(toCustomer);
 }
 
 export async function findById(id: string): Promise<Customer | undefined> {
@@ -83,6 +95,7 @@ export async function createCustomer(input: {
       phone: input.phone?.trim() || null,
       password_hash: input.passwordHash,
       addresses: [],
+      wishlist: [],
     })
     .select(COLUMNS)
     .single();
@@ -92,7 +105,7 @@ export async function createCustomer(input: {
 
 export async function updateCustomer(
   id: string,
-  patch: Partial<Pick<Customer, "name" | "phone" | "addresses" | "passwordHash">>,
+  patch: Partial<Pick<Customer, "name" | "phone" | "addresses" | "passwordHash" | "wishlist">>,
 ): Promise<Customer | undefined> {
   // Only the keys actually present are sent, so a patch of one field cannot
   // blank the others.
@@ -100,6 +113,7 @@ export async function updateCustomer(
   if (patch.name !== undefined) update.name = patch.name;
   if (patch.phone !== undefined) update.phone = patch.phone || null;
   if (patch.addresses !== undefined) update.addresses = patch.addresses;
+  if (patch.wishlist !== undefined) update.wishlist = patch.wishlist;
   if (patch.passwordHash !== undefined) update.password_hash = patch.passwordHash;
 
   if (Object.keys(update).length === 0) return findById(id);

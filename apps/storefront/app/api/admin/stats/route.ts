@@ -1,28 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { allOrders } from "../../../lib/order-store";
 import { getProducts } from "../../../lib/product-store";
 import { requireAdmin } from "../../../lib/admin-auth";
-import type { Customer } from "../../../lib/customer-store";
-
-async function readCustomers(): Promise<Customer[]> {
-  try {
-    const raw = await fs.readFile(path.join(process.cwd(), "data", "customers.json"), "utf8");
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
+import { allCustomers } from "../../../lib/customer-store";
 
 /** Everything the dashboard needs, computed from the real stores. */
 export async function GET(request: NextRequest) {
   const denied = await requireAdmin(request);
   if (denied) return denied;
 
-  const [products, orders, customers] = await Promise.all([getProducts(), allOrders(), readCustomers()]);
+  const [products, orders, customers] = await Promise.all([getProducts(), allOrders(), allCustomers()]);
 
   const live = orders.filter((order) => order.status !== "cancelled");
   const revenue = live.reduce((total, order) => total + order.totalLKR, 0);

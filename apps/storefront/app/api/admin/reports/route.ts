@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { allOrders } from "../../../lib/order-store";
 import { getProducts } from "../../../lib/product-store";
 import { requireAdmin } from "../../../lib/admin-auth";
-import type { Customer } from "../../../lib/customer-store";
+import { allCustomers } from "../../../lib/customer-store";
 
 /** Escapes a value for CSV: quote it and double any embedded quotes. */
 const cell = (value: unknown): string => {
@@ -77,15 +75,7 @@ export async function GET(request: NextRequest) {
       ]),
     );
   } else if (type === "customers") {
-    let customers: Customer[] = [];
-    try {
-      const raw = await fs.readFile(path.join(process.cwd(), "data", "customers.json"), "utf8");
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) customers = parsed;
-    } catch {
-      customers = [];
-    }
-    const orders = await allOrders();
+    const [customers, orders] = await Promise.all([allCustomers(), allOrders()]);
     csv = toCsv(
       ["Name", "Email", "Phone", "Joined", "Addresses", "Orders", "Lifetime value"],
       customers.map((customer) => {
