@@ -568,3 +568,100 @@
 .admin-filter-tabs button.active span {
   background: rgba(255, 255, 255, 0.18);
 }
+
+/* Customer saved addresses, expanded under their row. */
+.admin-row-clickable {
+  cursor: pointer;
+}
+
+.admin-address-panel {
+  padding: 14px 18px 20px;
+  border-bottom: 1px solid var(--admin-line, #e8e0d6);
+  background: rgba(0, 0, 0, 0.015);
+}
+
+.admin-address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.admin-address-card {
+  padding: 12px 14px;
+  border: 1px solid var(--admin-line, #e8e0d6);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.admin-address-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.admin-address-default {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #1e1018;
+  color: #fbf7f5;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-address-card p {
+  margin: 0;
+}
+
+.admin-address-card p.muted {
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Label printing: per-row selection and actions. */
+.admin-row-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-order-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-print-btn {
+  padding: 5px 10px;
+  border: 1px solid var(--admin-line, #e8e0d6);
+  border-radius: 6px;
+  background: transparent;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.admin-bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  margin-bottom: 14px;
+  border: 1px solid var(--admin-line, #e8e0d6);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.02);
+  font-size: 0.82rem;
+}
+
+.admin-bulk-bar button:not(.btn) {
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.78rem;
+}

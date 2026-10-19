@@ -44,6 +44,9 @@ export function OrdersManager() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
   const [open, setOpen] = useState<Order | null>(null);
+  // References ticked for bulk label printing. Kept as references rather than
+  // ids because that is what the label page takes.
+  const [selected, setSelected] = useState<string[]>([]);
   const [flash, setFlash] = useState<string | null>(null);
 
   const load = async () => {
@@ -82,6 +85,17 @@ export function OrdersManager() {
       return `${order.reference} ${order.contactName} ${order.contactPhone}`.toLowerCase().includes(needle);
     });
   }, [orders, query, filter]);
+
+  /** Opens the print view in its own tab so the admin table stays put. */
+  const printLabels = (references: string[]) => {
+    if (references.length === 0) return;
+    window.open(`/admin/labels?refs=${encodeURIComponent(references.join(","))}`, "_blank", "noopener");
+  };
+
+  const toggleSelected = (reference: string) =>
+    setSelected((current) =>
+      current.includes(reference) ? current.filter((r) => r !== reference) : [...current, reference],
+    );
 
   const changeStatus = async (order: Order, status: OrderStatus) => {
     const res = await fetch("/api/admin/orders", {
@@ -127,6 +141,18 @@ export function OrdersManager() {
         ))}
       </div>
 
+      {selected.length > 0 && (
+        <div className="admin-bulk-bar">
+          <span>
+            {selected.length} order{selected.length === 1 ? "" : "s"} selected
+          </span>
+          <button className="btn" onClick={() => printLabels(selected)}>
+            Print {selected.length} label{selected.length === 1 ? "" : "s"}
+          </button>
+          <button onClick={() => setSelected([])}>Clear</button>
+        </div>
+      )}
+
       {flash && <div className="admin-flash ok">{flash}</div>}
 
       {loading ? (
@@ -148,9 +174,17 @@ export function OrdersManager() {
           {visible.map((order) => (
             <div className="product-row admin-orders-row" key={order.id}>
               <b>
-                <button className="linkish" onClick={() => setOpen(order)}>
-                  {order.reference}
-                </button>
+                <span className="admin-row-select">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(order.reference)}
+                    onChange={() => toggleSelected(order.reference)}
+                    aria-label={`Select ${order.reference} for label printing`}
+                  />
+                  <button className="linkish" onClick={() => setOpen(order)}>
+                    {order.reference}
+                  </button>
+                </span>
                 <small>{order.customerId ? "Account" : "Guest"}</small>
               </b>
               <span>
@@ -165,17 +199,26 @@ export function OrdersManager() {
                 <PaymentBadge order={order} />
               </span>
               <span>{new Date(order.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
-              <select
-                className="admin-select"
-                value={order.status}
-                onChange={(event) => changeStatus(order, event.target.value as OrderStatus)}
-              >
-                {STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
+              <span className="admin-order-actions">
+                <select
+                  className="admin-select"
+                  value={order.status}
+                  onChange={(event) => changeStatus(order, event.target.value as OrderStatus)}
+                >
+                  {STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  className="admin-print-btn"
+                  onClick={() => printLabels([order.reference])}
+                  title={`Print a delivery label for ${order.reference}`}
+                >
+                  Label
+                </button>
+              </span>
             </div>
           ))}
         </div>

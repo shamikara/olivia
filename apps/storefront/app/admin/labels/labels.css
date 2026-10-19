@@ -1,0 +1,197 @@
+/*
+ * Delivery labels.
+ *
+ * Sized for A6 (105 × 148mm), which is the common thermal label and also cuts
+ * cleanly from A4. One label per page: `break-after` guarantees the next one
+ * starts on a fresh sheet rather than straddling a fold.
+ */
+
+@page {
+  size: A6;
+  margin: 6mm;
+}
+
+.label-page {
+  background: #f3f3f3;
+  min-height: 100vh;
+  padding: 24px 16px 48px;
+  font-family: Helvetica, Arial, sans-serif;
+  color: #111;
+}
+
+.label-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 105mm;
+  margin: 0 auto 18px;
+}
+
+.label-toolbar button {
+  padding: 9px 18px;
+  border: 1px solid #111;
+  border-radius: 6px;
+  background: #111;
+  color: #fff;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.label-toolbar button + button {
+  background: transparent;
+  color: #111;
+}
+
+.label-warn {
+  font-size: 0.78rem;
+  color: #a33;
+}
+
+.label-message {
+  max-width: 105mm;
+  margin: 48px auto;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.label-sheet {
+  box-sizing: border-box;
+  width: 105mm;
+  min-height: 148mm;
+  margin: 0 auto 18px;
+  padding: 8mm;
+  background: #fff;
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  gap: 5mm;
+}
+
+.label-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 2px solid #111;
+  padding-bottom: 3mm;
+}
+
+.label-eyebrow {
+  margin: 0;
+  font-size: 8pt;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: #666;
+}
+
+/* Large and monospaced so it can be read across a counter and typed without
+   transcription errors. */
+.label-ref {
+  font-family: "Courier New", monospace;
+  font-size: 15pt;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* The address is the whole point of the label — everything else is smaller. */
+.label-to {
+  display: flex;
+  flex-direction: column;
+  gap: 1mm;
+  font-size: 13pt;
+  line-height: 1.45;
+}
+
+.label-to strong {
+  font-size: 15pt;
+}
+
+.label-phone {
+  margin-top: 2mm;
+  font-family: "Courier New", monospace;
+  font-size: 13pt;
+}
+
+.label-noaddress {
+  font-size: 10pt;
+  color: #a33;
+}
+
+.label-cod {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3mm 4mm;
+  border: 2px solid #111;
+  border-radius: 2mm;
+  font-size: 10pt;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.label-cod strong {
+  font-size: 14pt;
+  letter-spacing: 0;
+}
+
+.label-cod-due {
+  background: #111;
+  color: #fff;
+}
+
+.label-cod-paid {
+  border-style: dashed;
+  color: #444;
+}
+
+.label-meta {
+  display: flex;
+  gap: 4mm;
+  font-size: 9pt;
+  color: #555;
+}
+
+.label-method {
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.label-from {
+  margin-top: auto;
+  border-top: 1px solid #bbb;
+  padding-top: 3mm;
+  font-size: 9pt;
+  color: #444;
+}
+
+@media print {
+  .label-page {
+    background: #fff;
+    padding: 0;
+  }
+
+  /* Screen-only chrome. */
+  .label-toolbar {
+    display: none;
+  }
+
+  .label-sheet {
+    width: auto;
+    min-height: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    break-after: page;
+  }
+
+  .label-sheet:last-child {
+    break-after: auto;
+  }
+
+  /* Printers drop backgrounds by default, which would turn the
+     collect-on-delivery box into white-on-white. */
+  .label-cod-due {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
