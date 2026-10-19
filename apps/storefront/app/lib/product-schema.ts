@@ -1,5 +1,8 @@
 import type { BeautyProduct, Category } from "../data/products";
 
+/** Extra photos beyond the main image, so six in total per product. */
+export const MAX_GALLERY_IMAGES = 5;
+
 const CATEGORIES: Category[] = [
   "SERUM",
   "MOISTURIZERS",
@@ -66,6 +69,19 @@ export function normaliseProduct(input: unknown): Result {
   const image = text(raw.image);
   if (!image) return { error: "A main image is required" };
 
+  /*
+   * Gallery images, deduplicated and capped. The legacy secondaryImage is
+   * folded in at the front so a product saved before galleries existed keeps
+   * its second photo, in the position it used to occupy.
+   */
+  const legacySecondary = optionalText(raw.secondaryImage);
+  const rawGallery = Array.isArray(raw.gallery) ? raw.gallery : [];
+  const gallery = [...(legacySecondary ? [legacySecondary] : []), ...rawGallery.map((entry) => text(entry))]
+    .filter((entry): entry is string => Boolean(entry))
+    .filter((entry) => entry !== image)
+    .filter((entry, index, all) => all.indexOf(entry) === index)
+    .slice(0, MAX_GALLERY_IMAGES);
+
   const originalPrice = number(raw.originalPriceLKR);
   const stock = number(raw.stockCount);
   const rating = number(raw.rating);
@@ -83,7 +99,7 @@ export function normaliseProduct(input: unknown): Result {
     rating: rating !== undefined && rating > 0 ? Math.min(5, rating) : undefined,
     reviewsCount: reviews !== undefined && reviews > 0 ? Math.round(reviews) : undefined,
     image,
-    secondaryImage: optionalText(raw.secondaryImage),
+    gallery: gallery.length ? gallery : undefined,
     description: text(raw.description),
     benefits: list(raw.benefits),
     concerns: list(raw.concerns).length ? list(raw.concerns) : undefined,

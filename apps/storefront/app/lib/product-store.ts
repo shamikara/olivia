@@ -15,8 +15,19 @@ import { db, unwrap } from "./db/client";
 
 const TABLE = "products";
 
+/**
+ * Products saved before galleries existed carry `secondaryImage` instead of
+ * `gallery`. Folding it in here, at the read boundary, means the product page,
+ * the editor and the cards all see one shape — rather than each remembering
+ * to check both fields.
+ */
+export function withGallery(product: BeautyProduct): BeautyProduct {
+  if (product.gallery?.length || !product.secondaryImage) return product;
+  return { ...product, gallery: [product.secondaryImage] };
+}
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const toProduct = (row: any): BeautyProduct => row.data as BeautyProduct;
+const toProduct = (row: any): BeautyProduct => withGallery(row.data as BeautyProduct);
 
 /*
  * Deliberately uncached. Route handlers and server components are separate
@@ -34,7 +45,7 @@ export async function getProducts(): Promise<BeautyProduct[]> {
   // First run against an empty database: seed the editable copy from the
   // checked-in catalogue, then serve it.
   await writeProducts(PRODUCTS_CATALOG);
-  return PRODUCTS_CATALOG;
+  return PRODUCTS_CATALOG.map(withGallery);
 }
 
 /**

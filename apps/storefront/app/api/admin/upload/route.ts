@@ -33,9 +33,11 @@ const slugify = (value: string) =>
     .slice(0, 50) || "image";
 
 // Maps the editor's field names to the pipeline's role vocabulary.
-const ROLE_MAP: Record<string, Extract<ImageRole, "main" | "secondary">> = {
+const ROLE_MAP: Record<string, Extract<ImageRole, "main" | "gallery">> = {
   image: "main",
-  secondaryImage: "secondary",
+  gallery: "gallery",
+  // Retained so an older editor build keeps working; stored as a gallery image.
+  secondaryImage: "gallery",
 };
 
 export async function POST(request: NextRequest) {

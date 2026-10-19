@@ -1,4 +1,8 @@
-export type ImageRole = "main" | "secondary" | "unassigned";
+/**
+ * "secondary" is legacy, kept so existing rows still resolve. New uploads
+ * are either the main image or one of the gallery images.
+ */
+export type ImageRole = "main" | "secondary" | "gallery" | "unassigned";
 
 export type MediaStatus =
   | "pending"

@@ -19,7 +19,7 @@ export default function ProductDetailPage() {
 
   if (!product) notFound();
 
-  const images = [product.image, product.secondaryImage].filter((src): src is string => Boolean(src));
+  const images = [product.image, ...(product.gallery ?? [])].filter((src): src is string => Boolean(src));
   const discount = discountPercent(product);
   const saved = isWishlisted(product.id);
 

@@ -508,3 +508,21 @@
 .pay-badge.pay-weak {
   color: #9a6a2f;
 }
+
+/* Gallery reorder controls sit inside the image slot, under the thumbnail. */
+.admin-image-order {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.admin-image-order button {
+  flex: 1;
+  padding: 2px 0;
+  line-height: 1.6;
+}
+
+.admin-image-order button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}

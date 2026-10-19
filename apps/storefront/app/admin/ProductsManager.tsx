@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { MAX_GALLERY_IMAGES } from "../lib/product-schema";
 import type { BeautyProduct, Category } from "../data/products";
 
 const CATEGORIES: Category[] = [
@@ -215,17 +216,30 @@ function ProductEditor({
   onSave: (product: BeautyProduct) => void;
 }) {
   const [draft, setDraft] = useState<BeautyProduct>(product);
-  const [uploading, setUploading] = useState<"image" | "secondaryImage" | null>(null);
+  const [uploading, setUploading] = useState<"image" | "gallery" | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const fileInputs = {
-    image: useRef<HTMLInputElement>(null),
-    secondaryImage: useRef<HTMLInputElement>(null),
+  const mainInput = useRef<HTMLInputElement>(null);
+  const galleryInput = useRef<HTMLInputElement>(null);
+
+  const gallery = draft.gallery ?? [];
+  const galleryFull = gallery.length >= MAX_GALLERY_IMAGES;
+
+  const setGallery = (next: string[]) =>
+    setDraft((current) => ({ ...current, gallery: next.length ? next : undefined }));
+
+  /** Order decides what customers see second, third and so on. */
+  const moveGallery = (index: number, delta: number) => {
+    const target = index + delta;
+    if (target < 0 || target >= gallery.length) return;
+    const next = [...gallery];
+    [next[index], next[target]] = [next[target], next[index]];
+    setGallery(next);
   };
 
   const set = <K extends keyof BeautyProduct>(key: K, value: BeautyProduct[K]) =>
     setDraft((current) => ({ ...current, [key]: value }));
 
-  const upload = async (slot: "image" | "secondaryImage", file: File) => {
+  const upload = async (slot: "image" | "gallery", file: File) => {
     let productId = draft.id;
     if (!productId) {
       if (!draft.name.trim()) {
@@ -252,7 +266,12 @@ function ProductEditor({
         setUploadError(data.error ?? "Upload failed");
         return;
       }
-      set(slot, data.url);
+      if (slot === "image") {
+        set("image", data.url);
+      } else {
+        // Appends: the gallery is a list, not a fixed set of slots.
+        setGallery([...gallery, data.url].slice(0, MAX_GALLERY_IMAGES));
+      }
     } catch {
       setUploadError("Network error during upload");
     } finally {
@@ -333,39 +352,87 @@ function ProductEditor({
           </div>
 
           <div className="admin-image-row">
-            {(["image", "secondaryImage"] as const).map((slot) => (
-              <div className="admin-image-slot" key={slot}>
-                <span>{slot === "image" ? "Main image" : "Second image"}</span>
-                {draft[slot] ? (
-                  <img src={draft[slot] as string} alt="" />
-                ) : (
-                  <div className="admin-image-empty">No image</div>
-                )}
+            <div className="admin-image-slot">
+              <span>Main image</span>
+              {draft.image ? (
+                <img src={draft.image} alt="" />
+              ) : (
+                <div className="admin-image-empty">No image</div>
+              )}
+              <input
+                ref={mainInput}
+                type="file"
+                accept="image/webp,image/jpeg,image/png,image/avif"
+                hidden
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void upload("image", file);
+                  e.target.value = "";
+                }}
+              />
+              <button onClick={() => mainInput.current?.click()} disabled={uploading !== null}>
+                {uploading === "image" ? "Uploading…" : draft.image ? "Replace" : "Upload"}
+              </button>
+            </div>
+
+            {/*
+              The gallery is an ordered list, not fixed slots: position decides
+              what the product page shows second, third and so on.
+            */}
+            {gallery.map((src, index) => (
+              <div className="admin-image-slot" key={src + index}>
+                <span>Image {index + 2}</span>
+                <img src={src} alt="" />
+                <div className="admin-image-order">
+                  <button
+                    onClick={() => moveGallery(index, -1)}
+                    disabled={index === 0}
+                    aria-label={`Move image ${index + 2} earlier`}
+                  >
+                    ◀
+                  </button>
+                  <button
+                    onClick={() => moveGallery(index, 1)}
+                    disabled={index === gallery.length - 1}
+                    aria-label={`Move image ${index + 2} later`}
+                  >
+                    ▶
+                  </button>
+                </div>
+                <button
+                  className="danger"
+                  onClick={() => setGallery(gallery.filter((_, i) => i !== index))}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+
+            {!galleryFull && (
+              <div className="admin-image-slot">
+                <span>Add image</span>
+                <div className="admin-image-empty">Empty</div>
                 <input
-                  ref={fileInputs[slot]}
+                  ref={galleryInput}
                   type="file"
                   accept="image/webp,image/jpeg,image/png,image/avif"
                   hidden
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) void upload(slot, file);
+                    if (file) void upload("gallery", file);
                     e.target.value = "";
                   }}
                 />
-                <button onClick={() => fileInputs[slot].current?.click()} disabled={uploading !== null}>
-                  {uploading === slot ? "Uploading…" : draft[slot] ? "Replace" : "Upload"}
+                <button onClick={() => galleryInput.current?.click()} disabled={uploading !== null}>
+                  {uploading === "gallery" ? "Uploading…" : "Upload"}
                 </button>
-                {draft[slot] && slot === "secondaryImage" && (
-                  <button className="danger" onClick={() => set("secondaryImage", undefined)}>
-                    Remove
-                  </button>
-                )}
               </div>
-            ))}
+            )}
           </div>
           <p className="admin-hint">
-            Max 500KB per image. Anything is accepted and converted to WebP, so upload the format
-            you have — just keep it under the size.
+            Up to {MAX_GALLERY_IMAGES + 1} images per product — the main one plus {MAX_GALLERY_IMAGES}{" "}
+            more, shown in the order above. Max 500KB each. Anything is accepted and converted to
+            WebP, so upload the format you have — just keep it under the size.
           </p>
           {uploadError && <p className="admin-flash bad">{uploadError}</p>}
 

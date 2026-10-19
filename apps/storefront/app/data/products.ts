@@ -22,7 +22,16 @@ export interface BeautyProduct {
   rating?: number;
   reviewsCount?: number;
   image: string;
+  /**
+   * Superseded by `gallery`. Still read so products saved before galleries
+   * existed keep their second photo; normaliseProduct folds it in.
+   */
   secondaryImage?: string;
+  /**
+   * Additional photos, in the order the product page shows them after the
+   * main image. Capped at MAX_GALLERY_IMAGES.
+   */
+  gallery?: string[];
   description: string;
   benefits: string[];
   concerns?: string[];

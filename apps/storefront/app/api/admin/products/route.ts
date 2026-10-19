@@ -16,9 +16,9 @@ export async function reconcileMediaBestEffort(product: BeautyProduct): Promise<
   const env = getMediaEnv();
   if (!env) return;
   try {
-    await reconcileProductMedia(env, product.id, { main: product.image, secondary: product.secondaryImage });
+    await reconcileProductMedia(env, product.id, [product.image, ...(product.gallery ?? [])]);
   } catch (error) {
-    console.error(`[media-sync] reconcile failed for ${product.id}:`, (error as Error).message);
+    console.error(`[media] reconcile failed for ${product.id}:`, (error as Error).message);
   }
 }
 
@@ -56,9 +56,5 @@ export async function POST(request: NextRequest) {
 }
 
 export function storageMessage(error: unknown): string {
-  const code = (error as NodeJS.ErrnoException)?.code;
-  if (code === "EROFS" || code === "EACCES" || code === "EPERM") {
-    return "Storage is read-only on this host. Point product-store.ts at a database to enable editing in production.";
-  }
   return error instanceof Error ? error.message : "Could not save product";
 }

@@ -49,7 +49,7 @@ async function storeVariants(
  */
 export async function ingestAdminUpload(
   productId: string,
-  role: Exclude<ImageRole, "unassigned">,
+  role: Exclude<ImageRole, "unassigned" | "secondary">,
   buffer: Buffer,
   mimeType: string,
   originalFilename: string,
@@ -71,7 +71,13 @@ export async function ingestAdminUpload(
   const sourceKey = `up_${randomUUID()}`;
 
   try {
-    const previous = await store.getActiveAssetForRole(env, productId, role);
+    /*
+     * The main image is a slot: a new one replaces what was there. A gallery
+     * image is an addition — there may be several live at once, and removal
+     * happens when the product stops referencing it, handled by
+     * reconcileProductMedia on save.
+     */
+    const previous = role === "main" ? await store.getActiveAssetForRole(env, productId, role) : null;
     const version = previous ? previous.version + 1 : 1;
     const variants = await storeVariants(env, productId, role, sourceKey, version, processed);
     const optimizedSize = variants.thumb.size + variants.medium.size + variants.large.size;

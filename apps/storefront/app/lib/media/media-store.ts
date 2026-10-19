@@ -212,22 +212,27 @@ export async function retireAsset(
 }
 
 /**
- * Called after a product save. Catches image replacements/removals that
- * happened through means other than the upload route itself (e.g. the
- * "Remove" button, which only clears the field client-side) — any active
- * asset whose public URL the product no longer references gets retired.
+ * Called after a product save. Catches image replacements and removals that
+ * happened by means other than the upload route (the "Remove" button, a
+ * gallery reorder, an image dragged out of the set) — any active asset whose
+ * public URL the product no longer references gets retired.
+ *
+ * Membership, not slots. A gallery can be reordered, and matching by slot
+ * would then read a reorder as "every image was replaced" and retire photos
+ * that are still on the page.
  */
 export async function reconcileProductMedia(
   env: MediaEnv,
   productId: string,
-  currentUrls: { main: string | undefined; secondary: string | undefined },
+  referencedUrls: Array<string | undefined>,
 ): Promise<void> {
-  for (const role of ["main", "secondary"] as const) {
-    const active = await getActiveAssetForRole(env, productId, role);
-    if (!active?.variants) continue;
-    const activeUrl = getPublicUrl(env, active.variants.medium.path);
-    if (activeUrl !== currentUrls[role]) {
-      await retireAsset(env, active, "superseded", `Product no longer references this ${role} image`);
+  const referenced = new Set(referencedUrls.filter((url): url is string => Boolean(url)));
+
+  for (const asset of await listAssetsForProduct(env, productId)) {
+    if (asset.status !== "active" || !asset.variants) continue;
+    const url = getPublicUrl(env, asset.variants.medium.path);
+    if (!referenced.has(url)) {
+      await retireAsset(env, asset, "superseded", "Product no longer references this image");
     }
   }
 }
