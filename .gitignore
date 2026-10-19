@@ -11,3 +11,5 @@ apps/storefront/data/
 !.env.example
 *.tsbuildinfo
 npm-debug.log*
+
+.vercel
