@@ -3866,8 +3866,9 @@ p {
 }
 
 .pay-logo {
-  height: 18px;
+  height: 20px;
   width: auto;
+  display: block;
 }
 
 .pay-test {
