@@ -1,21 +1,34 @@
+import { createHash, randomUUID } from "node:crypto";
 import { getMediaEnv, type MediaEnv } from "./env";
-import * as drive from "./google-drive-client";
-import type { DriveFileInfo } from "./google-drive-client";
 import { processImage, ImageValidationError, type ProcessedImage } from "./image-processor";
 import { uploadOptimizedVariant, getPublicUrl } from "./supabase-client";
 import * as store from "./media-store";
-import { getProducts } from "../product-store";
-import type { ImageRole, MediaAsset, MediaVariants, SyncTrigger } from "./types";
+import type { ImageRole, MediaVariants, SyncTrigger } from "./types";
+
+/**
+ * Product media: admin upload in, optimized variants out, Supabase Storage
+ * for both.
+ *
+ * This used to keep originals in Google Drive and reconcile them on a
+ * schedule. Drive is gone: an upload is now processed and published in one
+ * pass, which removes a credential set, a sync job and the entire class of
+ * failure where the folder behind a product moved or was renamed.
+ *
+ * What survives is the part that was actually load-bearing — a replaced image
+ * is never deleted immediately. Its variants are queued and purged only after
+ * a grace period, so a bad upload can be rolled back and a stale CDN or page
+ * reference doesn't 404 in the meantime.
+ */
 
 async function storeVariants(
   env: MediaEnv,
   productId: string,
   role: ImageRole,
-  driveFileId: string,
+  sourceKey: string,
   version: number,
   processed: ProcessedImage,
 ): Promise<MediaVariants> {
-  const shortId = driveFileId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 10);
+  const shortId = sourceKey.replace(/[^a-zA-Z0-9]/g, "").slice(0, 10);
   const variants = {} as Record<"thumb" | "medium" | "large", MediaVariants["thumb"]>;
   for (const size of ["thumb", "medium", "large"] as const) {
     const variant = processed.variants[size];
@@ -26,213 +39,13 @@ async function storeVariants(
   return variants as MediaVariants;
 }
 
-/** Downloads, validates, processes and stores one Drive file that sync discovered. */
-async function ingestDiscoveredFile(
-  env: MediaEnv,
-  productId: string,
-  imagesFolderId: string,
-  role: ImageRole,
-  file: DriveFileInfo,
-  version: number,
-  existing: MediaAsset | null,
-): Promise<void> {
-  const buffer = await drive.downloadFile(env, file.id);
-  if (file.size > 0 && buffer.byteLength !== file.size) {
-    console.warn(`[media-sync] size mismatch for Drive file ${file.id}: expected ${file.size}, got ${buffer.byteLength}`);
-  }
-
-  let processed: ProcessedImage;
-  try {
-    processed = await processImage(buffer, file.mimeType);
-  } catch (error) {
-    const message = error instanceof ImageValidationError ? error.message : "Processing failed";
-    if (existing) {
-      await store.updateAsset(env, existing.id, { status: "failed", errorMessage: message });
-    } else {
-      await store.insertFailedAsset(env, { productId, driveFileId: file.id, imageRole: role, errorMessage: message });
-    }
-    throw new Error(message);
-  }
-
-  const variants = await storeVariants(env, productId, role, file.id, version, processed);
-  const optimizedSize = variants.thumb.size + variants.medium.size + variants.large.size;
-
-  if (existing) {
-    await store.updateAsset(env, existing.id, {
-      status: "active",
-      errorMessage: null,
-      missingSince: null,
-      checksum: file.md5Checksum,
-      driveModifiedTime: file.modifiedTime,
-      variants,
-      optimizedSize,
-      width: processed.width,
-      height: processed.height,
-      version,
-    });
-    if (existing.variants) {
-      const oldPaths = [existing.variants.thumb.path, existing.variants.medium.path, existing.variants.large.path];
-      await store.enqueueCleanup(env, oldPaths, "Superseded by a newer version of the same Drive file");
-    }
-  } else {
-    await store.insertActiveAsset(env, {
-      productId,
-      driveFileId: file.id,
-      driveParentFolderId: imagesFolderId,
-      imageRole: role,
-      originalFilename: file.name,
-      mimeType: file.mimeType,
-      originalSize: file.size,
-      checksum: file.md5Checksum,
-      driveModifiedTime: file.modifiedTime,
-      variants,
-      optimizedSize,
-      width: processed.width,
-      height: processed.height,
-      status: "active",
-    });
-  }
-}
-
-export interface SyncSummary {
-  skipped: boolean;
-  reason?: string;
-  discovered: number;
-  changed: number;
-  skippedFiles: number;
-  failed: number;
-}
-
 /**
- * Reconciles Drive with the database: revalidates already-tracked files
- * (catching in-place edits via checksum/modifiedTime drift), flags files that
- * vanished from Drive without touching what's already live, and catalogs
- * brand-new files found directly in Drive without promoting them to a live
- * product image (that always goes through the admin upload flow instead, so
- * an accidental drop into a shared Drive folder can't become the site photo
- * on its own).
- */
-export async function runMediaSync(trigger: SyncTrigger): Promise<SyncSummary> {
-  const env = getMediaEnv();
-  if (!env) {
-    console.log("[media-sync] skipped: Drive/Supabase env vars are not configured");
-    return { skipped: true, reason: "not_configured", discovered: 0, changed: 0, skippedFiles: 0, failed: 0 };
-  }
-
-  const run = await store.startSyncRun(env, trigger);
-  if (!run) {
-    console.log("[media-sync] skipped: another sync run is already in progress");
-    return { skipped: true, reason: "already_running", discovered: 0, changed: 0, skippedFiles: 0, failed: 0 };
-  }
-
-  console.log(`[media-sync] started (${trigger}), run ${run.id}`);
-  let discovered = 0;
-  let changed = 0;
-  let skippedFiles = 0;
-  let failed = 0;
-  const errors: string[] = [];
-
-  try {
-    const validProductIds = new Set((await getProducts()).map((product) => product.id));
-    const productFolders = await drive.listProductFolders(env);
-
-    for (const { productId, folderId } of productFolders) {
-      if (!validProductIds.has(productId)) {
-        console.log(`[media-sync] skipping Drive folder for unknown product "${productId}"`);
-        continue;
-      }
-
-      const imagesFolderId = await drive.findImagesFolder(env, folderId);
-      if (!imagesFolderId) continue;
-
-      const files = await drive.listFilesInFolder(env, imagesFolderId);
-      discovered += files.length;
-      const seenDriveIds = new Set<string>();
-
-      for (const file of files) {
-        seenDriveIds.add(file.id);
-        try {
-          const existing = await store.getAssetByDriveFileId(env, file.id);
-
-          if (!existing) {
-            console.log(`[media-sync] new file ${file.id} ("${file.name}") in ${productId} — cataloging as unassigned`);
-            await ingestDiscoveredFile(env, productId, imagesFolderId, "unassigned", file, 1, null);
-            changed += 1;
-            continue;
-          }
-
-          if (existing.status === "deleted") {
-            skippedFiles += 1;
-            continue;
-          }
-
-          const isUnchanged = existing.checksum === file.md5Checksum && existing.driveModifiedTime === file.modifiedTime;
-          if (isUnchanged) {
-            if (existing.missingSince) await store.updateAsset(env, existing.id, { missingSince: null });
-            skippedFiles += 1;
-            continue;
-          }
-
-          console.log(`[media-sync] change detected for ${file.id} (${productId}/${existing.imageRole})`);
-          await ingestDiscoveredFile(env, productId, imagesFolderId, existing.imageRole, file, existing.version + 1, existing);
-          changed += 1;
-        } catch (error) {
-          failed += 1;
-          const message = error instanceof Error ? error.message : "Unknown error";
-          errors.push(`${productId}/${file.name}: ${message}`);
-          console.error(`[media-sync] failed processing ${file.id} (${productId}):`, message);
-        }
-      }
-
-      const tracked = await store.listAssetsForProduct(env, productId);
-      for (const asset of tracked) {
-        if (asset.status !== "active" || seenDriveIds.has(asset.driveFileId)) continue;
-        if (!asset.missingSince) {
-          console.warn(
-            `[media-sync] WARNING: Drive file ${asset.driveFileId} for ${productId}/${asset.imageRole} was not found. ` +
-              "The live optimized copy is unaffected — investigate the original in Drive.",
-          );
-          await store.updateAsset(env, asset.id, { missingSince: new Date().toISOString() });
-        }
-      }
-    }
-
-    const cleanup = await store.runDueCleanup(env);
-    console.log(`[media-sync] cleanup swept ${cleanup.purged} object(s), ${cleanup.failed} failed`);
-
-    const status = failed > 0 ? (changed + skippedFiles > 0 ? "partial" : "failed") : "success";
-    await store.finishSyncRun(env, run.id, {
-      status,
-      filesDiscovered: discovered,
-      filesChanged: changed,
-      filesSkipped: skippedFiles,
-      filesFailed: failed,
-      errorSummary: errors.length ? errors.slice(0, 20).join("; ") : undefined,
-    });
-    console.log(
-      `[media-sync] finished: ${status} (discovered=${discovered} changed=${changed} skipped=${skippedFiles} failed=${failed})`,
-    );
-    return { skipped: false, discovered, changed, skippedFiles, failed };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[media-sync] run aborted:", message);
-    await store.finishSyncRun(env, run.id, {
-      status: "failed",
-      filesDiscovered: discovered,
-      filesChanged: changed,
-      filesSkipped: skippedFiles,
-      filesFailed: failed,
-      errorSummary: message,
-    });
-    return { skipped: false, discovered, changed, skippedFiles, failed: failed + 1 };
-  }
-}
-
-/**
- * Used by the admin upload endpoint: uploads a brand-new original straight to
- * its product's Drive folder, then processes and publishes it immediately so
- * the admin doesn't have to wait for the next sync. Any failure after the
- * Drive upload leaves the previous image (if any) untouched and active.
+ * Used by the admin upload endpoint: validates, optimizes and publishes one
+ * image, then retires whatever it replaced.
+ *
+ * Ordering matters. The new variants are uploaded and the new row is inserted
+ * before the previous asset is retired, so a failure at any point leaves the
+ * existing image live rather than a product with no photo.
  */
 export async function ingestAdminUpload(
   productId: string,
@@ -242,7 +55,7 @@ export async function ingestAdminUpload(
   originalFilename: string,
 ): Promise<{ ok: true; url: string } | { ok: false; message: string }> {
   const env = getMediaEnv();
-  if (!env) return { ok: false, message: "Media pipeline is not configured" };
+  if (!env) return { ok: false, message: "Media storage is not configured" };
 
   let processed: ProcessedImage;
   try {
@@ -252,34 +65,28 @@ export async function ingestAdminUpload(
     return { ok: false, message };
   }
 
-  let folderId: string;
-  let driveFile: DriveFileInfo;
-  try {
-    folderId = await drive.getOrCreateProductImagesFolder(env, productId);
-    const extension = mimeType.split("/")[1] ?? "bin";
-    const filename = `${role}-${Date.now()}.${extension}`;
-    driveFile = await drive.uploadOriginal(env, folderId, filename, mimeType, buffer);
-  } catch (error) {
-    console.error("[media-sync] Drive upload failed:", (error as Error).message);
-    return { ok: false, message: "Could not upload the original to Google Drive" };
-  }
+  // Identity for the asset. Drive used to supply this; now it is ours, and a
+  // fresh one per upload is what keeps the storage paths of a replacement
+  // distinct from the image it supersedes.
+  const sourceKey = `up_${randomUUID()}`;
 
   try {
     const previous = await store.getActiveAssetForRole(env, productId, role);
     const version = previous ? previous.version + 1 : 1;
-    const variants = await storeVariants(env, productId, role, driveFile.id, version, processed);
+    const variants = await storeVariants(env, productId, role, sourceKey, version, processed);
     const optimizedSize = variants.thumb.size + variants.medium.size + variants.large.size;
 
     await store.insertActiveAsset(env, {
       productId,
-      driveFileId: driveFile.id,
-      driveParentFolderId: folderId,
+      sourceKey,
       imageRole: role,
       originalFilename,
       mimeType,
       originalSize: buffer.byteLength,
-      checksum: driveFile.md5Checksum,
-      driveModifiedTime: driveFile.modifiedTime,
+      // Of the uploaded bytes, so a re-upload of the identical file is still
+      // recognisable as such.
+      checksum: createHash("md5").update(buffer).digest("hex"),
+      sourceModifiedTime: new Date().toISOString(),
       variants,
       optimizedSize,
       width: processed.width,
@@ -291,13 +98,70 @@ export async function ingestAdminUpload(
       await store.retireAsset(env, previous, "superseded", "Replaced by a new admin upload");
     }
 
-    console.log(`[media-sync] admin upload published: ${productId}/${role} (Drive file ${driveFile.id})`);
+    console.log(`[media] admin upload published: ${productId}/${role} (${sourceKey})`);
     return { ok: true, url: getPublicUrl(env, variants.medium.path) };
   } catch (error) {
-    console.error("[media-sync] processing after Drive upload failed:", (error as Error).message);
+    const message = (error as Error).message;
+    console.error("[media] admin upload failed:", message);
+    await store
+      .insertFailedAsset(env, { productId, sourceKey, imageRole: role, errorMessage: message })
+      .catch(() => {});
     return {
       ok: false,
-      message: "Image uploaded to Google Drive, but could not be processed. The previous image is still active.",
+      message: "Could not publish the image. The previous image is still active.",
     };
+  }
+}
+
+export interface CleanupSummary {
+  skipped: boolean;
+  reason?: string;
+  purged: number;
+  failed: number;
+}
+
+/**
+ * Purges optimized files whose grace period has passed.
+ *
+ * All that remains of the old scheduled job. Safe to call often: the queue
+ * only yields rows that are actually due, and the run lock stops two sweeps
+ * overlapping.
+ */
+export async function runMediaCleanup(trigger: SyncTrigger): Promise<CleanupSummary> {
+  const env = getMediaEnv();
+  if (!env) {
+    console.log("[media] cleanup skipped: Supabase is not configured");
+    return { skipped: true, reason: "not_configured", purged: 0, failed: 0 };
+  }
+
+  const run = await store.startSyncRun(env, trigger);
+  if (!run) {
+    console.log("[media] cleanup skipped: another run is already in progress");
+    return { skipped: true, reason: "already_running", purged: 0, failed: 0 };
+  }
+
+  try {
+    const { purged, failed } = await store.runDueCleanup(env);
+    await store.finishSyncRun(env, run.id, {
+      status: failed > 0 ? (purged > 0 ? "partial" : "failed") : "success",
+      filesDiscovered: 0,
+      filesChanged: purged,
+      filesSkipped: 0,
+      filesFailed: failed,
+    });
+    console.log(`[media] cleanup finished: purged=${purged} failed=${failed}`);
+    return { skipped: false, purged, failed };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("[media] cleanup aborted:", message);
+    await store.finishSyncRun(env, run.id, {
+      status: "failed",
+      filesDiscovered: 0,
+      filesChanged: 0,
+      filesSkipped: 0,
+      filesFailed: 0,
+      errorSummary: message,
+    });
+    return { skipped: false, purged: 0, failed: 1 };
   }
 }

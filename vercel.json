@@ -3,5 +3,5 @@
   "installCommand": "npm install",
   "buildCommand": "npm run build --workspace @olivia/storefront",
   "outputDirectory": ".next",
-  "crons": [{ "path": "/api/admin/media/sync/cron", "schedule": "0 3 * * *" }]
+  "crons": [{ "path": "/api/admin/media/cleanup/cron", "schedule": "0 3 * * *" }]
 }

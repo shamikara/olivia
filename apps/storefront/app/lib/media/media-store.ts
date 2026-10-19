@@ -25,15 +25,14 @@ function rowToAsset(row: Row): MediaAsset {
   return {
     id: row.id,
     productId: row.product_id,
-    driveFileId: row.drive_file_id,
-    driveParentFolderId: row.drive_parent_folder_id,
+    sourceKey: row.source_key,
     imageRole: row.image_role,
     sortOrder: row.sort_order,
     originalFilename: row.original_filename,
     mimeType: row.mime_type,
     originalSize: row.original_size,
     checksum: row.checksum,
-    driveModifiedTime: row.drive_modified_time,
+    sourceModifiedTime: row.source_modified_time,
     variants: row.variants,
     optimizedSize: row.optimized_size,
     width: row.width,
@@ -80,13 +79,6 @@ export async function getActiveAssetForRole(
   return data ? rowToAsset(data) : null;
 }
 
-export async function getAssetByDriveFileId(env: MediaEnv, driveFileId: string): Promise<MediaAsset | null> {
-  const client = getSupabaseAdminClient(env);
-  const { data, error } = await client.from("media_assets").select("*").eq("drive_file_id", driveFileId).maybeSingle();
-  if (error) throw new Error(`media_assets lookup failed: ${error.message}`);
-  return data ? rowToAsset(data) : null;
-}
-
 export async function listAssetsForProduct(env: MediaEnv, productId: string): Promise<MediaAsset[]> {
   const client = getSupabaseAdminClient(env);
   const { data, error } = await client
@@ -100,14 +92,13 @@ export async function listAssetsForProduct(env: MediaEnv, productId: string): Pr
 
 export interface NewAssetInput {
   productId: string;
-  driveFileId: string;
-  driveParentFolderId: string | null;
+  sourceKey: string;
   imageRole: ImageRole;
   originalFilename: string;
   mimeType: string;
   originalSize: number;
   checksum: string | null;
-  driveModifiedTime: string;
+  sourceModifiedTime: string;
   variants: MediaVariants;
   optimizedSize: number;
   width: number;
@@ -121,14 +112,13 @@ export async function insertActiveAsset(env: MediaEnv, input: NewAssetInput): Pr
     .from("media_assets")
     .insert({
       product_id: input.productId,
-      drive_file_id: input.driveFileId,
-      drive_parent_folder_id: input.driveParentFolderId,
+      source_key: input.sourceKey,
       image_role: input.imageRole,
       original_filename: input.originalFilename,
       mime_type: input.mimeType,
       original_size: input.originalSize,
       checksum: input.checksum,
-      drive_modified_time: input.driveModifiedTime,
+      source_modified_time: input.sourceModifiedTime,
       variants: input.variants,
       optimized_size: input.optimizedSize,
       width: input.width,
@@ -143,12 +133,12 @@ export async function insertActiveAsset(env: MediaEnv, input: NewAssetInput): Pr
 
 export async function insertFailedAsset(
   env: MediaEnv,
-  input: { productId: string; driveFileId: string | null; imageRole: ImageRole; errorMessage: string },
+  input: { productId: string; sourceKey: string | null; imageRole: ImageRole; errorMessage: string },
 ): Promise<void> {
   const client = getSupabaseAdminClient(env);
   const { error } = await client.from("media_assets").insert({
     product_id: input.productId,
-    drive_file_id: input.driveFileId ?? `failed-${crypto.randomUUID()}`,
+    source_key: input.sourceKey ?? `failed-${crypto.randomUUID()}`,
     image_role: input.imageRole,
     status: "failed",
     error_message: input.errorMessage,
@@ -164,7 +154,7 @@ export async function updateAsset(
     errorMessage: string | null;
     missingSince: string | null;
     checksum: string | null;
-    driveModifiedTime: string;
+    sourceModifiedTime: string;
     variants: MediaVariants;
     optimizedSize: number;
     width: number;
@@ -179,7 +169,7 @@ export async function updateAsset(
   if (patch.errorMessage !== undefined) patchRow.error_message = patch.errorMessage;
   if (patch.missingSince !== undefined) patchRow.missing_since = patch.missingSince;
   if (patch.checksum !== undefined) patchRow.checksum = patch.checksum;
-  if (patch.driveModifiedTime !== undefined) patchRow.drive_modified_time = patch.driveModifiedTime;
+  if (patch.sourceModifiedTime !== undefined) patchRow.source_modified_time = patch.sourceModifiedTime;
   if (patch.variants !== undefined) patchRow.variants = patch.variants;
   if (patch.optimizedSize !== undefined) patchRow.optimized_size = patch.optimizedSize;
   if (patch.width !== undefined) patchRow.width = patch.width;
@@ -253,7 +243,7 @@ export async function retireAllAssetsForProduct(env: MediaEnv, productId: string
 
 const STALE_RUN_MS = 30 * 60_000;
 
-/** Returns null if a non-stale sync is already running (acts as the concurrency lock). */
+/** Returns null if a non-stale run is in progress (acts as the concurrency lock). */
 export async function startSyncRun(env: MediaEnv, trigger: SyncTrigger): Promise<SyncRun | null> {
   const client = getSupabaseAdminClient(env);
   const { data: running, error: runningError } = await client
@@ -339,7 +329,7 @@ export async function runDueCleanup(env: MediaEnv): Promise<{ purged: number; fa
       await client.from("storage_cleanup_queue").update({ purged_at: new Date().toISOString() }).eq("id", row.id);
       purged += 1;
     } catch (error) {
-      console.error(`[media-sync] cleanup failed for ${row.supabase_path}:`, (error as Error).message);
+      console.error(`[media] cleanup failed for ${row.supabase_path}:`, (error as Error).message);
       failed += 1;
     }
   }

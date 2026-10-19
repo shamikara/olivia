@@ -31,7 +31,7 @@ const BLANK: BeautyProduct = {
 const money = (value: number) => `LKR ${Math.round(value).toLocaleString("en-US")}`;
 
 // Mirrors the id the server assigns in product-schema.ts's normaliseProduct,
-// so an image uploaded before the first save lands in the same Drive/media
+// so an image uploaded before the first save lands in the same media
 // folder the product ends up with.
 const slugify = (value: string) =>
   value
@@ -233,7 +233,7 @@ function ProductEditor({
         return;
       }
       // Locked in for the rest of this editing session — renaming afterwards
-      // doesn't move the product's Drive folder.
+      // doesn't move the product's stored media.
       productId = `p-${slugify(draft.name)}`;
       setDraft((current) => ({ ...current, id: productId! }));
     }

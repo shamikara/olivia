@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: result.url }, { status: 201 });
   }
 
-  // Local fallback when Drive/Supabase credentials aren't configured (e.g. local dev).
+  // Local fallback when Supabase isn't configured (e.g. local dev).
   // Timestamp suffix so re-uploading under the same name busts any cache.
   const fileName = `${slugify(form.get("name")?.toString() || file.name)}-${Date.now()}${extension}`;
 
