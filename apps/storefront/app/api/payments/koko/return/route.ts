@@ -4,6 +4,7 @@ import { getPaymentConfig } from "../../../../lib/payments";
 import { orderView } from "../../../../lib/payments/koko";
 import { findOrderByReference, settlePayment } from "../../../../lib/order-store";
 import { notifyPaymentSettled } from "../../../../lib/order-notifications";
+import { syncStockForOrder } from "../../../../lib/stock";
 import { siteOrigin } from "../../../../lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +35,10 @@ async function resolve(request: NextRequest, reference: string): Promise<NextRes
         transactionId: verified.transactionId,
         evidence: verified.evidence,
       });
-      if (settled) await notifyPaymentSettled(settled);
+      if (settled) {
+        await syncStockForOrder(settled);
+        await notifyPaymentSettled(settled);
+      }
     }
   }
 

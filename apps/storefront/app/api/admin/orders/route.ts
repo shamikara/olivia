@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { allOrders, setOrderStatus, type OrderStatus } from "../../../lib/order-store";
 import { notifyStatusChanged } from "../../../lib/order-notifications";
+import { syncStockForOrder } from "../../../lib/stock";
 import { requireAdmin } from "../../../lib/admin-auth";
 
 const STATUSES: OrderStatus[] = ["pending", "confirmed", "packing", "shipped", "delivered", "cancelled"];
@@ -31,6 +32,7 @@ export async function PATCH(request: NextRequest) {
   const order = await setOrderStatus(body.id, body.status as OrderStatus);
   if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
 
+  await syncStockForOrder(order);
   await notifyStatusChanged(order);
   return NextResponse.json({ order });
 }

@@ -4,6 +4,7 @@ import { getPaymentConfig } from "../../../../lib/payments";
 import { verifyReturn } from "../../../../lib/payments/mintpay";
 import { findOrderByReference, settlePayment } from "../../../../lib/order-store";
 import { notifyPaymentSettled } from "../../../../lib/order-notifications";
+import { syncStockForOrder } from "../../../../lib/stock";
 import { siteOrigin } from "../../../../lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -49,7 +50,10 @@ export async function GET(request: NextRequest) {
     status: verified.status,
     evidence: verified.evidence,
   });
-  if (settled) await notifyPaymentSettled(settled);
+  if (settled) {
+    await syncStockForOrder(settled);
+    await notifyPaymentSettled(settled);
+  }
 
   return NextResponse.redirect(`${origin}/order/${reference}`, 303);
 }

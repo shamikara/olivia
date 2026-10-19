@@ -4,6 +4,7 @@ import { getPaymentConfig } from "../../../../lib/payments";
 import { capturePaypalOrder } from "../../../../lib/payments/paypal";
 import { findOrderByReference, settlePayment } from "../../../../lib/order-store";
 import { notifyPaymentSettled } from "../../../../lib/order-notifications";
+import { syncStockForOrder } from "../../../../lib/stock";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,10 @@ export async function POST(request: NextRequest) {
     transactionId: verified.transactionId,
     evidence: verified.evidence,
   });
-  if (settled) await notifyPaymentSettled(settled);
+  if (settled) {
+    await syncStockForOrder(settled);
+    await notifyPaymentSettled(settled);
+  }
 
   return NextResponse.json({ order: settled ?? order });
 }
