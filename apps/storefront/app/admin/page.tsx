@@ -12,6 +12,8 @@ import { MarketingManager } from "./MarketingManager";
 import { SettingsManager } from "./SettingsManager";
 import { PaymentsManager } from "./PaymentsManager";
 import { ReportsPanel } from "./ReportsPanel";
+import { AdminAccountPanel } from "./AdminAccountPanel";
+import { EmailManager } from "./EmailManager";
 
 /*
  * Every module in the sidebar is backed by real data. Modules from the original
@@ -21,7 +23,7 @@ import { ReportsPanel } from "./ReportsPanel";
  */
 const nav = [
   "Overview", "Orders", "Products", "Inventory",
-  "Customers", "Marketing", "Reports", "Payments", "Settings",
+  "Customers", "Marketing", "Reports", "Payments", "Email", "Settings",
 ];
 
 const BUILT = new Set(nav);
@@ -31,6 +33,22 @@ export default function Admin() {
   const [active, setActive] = useState("Overview");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [pending, setPending] = useState(0);
+  const [me, setMe] = useState<{ name: string; role: string; avatar: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data?.user) return;
+        const name: string = data.user.name ?? "";
+        setMe({
+          name,
+          role: String(data.user.role ?? "").replace(/_/g, " "),
+          avatar: name.split(/\s+/).map((p: string) => p[0]).join("").slice(0, 2).toUpperCase(),
+        });
+      })
+      .catch(() => {});
+  }, []);
 
   // Badge the Orders tab with the count still awaiting confirmation.
   useEffect(() => {
@@ -52,7 +70,7 @@ export default function Admin() {
   };
 
   return <main className="admin-shell">
-    <aside className="admin-sidebar"><a className="admin-brand" href="/"><span className="brand-symbol"/>OLIVIA <em>GLOW</em></a><p className="admin-label">STORE MANAGEMENT</p><nav className="admin-nav">{nav.map(item=><button key={item} className={active===item?"active":""} onClick={()=>setActive(item)}>{item}{item === "Orders" && pending > 0 && <span>{pending}</span>}{!BUILT.has(item) && <span className="soon">soon</span>}</button>)}</nav><div className="admin-user"><div>OC</div><p>Olivia Chen<small>Super admin</small></p><button onClick={handleLogout} className="admin-logout-btn" title="Sign Out" disabled={isLoggingOut}>{isLoggingOut ? "..." : "⎋"}</button></div></aside>
+    <aside className="admin-sidebar"><a className="admin-brand" href="/"><span className="brand-symbol"/>OLIVIA <em>GLOW</em></a><p className="admin-label">STORE MANAGEMENT</p><nav className="admin-nav">{nav.map(item=><button key={item} className={active===item?"active":""} onClick={()=>setActive(item)}>{item}{item === "Orders" && pending > 0 && <span>{pending}</span>}{!BUILT.has(item) && <span className="soon">soon</span>}</button>)}</nav><div className="admin-user"><div>{me?.avatar ?? "—"}</div><p>{me?.name ?? "Signed in"}<small style={{textTransform:"capitalize"}}>{me?.role ?? ""}</small></p><button onClick={handleLogout} className="admin-logout-btn" title="Sign Out" disabled={isLoggingOut}>{isLoggingOut ? "..." : "⎋"}</button></div></aside>
     <section className="admin-content"><header className="admin-header"><div><p className="eyebrow">{new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }).toUpperCase()}</p><h1>{active === "Overview" ? <>Store <i>overview.</i></> : <>{active}<i>.</i></>}</h1></div><div className="admin-actions"><button onClick={handleLogout} className="signout-header-btn" disabled={isLoggingOut}>{isLoggingOut ? "Signing out..." : "Sign out ⎋"}</button><a href="/">View store ↗</a></div></header>
       {active === "Overview" ? <Overview onNavigate={setActive}/>
         : active === "Products" ? <ProductsManager/>
@@ -62,7 +80,8 @@ export default function Admin() {
         : active === "Marketing" ? <MarketingManager/>
         : active === "Reports" ? <ReportsPanel/>
         : active === "Payments" ? <PaymentsManager/>
-        : <SettingsManager/>}
+        : active === "Email" ? <EmailManager/>
+        : <><SettingsManager/><AdminAccountPanel/></>}
     </section>
   </main>;
 }

@@ -2,16 +2,70 @@
 
 import { useState, useTransition, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { MIN_PASSWORD_LENGTH } from "../../lib/password-policy";
 
 function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get("from") || "/admin";
 
-  const [email, setEmail] = useState("admin@oliviaglow.com");
-  const [password, setPassword] = useState("admin123");
+  // A token in the query string means the admin followed a reset link, so the
+  // card becomes a "choose a new password" form instead of a sign-in form.
+  const resetToken = searchParams.get("reset");
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const requestReset = () => {
+    setError(null);
+    setNotice(null);
+    if (!email.trim()) {
+      setError("Enter your work email first, then choose Forgot password.");
+      return;
+    }
+    startTransition(async () => {
+      try {
+        const res = await fetch("/api/admin/password/reset", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        // Deliberately the same message whether or not the account exists.
+        setNotice(data.message ?? "If that address has an admin account, a reset link is on its way.");
+      } catch {
+        setError("Network error. Please check your connection and try again.");
+      }
+    });
+  };
+
+  const submitNewPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setNotice(null);
+    startTransition(async () => {
+      try {
+        const res = await fetch("/api/admin/password/reset", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: resetToken, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || "Could not set that password");
+          return;
+        }
+        setNotice("Password updated. Sign in with your new password.");
+        setPassword("");
+        router.replace("/admin/login");
+      } catch {
+        setError("Network error. Please check your connection and try again.");
+      }
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +116,33 @@ function AdminLoginForm() {
           </div>
         )}
 
+        {notice && (
+          <div className="login-notice-alert" role="status">
+            <span>{notice}</span>
+          </div>
+        )}
+
+        {resetToken ? (
+          <form onSubmit={submitNewPassword} className="login-form">
+            <div className="form-group">
+              <label htmlFor="new-password">New password</label>
+              <input
+                id="new-password"
+                type="password"
+                required
+                minLength={MIN_PASSWORD_LENGTH}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••"
+                disabled={isPending}
+              />
+            </div>
+            <p className="login-subtext">At least {MIN_PASSWORD_LENGTH} characters. The link works once.</p>
+            <button type="submit" className="login-submit-btn" disabled={isPending}>
+              {isPending ? <span className="btn-spinner">Saving...</span> : "Set new password"}
+            </button>
+          </form>
+        ) : (
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <label htmlFor="email">Work Email</label>
@@ -71,7 +152,7 @@ function AdminLoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@oliviaglow.com"
+              placeholder="you@oliviaglow.lk"
               disabled={isPending}
             />
           </div>
@@ -89,12 +170,6 @@ function AdminLoginForm() {
             />
           </div>
 
-          <div className="demo-credentials-hint">
-            <p><strong>Demo Credentials:</strong></p>
-            <code>Email: admin@oliviaglow.com</code>
-            <code>Password: admin123</code>
-          </div>
-
           <button type="submit" className="login-submit-btn" disabled={isPending}>
             {isPending ? (
               <span className="btn-spinner">Signing in...</span>
@@ -102,7 +177,12 @@ function AdminLoginForm() {
               "Sign In to Operations Portal →"
             )}
           </button>
+
+          <button type="button" className="login-forgot-btn" onClick={requestReset} disabled={isPending}>
+            Forgot password?
+          </button>
         </form>
+        )}
 
         <footer className="login-footer">
           <a href="/">← Return to Storefront</a>
@@ -184,6 +264,28 @@ function AdminLoginForm() {
           line-height: 1.5;
         }
 
+        .login-notice-alert {
+          background: rgba(47, 107, 83, 0.15);
+          border: 1px solid rgba(47, 107, 83, 0.45);
+          color: #bbf7d0;
+          padding: 12px 16px;
+          border-radius: 8px;
+          font-size: 0.85rem;
+          margin-bottom: 24px;
+        }
+
+        .login-forgot-btn {
+          display: block;
+          width: 100%;
+          margin-top: 14px;
+          background: none;
+          border: none;
+          color: #94a3b8;
+          font-size: 0.8rem;
+          cursor: pointer;
+          text-decoration: underline;
+        }
+
         .login-error-alert {
           background: rgba(225, 29, 72, 0.15);
           border: 1px solid rgba(225, 29, 72, 0.4);
@@ -234,22 +336,7 @@ function AdminLoginForm() {
           box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
         }
 
-        .demo-credentials-hint {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px dashed rgba(212, 175, 55, 0.3);
-          border-radius: 8px;
-          padding: 12px;
-          font-size: 0.8rem;
-          color: #cbd5e1;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
 
-        .demo-credentials-hint code {
-          font-family: monospace;
-          color: #d4af37;
-        }
 
         .login-submit-btn {
           margin-top: 8px;
