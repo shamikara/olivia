@@ -1,17 +1,14 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { db, unwrap } from "./db/client";
 
 /**
  * Customer accounts and their saved addresses.
  *
- * Same storage seam as the product store: a JSON file today, swappable for a
- * database by replacing readAll/writeAll. Passwords are only ever stored as a
- * scrypt hash — see customer-auth.ts.
+ * Backed by the `customers` table (migration 0002). Passwords are only ever
+ * stored as a scrypt hash — see customer-auth.ts. Addresses stay a jsonb
+ * document rather than a child table: they are always read and written with
+ * the customer, and nothing queries across them.
  */
-
-const DATA_DIR = path.join(process.cwd(), "data");
-const FILE = path.join(DATA_DIR, "customers.json");
 
 export interface Address {
   id: string;
@@ -41,30 +38,34 @@ export type PublicCustomer = Omit<Customer, "passwordHash">;
 
 export const toPublic = ({ passwordHash: _passwordHash, ...rest }: Customer): PublicCustomer => rest;
 
-async function readAll(): Promise<Customer[]> {
-  try {
-    const raw = await fs.readFile(FILE, "utf8");
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
+const TABLE = "customers";
+const COLUMNS = "id, email, name, phone, password_hash, addresses, created_at";
 
-async function writeAll(customers: Customer[]): Promise<void> {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(FILE, JSON.stringify(customers, null, 2), "utf8");
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function toCustomer(row: any): Customer {
+  return {
+    id: row.id,
+    email: row.email,
+    name: row.name,
+    phone: row.phone ?? undefined,
+    passwordHash: row.password_hash,
+    addresses: (row.addresses ?? []) as Address[],
+    createdAt: new Date(row.created_at).toISOString(),
+  };
 }
 
 const normaliseEmail = (email: string) => email.trim().toLowerCase();
 
 export async function findByEmail(email: string): Promise<Customer | undefined> {
-  const wanted = normaliseEmail(email);
-  return (await readAll()).find((customer) => customer.email === wanted);
+  const rows = await db().from(TABLE).select(COLUMNS).eq("email", normaliseEmail(email)).limit(1);
+  const found = unwrap(rows, "findByEmail");
+  return found.length > 0 ? toCustomer(found[0]) : undefined;
 }
 
 export async function findById(id: string): Promise<Customer | undefined> {
-  return (await readAll()).find((customer) => customer.id === id);
+  const rows = await db().from(TABLE).select(COLUMNS).eq("id", id).limit(1);
+  const found = unwrap(rows, "findById");
+  return found.length > 0 ? toCustomer(found[0]) : undefined;
 }
 
 export async function createCustomer(input: {
@@ -73,31 +74,39 @@ export async function createCustomer(input: {
   phone?: string;
   passwordHash: string;
 }): Promise<Customer> {
-  const customers = await readAll();
-  const customer: Customer = {
-    id: `cus_${randomUUID().slice(0, 12)}`,
-    email: normaliseEmail(input.email),
-    name: input.name.trim(),
-    phone: input.phone?.trim() || undefined,
-    passwordHash: input.passwordHash,
-    addresses: [],
-    createdAt: new Date().toISOString(),
-  };
-  customers.push(customer);
-  await writeAll(customers);
-  return customer;
+  const row = await db()
+    .from(TABLE)
+    .insert({
+      id: `cus_${randomUUID().slice(0, 12)}`,
+      email: normaliseEmail(input.email),
+      name: input.name.trim(),
+      phone: input.phone?.trim() || null,
+      password_hash: input.passwordHash,
+      addresses: [],
+    })
+    .select(COLUMNS)
+    .single();
+
+  return toCustomer(unwrap(row, "createCustomer"));
 }
 
 export async function updateCustomer(
   id: string,
   patch: Partial<Pick<Customer, "name" | "phone" | "addresses" | "passwordHash">>,
 ): Promise<Customer | undefined> {
-  const customers = await readAll();
-  const index = customers.findIndex((customer) => customer.id === id);
-  if (index === -1) return undefined;
-  customers[index] = { ...customers[index], ...patch };
-  await writeAll(customers);
-  return customers[index];
+  // Only the keys actually present are sent, so a patch of one field cannot
+  // blank the others.
+  const update: Record<string, unknown> = {};
+  if (patch.name !== undefined) update.name = patch.name;
+  if (patch.phone !== undefined) update.phone = patch.phone || null;
+  if (patch.addresses !== undefined) update.addresses = patch.addresses;
+  if (patch.passwordHash !== undefined) update.password_hash = patch.passwordHash;
+
+  if (Object.keys(update).length === 0) return findById(id);
+
+  const rows = await db().from(TABLE).update(update).eq("id", id).select(COLUMNS);
+  const updated = unwrap(rows, "updateCustomer");
+  return updated.length > 0 ? toCustomer(updated[0]) : undefined;
 }
 
 /** Adds or replaces an address, keeping exactly one default. */

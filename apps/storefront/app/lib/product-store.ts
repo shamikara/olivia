@@ -1,56 +1,86 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { PRODUCTS_CATALOG, type BeautyProduct } from "../data/products";
+import { db, unwrap } from "./db/client";
 
 /**
- * Server-side product storage.
+ * Server-side product storage, backed by the `products` table (migration 0002).
  *
- * Products live in a JSON file that the admin panel writes to, seeded on first
- * read from the imported catalogue. This works on any host with a writable
- * disk; serverless platforms with a read-only filesystem (Vercel, Netlify)
- * need `readProducts`/`writeProducts` repointed at a database instead — that is
- * the only seam that has to change.
+ * Each row keeps the whole BeautyProduct record in `data`: the catalogue is
+ * loaded in full and filtered in memory by every caller, so splitting it into
+ * columns would buy nothing and would have to be revisited every time the
+ * product shape changes.
+ *
+ * `sort_order` preserves what the array order used to mean — the admin list
+ * shows newest first, and a newly created product appears at the top.
  */
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DATA_FILE = path.join(DATA_DIR, "products.json");
+const TABLE = "products";
 
-async function readFromDisk(): Promise<BeautyProduct[] | null> {
-  try {
-    const raw = await fs.readFile(DATA_FILE, "utf8");
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as BeautyProduct[]) : null;
-  } catch {
-    return null;
-  }
-}
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const toProduct = (row: any): BeautyProduct => row.data as BeautyProduct;
 
 /*
  * Deliberately uncached. Route handlers and server components are separate
  * module instances, so an in-process cache goes stale the moment the admin
- * panel saves — the page would keep serving the copy it loaded first. Reading
- * a small JSON file per request is far cheaper than that class of bug.
+ * panel saves — the page would keep serving the copy it loaded first.
  */
 export async function getProducts(): Promise<BeautyProduct[]> {
-  const stored = await readFromDisk();
-  if (stored) return stored;
+  const rows = unwrap(
+    await db().from(TABLE).select("id, sort_order, data").order("sort_order", { ascending: true }),
+    "getProducts",
+  );
 
-  // First run: seed the editable copy from the checked-in catalogue.
-  try {
-    await writeProducts(PRODUCTS_CATALOG);
-  } catch {
-    // Read-only disk — serve the seed and let writes report the problem.
-  }
+  if (rows.length > 0) return rows.map(toProduct);
+
+  // First run against an empty database: seed the editable copy from the
+  // checked-in catalogue, then serve it.
+  await writeProducts(PRODUCTS_CATALOG);
   return PRODUCTS_CATALOG;
 }
 
+/**
+ * Replaces the catalogue with exactly `products`, in the order given.
+ *
+ * Deletions are part of the contract — callers pass the full list and expect
+ * anything missing from it to be gone — so rows no longer present are removed
+ * rather than left behind.
+ */
 export async function writeProducts(products: BeautyProduct[]): Promise<void> {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(DATA_FILE, JSON.stringify(products, null, 2), "utf8");
+  const client = db();
+
+  if (products.length === 0) {
+    unwrap(await client.from(TABLE).delete().neq("id", "").select("id"), "writeProducts (clear)");
+    return;
+  }
+
+  unwrap(
+    await client
+      .from(TABLE)
+      .upsert(
+        products.map((product, index) => ({
+          id: product.id,
+          sort_order: index,
+          data: product,
+          updated_at: new Date().toISOString(),
+        })),
+        { onConflict: "id" },
+      )
+      .select("id"),
+    "writeProducts",
+  );
+
+  unwrap(
+    await client
+      .from(TABLE)
+      .delete()
+      .not("id", "in", `(${products.map((product) => product.id).join(",")})`)
+      .select("id"),
+    "writeProducts (prune)",
+  );
 }
 
 export async function getProduct(id: string): Promise<BeautyProduct | undefined> {
-  return (await getProducts()).find((product) => product.id === id);
+  const rows = unwrap(await db().from(TABLE).select("data").eq("id", id).limit(1), "getProduct");
+  return rows.length > 0 ? toProduct(rows[0]) : undefined;
 }
 
 export async function upsertProduct(product: BeautyProduct): Promise<BeautyProduct> {
@@ -63,9 +93,6 @@ export async function upsertProduct(product: BeautyProduct): Promise<BeautyProdu
 }
 
 export async function deleteProduct(id: string): Promise<boolean> {
-  const products = await getProducts();
-  const remaining = products.filter((product) => product.id !== id);
-  if (remaining.length === products.length) return false;
-  await writeProducts(remaining);
-  return true;
+  const rows = unwrap(await db().from(TABLE).delete().eq("id", id).select("id"), "deleteProduct");
+  return rows.length > 0;
 }

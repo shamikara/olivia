@@ -1,9 +1,9 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { DEFAULT_PAYMENTS, type PaymentConfig } from "./payments/config";
+import { db, unwrap } from "./db/client";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const FILE = path.join(DATA_DIR, "settings.json");
+const TABLE = "app_settings";
+/** Single-row table: the settings file this replaced was one JSON object. */
+const ROW_ID = 1;
 
 export interface StoreSettings {
   storeName: string;
@@ -47,33 +47,40 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   payments: DEFAULT_PAYMENTS,
 };
 
+/**
+ * Merges stored settings over the defaults so a field added after the row was
+ * written never arrives undefined. Payments needs its own pass: a shallow
+ * spread would drop a gateway added after the fact.
+ */
+function withDefaults(stored: Partial<StoreSettings>): StoreSettings {
+  return {
+    ...DEFAULT_SETTINGS,
+    ...stored,
+    payments: {
+      ...DEFAULT_PAYMENTS,
+      ...(stored.payments ?? {}),
+      koko: { ...DEFAULT_PAYMENTS.koko, ...(stored.payments?.koko ?? {}) },
+      mintpay: { ...DEFAULT_PAYMENTS.mintpay, ...(stored.payments?.mintpay ?? {}) },
+      paypal: { ...DEFAULT_PAYMENTS.paypal, ...(stored.payments?.paypal ?? {}) },
+    },
+  };
+}
+
 export async function getSettings(): Promise<StoreSettings> {
-  try {
-    const raw = await fs.readFile(FILE, "utf8");
-    const stored = JSON.parse(raw) as Partial<StoreSettings>;
-    // Merge over defaults so a new field never arrives undefined. Payments
-    // needs its own pass: a shallow spread would drop a gateway added after
-    // the file was written.
-    return {
-      ...DEFAULT_SETTINGS,
-      ...stored,
-      payments: {
-        ...DEFAULT_PAYMENTS,
-        ...(stored.payments ?? {}),
-        koko: { ...DEFAULT_PAYMENTS.koko, ...(stored.payments?.koko ?? {}) },
-        mintpay: { ...DEFAULT_PAYMENTS.mintpay, ...(stored.payments?.mintpay ?? {}) },
-        paypal: { ...DEFAULT_PAYMENTS.paypal, ...(stored.payments?.paypal ?? {}) },
-      },
-    };
-  } catch {
-    return DEFAULT_SETTINGS;
-  }
+  const rows = unwrap(await db().from(TABLE).select("data").eq("id", ROW_ID).limit(1), "getSettings");
+  if (rows.length === 0) return DEFAULT_SETTINGS;
+  return withDefaults((rows[0].data ?? {}) as Partial<StoreSettings>);
 }
 
 export async function saveSettings(patch: Partial<StoreSettings>): Promise<StoreSettings> {
   const next = { ...(await getSettings()), ...patch };
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(FILE, JSON.stringify(next, null, 2), "utf8");
+  unwrap(
+    await db()
+      .from(TABLE)
+      .upsert({ id: ROW_ID, data: next, updated_at: new Date().toISOString() }, { onConflict: "id" })
+      .select("id"),
+    "saveSettings",
+  );
   return next;
 }
 
