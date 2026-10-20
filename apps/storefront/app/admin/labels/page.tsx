@@ -4,6 +4,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Order } from "../../lib/order-store";
 import { usePublicSettings } from "../../lib/public-settings";
+import { PrintIcon } from "../../components/Icons";
 import "./labels.css";
 
 /**
@@ -57,7 +58,9 @@ function Label({ order, storeName, storePhone }: { order: Order; storeName: stri
         ) : (
           <span className="label-noaddress">No address on this order — confirm before dispatch</span>
         )}
-        <span className="label-phone">{address?.phone || order.contactPhone}</span>
+        <span className="label-phone">
+          {[address?.phone || order.contactPhone, order.contactPhone2].filter(Boolean).join(" / ")}
+        </span>
       </div>
 
       {/*
@@ -145,7 +148,10 @@ function LabelSheet() {
   return (
     <>
       <div className="label-toolbar">
-        <button onClick={() => window.print()}>Print {orders.length} label{orders.length === 1 ? "" : "s"}</button>
+        <button onClick={() => window.print()}>
+          <PrintIcon size={15} />
+          Print {orders.length} label{orders.length === 1 ? "" : "s"}
+        </button>
         <button onClick={() => window.close()}>Close</button>
         {orders.length < refs.length && (
           <span className="label-warn">{refs.length - orders.length} reference(s) not found</span>

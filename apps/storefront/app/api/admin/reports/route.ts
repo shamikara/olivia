@@ -25,13 +25,14 @@ export async function GET(request: NextRequest) {
   if (type === "orders") {
     const orders = await allOrders();
     csv = toCsv(
-      ["Reference", "Placed", "Status", "Customer", "Phone", "Email", "Items", "Subtotal", "Discount", "Delivery", "Total", "City"],
+      ["Reference", "Placed", "Status", "Customer", "Phone", "Phone 2", "Email", "Items", "Subtotal", "Discount", "Delivery", "Total", "City"],
       orders.map((order) => [
         order.reference,
         new Date(order.createdAt).toISOString(),
         order.status,
         order.contactName,
         order.contactPhone,
+        order.contactPhone2 ?? "",
         order.contactEmail ?? "",
         order.lines.reduce((total, line) => total + line.quantity, 0),
         order.subtotalLKR,

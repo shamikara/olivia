@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Order, OrderStatus } from "../lib/order-store";
 import { KOKO_SURCHARGE_PERCENT } from "../lib/payments/surcharge";
+import { PrintIcon } from "../components/Icons";
 
 const METHOD_LABEL: Record<string, string> = {
   cod: "Cash on delivery",
@@ -82,7 +83,9 @@ export function OrdersManager() {
     return orders.filter((order) => {
       if (filter !== "all" && order.status !== filter) return false;
       if (!needle) return true;
-      return `${order.reference} ${order.contactName} ${order.contactPhone}`.toLowerCase().includes(needle);
+      return `${order.reference} ${order.contactName} ${order.contactPhone} ${order.contactPhone2 ?? ""}`
+        .toLowerCase()
+        .includes(needle);
     });
   }, [orders, query, filter]);
 
@@ -147,6 +150,7 @@ export function OrdersManager() {
             {selected.length} order{selected.length === 1 ? "" : "s"} selected
           </span>
           <button className="btn" onClick={() => printLabels(selected)}>
+            <PrintIcon size={16} />
             Print {selected.length} label{selected.length === 1 ? "" : "s"}
           </button>
           <button onClick={() => setSelected([])}>Clear</button>
@@ -190,7 +194,9 @@ export function OrdersManager() {
               <span>
                 {order.contactName}
                 <br />
-                <small className="muted">{order.contactPhone}</small>
+                <small className="muted">
+                  {[order.contactPhone, order.contactPhone2].filter(Boolean).join(" / ")}
+                </small>
               </span>
               <span>{order.lines.reduce((total, line) => total + line.quantity, 0)}</span>
               <span>
@@ -216,6 +222,7 @@ export function OrdersManager() {
                   onClick={() => printLabels([order.reference])}
                   title={`Print a delivery label for ${order.reference}`}
                 >
+                  <PrintIcon size={14} />
                   Label
                 </button>
               </span>
@@ -243,6 +250,12 @@ export function OrdersManager() {
                     <br />
                     {open.contactPhone}
                     <br />
+                    {open.contactPhone2 && (
+                      <>
+                        {open.contactPhone2} <small className="muted">(2nd)</small>
+                        <br />
+                      </>
+                    )}
                     {open.contactEmail ?? "—"}
                   </p>
                 </div>

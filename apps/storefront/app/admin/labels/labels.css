@@ -28,6 +28,9 @@
 }
 
 .label-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   padding: 9px 18px;
   border: 1px solid #111;
   border-radius: 6px;

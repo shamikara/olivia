@@ -21,6 +21,8 @@ export interface Order {
   customerId?: string;
   contactName: string;
   contactPhone: string;
+  /** Optional backup number for the courier. */
+  contactPhone2?: string;
   contactEmail?: string;
   lines: OrderLine[];
   subtotalLKR: number;
@@ -52,7 +54,7 @@ const TABLE = "orders";
 
 /** The columns an Order is built from, in one place so every query agrees. */
 const COLUMNS =
-  "id, reference, customer_id, contact_name, contact_phone, contact_email, lines, " +
+  "id, reference, customer_id, contact_name, contact_phone, contact_phone_2, contact_email, lines, " +
   "subtotal_lkr, discount_lkr, shipping_lkr, total_lkr, discount_code, address, note, " +
   "status, created_at, payment_method, payment_status, gateway_reference, transaction_id, " +
   "payment_evidence, paid_at";
@@ -65,6 +67,7 @@ function toOrder(row: any): Order {
     customerId: row.customer_id ?? undefined,
     contactName: row.contact_name,
     contactPhone: row.contact_phone,
+    contactPhone2: row.contact_phone_2 ?? undefined,
     contactEmail: row.contact_email ?? undefined,
     lines: (row.lines ?? []) as OrderLine[],
     subtotalLKR: row.subtotal_lkr,
@@ -101,6 +104,7 @@ export async function createOrder(
       customer_id: input.customerId ?? null,
       contact_name: input.contactName,
       contact_phone: input.contactPhone,
+      contact_phone_2: input.contactPhone2 ?? null,
       contact_email: input.contactEmail ?? null,
       lines: input.lines,
       subtotal_lkr: input.subtotalLKR,

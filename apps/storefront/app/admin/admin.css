@@ -636,6 +636,9 @@
 }
 
 .admin-print-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 5px 10px;
   border: 1px solid var(--admin-line, #e8e0d6);
   border-radius: 6px;
@@ -656,6 +659,12 @@
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.02);
   font-size: 0.82rem;
+}
+
+.admin-bulk-bar .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .admin-bulk-bar button:not(.btn) {

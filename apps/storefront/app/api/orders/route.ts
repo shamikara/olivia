@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
     items?: { id: string; quantity: number }[];
     contactName?: string;
     contactPhone?: string;
+    contactPhone2?: string;
     contactEmail?: string;
     addressId?: string;
     address?: Record<string, unknown>;
@@ -152,6 +153,7 @@ export async function POST(request: NextRequest) {
       customerId: customer?.id,
       contactName,
       contactPhone,
+      contactPhone2: body.contactPhone2?.trim() || undefined,
       contactEmail: body.contactEmail?.trim() || customer?.email,
       lines,
       subtotalLKR: subtotal,

@@ -152,6 +152,7 @@ export function CheckoutForm({
   const [contact, setContact] = useState({
     name: customer?.name ?? "",
     phone: customer?.phone ?? "",
+    phone2: "",
     email: customer?.email ?? "",
   });
   const defaultAddress = customer?.addresses.find((entry) => entry.isDefault) ?? customer?.addresses[0];
@@ -211,6 +212,7 @@ export function CheckoutForm({
     items: lines.map((line) => ({ id: line.product.id, quantity: line.quantity })),
     contactName: contact.name,
     contactPhone: contact.phone,
+    contactPhone2: contact.phone2 || undefined,
     contactEmail: contact.email || undefined,
     addressId: usingSaved ? addressId : undefined,
     address: usingSaved || !needsAddress ? undefined : { ...address, fullName: contact.name, phone: contact.phone },
@@ -346,6 +348,15 @@ export function CheckoutForm({
               <input
                 value={contact.phone}
                 onChange={(e) => setContact({ ...contact, phone: e.target.value })}
+                autoComplete="tel"
+                inputMode="tel"
+              />
+            </label>
+            <label>
+              <span>Secondary phone (optional)</span>
+              <input
+                value={contact.phone2}
+                onChange={(e) => setContact({ ...contact, phone2: e.target.value })}
                 autoComplete="tel"
                 inputMode="tel"
               />

@@ -117,3 +117,13 @@ export function ArrowIcon({ size = 16 }: IconProps) {
     </svg>
   );
 }
+
+export function PrintIcon({ size = 16 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base} aria-hidden="true">
+      <path d="M7 9V4h10v5" />
+      <path d="M7 18H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2" />
+      <path d="M7 14h10v6H7z" />
+    </svg>
+  );
+}
