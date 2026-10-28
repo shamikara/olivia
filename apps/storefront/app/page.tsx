@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { StoreShell } from "./components/StoreShell";
 import { ProductCard } from "./components/ProductCard";
 import { NewsletterForm } from "./components/NewsletterForm";
@@ -7,6 +8,11 @@ import { BrandMarquee } from "./components/BrandMarquee";
 import { SKIN_GOALS } from "./data/products";
 import { getProducts } from "./lib/product-store";
 import { SITE } from "./lib/site";
+import { absolute } from "./lib/seo";
+
+export const metadata: Metadata = {
+  alternates: { canonical: absolute("/") },
+};
 
 const REVIEWS = [
   {

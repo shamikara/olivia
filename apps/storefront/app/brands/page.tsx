@@ -2,10 +2,12 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { StoreShell } from "../components/StoreShell";
 import { FEATURED_BRANDS, PRODUCTS_CATALOG } from "../data/products";
+import { absolute } from "../lib/seo";
 
 export const metadata: Metadata = {
   title: "Brands",
   description: "The six houses we stock — Medicube, Olivia Glow, Beauty of Joseon, Anua, COSRX and Skin1004.",
+  alternates: { canonical: absolute("/brands") },
 };
 
 export default function BrandsPage() {

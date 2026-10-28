@@ -17,7 +17,13 @@ export const metadata: Metadata = {
     template: `%s · ${SITE.name}`,
   },
   description: SITE.description,
-  alternates: { canonical: "/" },
+  /*
+   * No canonical here. Next inherits `alternates` into every child route, so a
+   * canonical set on the layout told Google that /brands, /search, /cart and
+   * the rest were all the homepage — which drops them from the index and
+   * folds their signals into `/`. Each page declares its own; the homepage
+   * does so in page.tsx.
+   */
   openGraph: {
     type: "website",
     siteName: SITE.name,
