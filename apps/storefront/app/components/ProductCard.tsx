@@ -5,12 +5,14 @@ import { usePublicSettings } from "../lib/public-settings";
 import { discountPercent, formatLKR, installmentAmount, type BeautyProduct } from "../data/products";
 import { SITE } from "../lib/site";
 import { useStore } from "../lib/store";
-import { HeartIcon } from "./Icons";
+import { CompareIcon, HeartIcon } from "./Icons";
 
 export function ProductCard({ product }: { product: BeautyProduct }) {
   const settings = usePublicSettings();
-  const { addToCart, toggleWishlist, isWishlisted, openQuickView } = useStore();
+  const { addToCart, toggleWishlist, isWishlisted, openQuickView, toggleCompare, isComparing } =
+    useStore();
   const saved = isWishlisted(product.id);
+  const comparing = isComparing(product.id);
   const discount = discountPercent(product);
 
   return (
@@ -29,6 +31,17 @@ export function ProductCard({ product }: { product: BeautyProduct }) {
           aria-label={saved ? `Remove ${product.shortName} from saved` : `Save ${product.shortName}`}
         >
           <HeartIcon filled={saved} />
+        </button>
+
+        <button
+          className="compare-btn glass-chip"
+          onClick={() => toggleCompare(product.id)}
+          aria-pressed={comparing}
+          aria-label={
+            comparing ? `Remove ${product.shortName} from compare` : `Compare ${product.shortName}`
+          }
+        >
+          <CompareIcon />
         </button>
 
         <button className="quick-btn glass-chip" onClick={() => openQuickView(product.id)}>

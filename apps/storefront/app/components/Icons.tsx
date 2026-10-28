@@ -127,3 +127,13 @@ export function PrintIcon({ size = 16 }: IconProps) {
     </svg>
   );
 }
+
+export function CompareIcon({ size = 18 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base} aria-hidden="true">
+      <path d="M12 4v16" />
+      <path d="M6 8H3l3-4 3 4H6zm0 0v8" />
+      <path d="M18 16h3l-3 4-3-4h3zm0 0V8" />
+    </svg>
+  );
+}

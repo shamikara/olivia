@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { AnnouncementBar } from "./AnnouncementBar";
 import { CartDrawer } from "./CartDrawer";
 import { ChatWidget } from "./ChatWidget";
+import { CompareTray } from "./CompareTray";
 import { MobileNav } from "./MobileNav";
 import { QuickView } from "./QuickView";
 import { SiteFooter } from "./SiteFooter";
@@ -20,6 +21,7 @@ export function StoreShell({ children }: { children: ReactNode }) {
       <main>{children}</main>
       <SiteFooter />
       <TabBar />
+      <CompareTray />
       <MobileNav />
       <CartDrawer />
       <QuickView />

@@ -13,6 +13,14 @@ import { type BeautyProduct } from "../data/products";
 
 const CART_KEY = "olivia.cart.v1";
 const WISH_KEY = "olivia.wishlist.v1";
+const COMPARE_KEY = "olivia.compare.v1";
+
+/**
+ * Four fits the comparison table on a laptop without the columns becoming too
+ * narrow to read an ingredient list in. Past that the table stops being a
+ * comparison and starts being a spreadsheet.
+ */
+export const COMPARE_LIMIT = 4;
 
 export interface CartLine {
   id: string;
@@ -38,6 +46,8 @@ interface StoreValue {
   itemCount: number;
   subtotal: number;
   wishlist: string[];
+  /** Product ids queued for side-by-side comparison, in the order picked. */
+  compare: string[];
   isCartOpen: boolean;
   isNavOpen: boolean;
   quickViewId: string | null;
@@ -48,6 +58,9 @@ interface StoreValue {
   clearCart: () => void;
   toggleWishlist: (id: string) => void;
   isWishlisted: (id: string) => boolean;
+  toggleCompare: (id: string) => void;
+  isComparing: (id: string) => boolean;
+  clearCompare: () => void;
   openCart: () => void;
   closeCart: () => void;
   openNav: () => void;
@@ -86,6 +99,7 @@ function writeStored(key: string, value: unknown): void {
 export function StoreProvider({ children, catalog }: { children: ReactNode; catalog: BeautyProduct[] }) {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [compare, setCompare] = useState<string[]>([]);
   const [isCartOpen, setCartOpen] = useState(false);
   const [isNavOpen, setNavOpen] = useState(false);
   const [quickViewId, setQuickViewId] = useState<string | null>(null);
@@ -104,6 +118,7 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
     setCart(readStored<CartLine[]>(CART_KEY, []));
     const local = readStored<string[]>(WISH_KEY, []);
     setWishlist(local);
+    setCompare(readStored<string[]>(COMPARE_KEY, []).slice(0, COMPARE_LIMIT));
     setHydrated(true);
 
     /*
@@ -146,6 +161,11 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
   useEffect(() => {
     if (hydrated) writeStored(CART_KEY, cart);
   }, [cart, hydrated]);
+
+  // Compare is a browsing aid, not a saved list: local only, never synced.
+  useEffect(() => {
+    if (hydrated) writeStored(COMPARE_KEY, compare);
+  }, [compare, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -232,6 +252,29 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
     });
   }, []);
 
+  /*
+   * Adding is silent — the tray sliding up is the feedback, and a toast on top
+   * of it would be two notifications for one click. Removal and the full tray
+   * both need saying, because neither is obvious from the tray alone.
+   */
+  const toggleCompare = useCallback(
+    (id: string) => {
+      if (compare.includes(id)) {
+        setCompare(compare.filter((item) => item !== id));
+        setToast("Removed from compare");
+        return;
+      }
+      if (compare.length >= COMPARE_LIMIT) {
+        setToast(`You can compare ${COMPARE_LIMIT} products at a time`);
+        return;
+      }
+      setCompare([...compare, id]);
+    },
+    [compare],
+  );
+
+  const clearCompare = useCallback(() => setCompare([]), []);
+
   const value = useMemo<StoreValue>(() => {
     const lines = cart
       .map((line) => {
@@ -242,6 +285,13 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
       })
       .filter((line): line is CartEntry => line !== null);
 
+    /*
+     * A product removed from the catalogue by the admin can still be sitting
+     * in a visitor's stored compare list. Dropping it here means the tray and
+     * the table never have to cope with an id that resolves to nothing.
+     */
+    const compareIds = compare.filter((id) => catalog.some((item) => item.id === id));
+
     return {
       catalog,
       hydrated,
@@ -249,6 +299,7 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
       itemCount: lines.reduce((total, line) => total + line.quantity, 0),
       subtotal: lines.reduce((total, line) => total + line.lineTotal, 0),
       wishlist,
+      compare: compareIds,
       isCartOpen,
       isNavOpen,
       quickViewId,
@@ -259,6 +310,9 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
       clearCart,
       toggleWishlist,
       isWishlisted: (id: string) => wishlist.includes(id),
+      toggleCompare,
+      isComparing: (id: string) => compareIds.includes(id),
+      clearCompare,
       openCart: () => {
         setNavOpen(false);
         setCartOpen(true);
@@ -276,6 +330,7 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
     hydrated,
     cart,
     wishlist,
+    compare,
     isCartOpen,
     isNavOpen,
     quickViewId,
@@ -285,6 +340,8 @@ export function StoreProvider({ children, catalog }: { children: ReactNode; cata
     removeFromCart,
     clearCart,
     toggleWishlist,
+    toggleCompare,
+    clearCompare,
     showToast,
   ]);
 
